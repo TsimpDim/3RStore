@@ -1,11 +1,11 @@
-## 3RStore
+# 3RStore
 An application for storing links online.
 
-# Status
+## Status
 This is very much in the early development stages, use is not only impossible but also discouraged :)
 As soon as proper functionality and security measures are in place the plan is to make the app available to the public.
 
-# Running it locally
+## Running it locally
 Ooh boy here we go.
 
 First of all you need [Python 3.x](https://www.python.org/downloads/)  
