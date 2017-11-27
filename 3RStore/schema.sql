@@ -15,4 +15,4 @@ CREATE TABLE Stores(
     PRIMARY KEY (link_url, user_email),
     FOREIGN KEY (link_url) REFERENCES Links (url),
     FOREIGN KEY (user_email) REFERENCES Users (email)
-)
+);
