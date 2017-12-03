@@ -17,7 +17,7 @@ To make sure all the depedencies are installed run:
 
 Now, navigate to /3RStore/3RStore and use: 
 
-    python 3RStore.py
+    python _3RStore.py
 to launch the server. A prompt indicating sucessfull launch should appear in the console.
 
 Finally, open your browser and go to 
