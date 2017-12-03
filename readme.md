@@ -9,11 +9,11 @@ As soon as proper functionality and security measures are in place the plan is t
 Ooh boy here we go.
 
 First of all you need [Python 3.x](https://www.python.org/downloads/)  
-and Flask: 
+Then, go ahead and install PIP. Instructions for its installation are available [here](https://pip.pypa.io/en/stable/installing/)
 
-    pip install Flask
+To make sure all the depedencies are installed run:
 
-If you don't have Pip, instructions for its installation are available [here](https://pip.pypa.io/en/stable/installing/)
+    pip install -r requirements.txt
 
 Now, navigate to /3RStore/3RStore and use: 
 
