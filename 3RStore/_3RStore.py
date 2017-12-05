@@ -1,6 +1,7 @@
 import os
 import json
 import psycopg2 as pg
+import psycopg2.extras
 from time import time
 import datetime
 from flask import Flask, request, session, g, redirect, url_for, abort, render_template, flash
@@ -45,17 +46,12 @@ except (Exception, pg.DatabaseError) as error:
 def index():
     return render_template('home.html')
 
-
+# About
 @app.route('/about')
 def about():
     return render_template('about.html')
 
-
-@app.route('/resources')
-def resources():
-    return render_template('resources.html')
-
-
+# Register Form Class
 class RegisterForm(Form):
     username = StringField('Username', [
         validators.DataRequired(),
@@ -71,7 +67,7 @@ class RegisterForm(Form):
 
     confirm = PasswordField('Confirm Password')
 
-
+# User Registration
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     form = RegisterForm(request.form)
@@ -99,6 +95,51 @@ def register():
         # return redirect(url_for('about'))
 
     return render_template('register.html', form=form)
+
+# User Login
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    
+    if request.method == 'POST':
+
+        # Grab the fields from the form
+        username = request.form['username']
+        password_candidate = request.form['password']
+
+
+        # And get the user from the db
+        cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor) # Treat result as a dictionary
+        get_user = cur.execute(("""
+        SELECT * FROM users WHERE username = '%s'
+        """) % (username))
+
+        # If we find a user with that username
+        data = cur.fetchone()
+        if data:
+            app.logger.info('USER FOUND')
+            password = data['password']
+
+            # Validate pass
+            if sha256_crypt.verify(password_candidate, password):
+                session['logged_in'] = True
+                session['username'] = username
+
+                flash('You are now logged in', 'success')
+                return redirect(url_for('resources'))
+            else:
+                error = "Username or password are incorrect"
+                return render_template('login.html', error=error)
+        else:
+            error = "Username or password are incorrect"
+            return render_template('login.html', error=error)
+
+        cur.close()
+    return render_template('login.html')    
+
+# Resources
+@app.route('/resources')
+def resources():
+    return render_template('resources.html')
 
 
 if __name__ == '__main__':
