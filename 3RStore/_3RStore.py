@@ -26,7 +26,7 @@ try:
         NAME, USER, HOST, PASSWORD))
     cur = conn.cursor()
     cur.execute(
-        """CREATE TABLE IF NOT EXISTS Users (
+        """CREATE TABLE IF NOT EXISTS users (
         id SERIAL,
         email varchar(50) NOT NULL,
         username varchar(45) NOT NULL,
@@ -34,6 +34,18 @@ try:
         date_of_reg timestamp NOT NULL,
         PRIMARY KEY (id)
         )""")
+
+    cur.execute(
+        """CREATE TABLE IF NOT EXISTS resources (
+        re_id SERIAL,
+        user_id INT NOT NULL REFERENCES users(id),
+        title varchar(100) NOT NULL,
+        link TEXT NOT NULL,
+        note TEXT,
+        date_of_posting timestamp NOT NULL,
+        PRIMARY KEY (re_id)
+        )""")
+    
     cur.close()
     conn.commit()
 except (Exception, pg.DatabaseError) as error:
@@ -73,8 +85,7 @@ def register():
     if request.method == 'POST' and form.validate():
         username = form.username.data
         email = form.email.data
-        # Encrypt the password using sha256
-        password = sha256_crypt.encrypt(str(form.password.data))
+        password = sha256_crypt.encrypt(str(form.password.data)) # Encrypt the password using sha256
         timestamp = datetime.datetime.fromtimestamp(
             time()).strftime('%Y-%m-%d %H:%M:%S')
 
@@ -109,8 +120,8 @@ def login():
         # And get the user from the db
         cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor) # Treat result as a dictionary
         get_user = cur.execute(("""
-        SELECT * FROM users WHERE username = '%s'
-        """) % (username))
+        SELECT * FROM users WHERE username = %s
+        """), (username,)) # Comma for single element tuple
 
         # If we find a user with that username
         data = cur.fetchone()
@@ -122,6 +133,7 @@ def login():
             if sha256_crypt.verify(password_candidate, password):
                 session['logged_in'] = True
                 session['username'] = username
+                session['user_id'] = data['id']
 
                 flash('You are now logged in', 'success')
                 return redirect(url_for('resources'))
@@ -150,6 +162,42 @@ def resources():
         flash('You must be logged in to access your resources page', 'warning')
         return redirect(url_for('login'))
     return render_template('resources.html')
+
+# Resource Form Class
+class ResourceForm(Form):
+    title = StringField('Title', [
+        validators.DataRequired(),
+        validators.Length(min=1, max=100)
+    ])
+    link = StringField('Link', [validators.DataRequired()])
+    note = TextAreaField('Note')
+
+
+# Add resource
+@app.route('/add_resource', methods=['GET', 'POST'])
+def add_resource():
+
+    form = ResourceForm(request.form)
+    if request.method == 'POST' and form.validate():
+        title = form.title.data
+        link = form.title.data
+        note = form.note.data
+        timestamp = datetime.datetime.fromtimestamp(
+            time()).strftime('%Y-%m-%d %H:%M:%S')
+        user_id = session['user_id']
+
+        cur = conn.cursor()
+        cur.execute(
+            ("""INSERT INTO resources(user_id,title,link,note,date_of_posting) VALUES (%s,%s,%s,%s,%s)"""), (
+                user_id, title, link, note, timestamp)
+            )
+        cur.close()
+        conn.commit()
+
+        flash('Resource created successfully', 'success')
+        return redirect(url_for('resources'))
+    return render_template('add_resource.html', form=form)
+
 
 
 if __name__ == '__main__':
