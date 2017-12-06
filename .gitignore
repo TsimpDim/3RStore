@@ -2,3 +2,5 @@
 db.json
 __pycache__
 seckey.txt
+manifest.json
+browserconfig.xml

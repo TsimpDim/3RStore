@@ -1,9 +1,8 @@
-import os
 import json
-import psycopg2 as pg
-import psycopg2.extras
-from time import time
 import datetime
+from time import time
+import psycopg2.extras
+import psycopg2 as pg
 from flask import Flask, request, session, g, redirect, url_for, abort, render_template, flash
 from wtforms import Form, StringField, TextAreaField, PasswordField, validators
 from passlib.hash import sha256_crypt
@@ -42,7 +41,6 @@ except (Exception, pg.DatabaseError) as error:
 
 
 @app.route('/')
-@app.route('/home')
 def index():
     return render_template('home.html')
 
@@ -70,6 +68,7 @@ class RegisterForm(Form):
 # User Registration
 @app.route('/register', methods=['GET', 'POST'])
 def register():
+
     form = RegisterForm(request.form)
     if request.method == 'POST' and form.validate():
         username = form.username.data
@@ -92,14 +91,14 @@ def register():
             conn.commit()
 
         flash('You are now registered', 'success')
-        # return redirect(url_for('about'))
+        return redirect(url_for('login'))
 
     return render_template('register.html', form=form)
 
 # User Login
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    
+
     if request.method == 'POST':
 
         # Grab the fields from the form
@@ -134,11 +133,22 @@ def login():
             return render_template('login.html', error=error)
 
         cur.close()
-    return render_template('login.html')    
+    return render_template('login.html')
+
+# Logout
+@app.route('/logout')
+def logout():
+    session.clear()
+    flash('You are now logged out', 'success')
+    return redirect('/')
 
 # Resources
 @app.route('/resources')
 def resources():
+
+    if not session.get('logged_in'):
+        flash('You must be logged in to access your resources page', 'warning')
+        return redirect(url_for('login'))
     return render_template('resources.html')
 
 
