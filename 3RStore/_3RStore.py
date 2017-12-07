@@ -180,7 +180,7 @@ def add_resource():
     form = ResourceForm(request.form)
     if request.method == 'POST' and form.validate():
         title = form.title.data
-        link = form.title.data
+        link = form.link.data
         note = form.note.data
         timestamp = datetime.datetime.fromtimestamp(
             time()).strftime('%Y-%m-%d %H:%M:%S')
@@ -188,8 +188,8 @@ def add_resource():
 
         cur = conn.cursor()
         cur.execute(
-            ("""INSERT INTO resources(user_id,title,link,note,date_of_posting) VALUES (%s,%s,%s,%s,%s)"""), (
-                user_id, title, link, note, timestamp)
+            ("""INSERT INTO resources(user_id,title,link,note,date_of_posting) VALUES (%s,%s,%s,%s,%s)"""),
+            (user_id, title, link, note, timestamp)
             )
         cur.close()
         conn.commit()
