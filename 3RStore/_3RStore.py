@@ -1,6 +1,7 @@
 import json
 import datetime
 from time import time
+import re
 import psycopg2.extras
 import psycopg2 as pg
 from flask import Flask, request, session, g, redirect, url_for, abort, render_template, flash
@@ -158,9 +159,27 @@ def logout():
 @app.route('/resources')
 def resources():
 
+
+
+
     if not session.get('logged_in'):
         flash('You must be logged in to access your resources page', 'warning')
         return redirect(url_for('login'))
+    else:
+        user_id = session['user_id']
+
+        cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        cur.execute(
+            ("""SELECT * FROM resources WHERE user_id = %s"""),
+            (user_id,)
+            )
+        
+        data = cur.fetchall()
+        cur.close()
+        conn.commit()
+        # print(data)
+        return render_template('resources.html',resources=data)
+
     return render_template('resources.html')
 
 # Resource Form Class
@@ -181,6 +200,18 @@ def add_resource():
     if request.method == 'POST' and form.validate():
         title = form.title.data
         link = form.link.data
+
+        # Make sure link provided is valid
+        if 'www' not in link:
+            link = 'www.' + link
+
+        if not link.startswith('http'):
+            link = 'http://' + link
+
+        after_dot = re.findall(r'\.(.*)', link)[0]
+        if '.' not in after_dot:
+            link = link + '.com'
+
         note = form.note.data
         timestamp = datetime.datetime.fromtimestamp(
             time()).strftime('%Y-%m-%d %H:%M:%S')
