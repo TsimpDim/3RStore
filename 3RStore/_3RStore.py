@@ -70,7 +70,9 @@ class RegisterForm(Form):
     ])
     email = StringField('Email', [
         validators.DataRequired(),
-        validators.Length(min=8, max=50)])
+        validators.Length(min=8, max=50),
+        validators.Email()
+        ])
     password = PasswordField('Password', [
         validators.DataRequired(),
         validators.EqualTo('confirm', message='Passwords do not match')
@@ -159,9 +161,6 @@ def logout():
 @app.route('/resources')
 def resources():
 
-
-
-
     if not session.get('logged_in'):
         flash('You must be logged in to access your resources page', 'warning')
         return redirect(url_for('login'))
@@ -187,7 +186,10 @@ class ResourceForm(Form):
         validators.DataRequired(),
         validators.Length(min=1, max=100)
     ])
-    link = StringField('Link', [validators.DataRequired()])
+    link = StringField('Link', [
+        validators.DataRequired(),
+        validators.URL()
+        ])
     note = TextAreaField('Note')
 
 
@@ -199,18 +201,6 @@ def add_resource():
     if request.method == 'POST' and form.validate():
         title = form.title.data
         link = form.link.data
-
-        # Make sure link provided is valid
-        if 'www' not in link:
-            link = 'www.' + link
-
-        if not link.startswith('http'):
-            link = 'http://' + link
-
-        after_dot = re.findall(r'\.(.*)', link)[0]
-        if '.' not in after_dot:
-            link = link + '.com'
-
         note = form.note.data
         timestamp = datetime.datetime.fromtimestamp(
             time()).strftime('%Y-%m-%d %H:%M:%S')
