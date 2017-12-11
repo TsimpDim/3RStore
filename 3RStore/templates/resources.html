@@ -7,22 +7,59 @@
 
     {% for re in resources %}
         <div class="list-group">
-        <a class="list-group-item active" href="{{re.link}}">
-            <h1 class="list-group-item-heading">{{re.title}}<h5 class="pull-right">{{re.date_of_posting.strftime('%Y-%m-%d')}}</h5></h1>
-            <h5 class="list-group-item-text">{{re.link}}</h5>
-        </a>
 
-        {% if re.note|length > 100 %}
-        <div class="list-group-item">
-            <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#{{re.re_id}}_note">Expand/Collapse Note</button>
-            <p class="collapse" id="{{re.re_id}}_note" style="word-wrap:break-word">{{re.note}}</p>
-        </div>
+             <!--Blue header-->
+            <div class="list-group-item active">
+                <div class="dropdown pull-right">
+                    <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">
+                    <span class="caret"></span></button>
+                    <ul class="dropdown-menu">
+                        <li><a href="#"><span class="glyphicon glyphicon-pencil"></span>  Edit</a></li>
+                        <li><a href="#"><span class="glyphicon glyphicon-remove"></span>  Delete</a></li>
+                        <li><div class="divider"></div></li>
+                        <li><a id="date" class="dropdown-item">Added {{re.date_of_posting.strftime('%Y-%m-%d')}}</a></li>
+                    </ul>
+                </div>
+                <h3><a href="{{re.link}}" class="list-group-item-heading">{{re.title}}</a></h3>
+            
+                <a href="{{re.link}}" class="list-group-item-heading">{{re.link}}</a>
+            </div>
+           
 
-        {% else %}
-        <p class="list-group-item" id="{{re.re_id}}_note" style="word-wrap:break-word">{{re.note}}</p>
-        {% endif %}
+
+            <!-- Note section -->
+            {% if re.note|length > 0 %}
+                {% if re.note|length > 100 %}
+                    <div class="list-group-item">
+                        <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#{{re.re_id}}_note">Expand/Collapse Note</button>
+                        <p class="collapse" id="{{re.re_id}}_note"><br>{{re.note}}</p>
+                    </div>
+                {% else %}
+                    <p class="list-group-item" id="{{re.re_id}}_note">{{re.note}}</p>
+                {% endif %}
+            {% endif %}
         </div>
     {% endfor %}
 </div>
 
+<style>
+
+    p{
+        word-wrap: break-word;        
+    }
+    a:hover{
+        text-decoration: none;
+    }
+
+    a{
+        margin-right: .3em;        
+    }
+
+    #date{
+        font-size:1em;
+        color: grey;
+        text-align: center;
+    }
+
+</style>
 {% endblock %}
