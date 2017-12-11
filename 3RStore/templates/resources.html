@@ -10,18 +10,20 @@
 
              <!--Blue header-->
             <div class="list-group-item active">
+                <!--Dropdown-->
                 <div class="dropdown pull-right">
                     <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">
                     <span class="caret"></span></button>
                     <ul class="dropdown-menu">
                         <li><a href="#"><span class="glyphicon glyphicon-pencil"></span>  Edit</a></li>
-                        <li><a href="#"><span class="glyphicon glyphicon-remove"></span>  Delete</a></li>
+                        <li><a id="delete_but" href="/del/{{re.user_id}},{{re.re_id}}" ><span class="glyphicon glyphicon-remove"></span>  Delete</a></li>
                         <li><div class="divider"></div></li>
                         <li><a id="date" class="dropdown-item">Added {{re.date_of_posting.strftime('%Y-%m-%d')}}</a></li>
                     </ul>
                 </div>
+                <!--/Dropdown-->
+
                 <h3><a href="{{re.link}}" class="list-group-item-heading">{{re.title}}</a></h3>
-            
                 <a href="{{re.link}}" class="list-group-item-heading">{{re.link}}</a>
             </div>
            
@@ -51,8 +53,9 @@
         text-decoration: none;
     }
 
-    a{
-        margin-right: .3em;        
+    #delete_but{
+        color: rgb(206, 48, 48);
+        font-weight: bold;
     }
 
     #date{

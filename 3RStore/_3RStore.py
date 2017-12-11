@@ -177,7 +177,6 @@ def resources():
         data = cur.fetchall()
         cur.close()
         conn.commit()
-        # print(data)
         return render_template('resources.html',resources=data)
 
     return render_template('resources.html')
@@ -228,6 +227,21 @@ def add_resource():
         flash('Resource created successfully', 'success')
         return redirect(url_for('resources'))
     return render_template('add_resource.html', form=form)
+
+# Delete resource
+@app.route('/del/<int:user_id>,<int:re_id>', methods=['GET','POST'])
+def delete_resource(user_id,re_id):
+
+    if session.get('logged_in') and session['user_id'] == user_id:
+        cur = conn.cursor()
+        cur.execute(
+            ("""DELETE FROM resources WHERE user_id = %s and re_id = %s"""),
+            (user_id, re_id)
+            )
+
+        cur.close()
+        conn.commit()
+    return redirect(url_for('resources'))
 
 
 
