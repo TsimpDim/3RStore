@@ -169,14 +169,14 @@ def resources():
 
         cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
         cur.execute(
-            ("""SELECT * FROM resources WHERE user_id = %s"""),
+            ("""SELECT * FROM resources WHERE user_id = %s ORDER BY date_of_posting"""),
             (user_id,)
             )
-        
+
         data = cur.fetchall()
         cur.close()
         conn.commit()
-        return render_template('resources.html',resources=data)
+        return render_template('resources.html', resources=data)
 
     return render_template('resources.html')
 
@@ -219,8 +219,8 @@ def add_resource():
     return render_template('add_resource.html', form=form)
 
 # Delete resource
-@app.route('/del/<int:user_id>,<int:re_id>', methods=['GET','POST'])
-def delete_resource(user_id,re_id):
+@app.route('/del/<int:user_id>,<int:re_id>')
+def delete_res(user_id,re_id):
 
     if session.get('logged_in') and session['user_id'] == user_id:
         cur = conn.cursor()
@@ -233,6 +233,53 @@ def delete_resource(user_id,re_id):
         conn.commit()
     return redirect(url_for('resources'))
 
+# Edit resource
+@app.route('/edit/<int:user_id>,<int:re_id>', methods=['GET', 'POST'])
+def edit_res(user_id,re_id):
+
+    if request.method == 'GET':
+        if session.get('logged_in') and session['user_id'] == user_id:
+
+            # Fetch the data we want to edit
+            cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+            cur.execute(
+                ("""SELECT * FROM resources WHERE user_id = %s and re_id = %s"""),
+                (user_id, re_id)
+                )
+
+            data = cur.fetchall()
+            cur.close()
+            conn.commit()
+
+            # Fill the form with the data
+            form = ResourceForm()
+            form.title.data = data[0]['title']
+            form.link.data = data[0]['link']
+            form.note.data = data[0]['note']
+
+            return render_template('edit_resource.html', title=data[0]['title'], form=form)
+
+    elif request.method == 'POST':
+
+        form = ResourceForm(request.form)
+        if form.validate():
+            # Grab the new form and its data
+            title = form.title.data
+            link = form.link.data
+            note = form.note.data
+
+            # Update the row - keep date_of_posting, re_id and user_id the same
+            cur = conn.cursor()
+            cur.execute(
+                ("""UPDATE resources SET title=%s,link=%s,note=%s WHERE user_id=%s AND re_id=%s"""),
+                (title, link, note, user_id, re_id)
+                )
+            cur.close()
+            conn.commit()
+
+            flash('Resource edited successfully', 'success')
+            return redirect(url_for('resources'))
+    return redirect(url_for('resources'))
 
 
 if __name__ == '__main__':

@@ -14,8 +14,8 @@
                 <div class="dropdown pull-right">
                     <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">
                     <span class="caret"></span></button>
-                    <ul class="dropdown-menu">
-                        <li><a href="#"><span class="glyphicon glyphicon-pencil"></span>  Edit</a></li>
+                    <ul class="dropdown-menu" id="ddmenu">
+                        <li><a href="/edit/{{re.user_id}},{{re.re_id}}"><span class="glyphicon glyphicon-pencil"></span>  Edit</a></li>
                         <li><a id="delete_but" href="/del/{{re.user_id}},{{re.re_id}}" ><span class="glyphicon glyphicon-remove"></span>  Delete</a></li>
                         <li><div class="divider"></div></li>
                         <li><a id="date" class="dropdown-item">Added {{re.date_of_posting.strftime('%Y-%m-%d')}}</a></li>
@@ -62,6 +62,10 @@
         font-size:1em;
         color: grey;
         text-align: center;
+    }
+
+    .list-group-item.active, .list-group-item.active:focus, .list-group-item.active:hover{
+        z-index: unset;
     }
 
 </style>
