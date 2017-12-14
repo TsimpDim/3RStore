@@ -3,7 +3,21 @@
 {% block body%}
 <div class="container">
     <h1>Welcome {{session.username}}</h1>
-    <a class="btn btn-success" href="/add_resource" style="margin-bottom:5em">Add new Resource</a>
+    <a class="up_but btn btn-success" href="/add_resource">Add new Resource</a>
+    <button class="up_but btn btn-info" type="button" data-toggle="collapse" data-target="#upload_file">Import from file</button>
+
+    <form method="post" action="/import_resources" enctype="multipart/form-data" id="upload_file" class="collapse">
+        <div id="form" class="jumbotron">
+            <div class="form-group">
+                <label>Choose file to import from</label>
+                <input class="form-control-file" type="file" name="file" accept=".html">
+            </div>
+                <div class="form-group">
+                <input type="submit"></input>
+            </div>
+        </div>
+    </form>
+
 
     {% for re in resources %}
         <div class="list-group">
@@ -23,8 +37,8 @@
                 </div>
                 <!--/Dropdown-->
 
-                <h3><a href="{{re.link}}" class="list-group-item-heading">{{re.title}}</a></h3>
-                <a href="{{re.link}}" class="list-group-item-heading">{{re.link}}</a>
+                <h3><a id="re_title" href="{{re.link}}" class="list-group-item-heading">{{re.title}}</a></h3>
+                <a id="re_link" href="{{re.link}}" class="list-group-item-heading">{{re.link}}</a>
             </div>
            
 
@@ -44,11 +58,18 @@
     {% endfor %}
 </div>
 
+
+
 <style>
+
+    .up_but{
+        margin-bottom: 5em;
+    }
 
     p{
         word-wrap: break-word;        
     }
+
     a:hover{
         text-decoration: none;
     }
@@ -68,5 +89,16 @@
         z-index: unset;
     }
 
+    #re_title{
+        word-wrap: break-word;        
+    }
+
+    #re_link{
+        word-wrap: break-word;                
+    }
+
 </style>
+
+
+
 {% endblock %}

@@ -1,9 +1,9 @@
 import json
 import datetime
 from time import time
-import re
 import psycopg2.extras
 import psycopg2 as pg
+from bs4 import BeautifulSoup
 from flask import Flask, request, session, g, redirect, url_for, abort, render_template, flash
 from wtforms import Form, StringField, TextAreaField, PasswordField, validators
 from passlib.hash import sha256_crypt
@@ -281,6 +281,49 @@ def edit_res(user_id,re_id):
             return redirect(url_for('resources'))
     return redirect(url_for('resources'))
 
+# Import resources
+@app.route("/import_resources" , methods = ['GET', 'POST'])
+def import_resources():
+
+    if request.method == 'POST':
+
+        if 'file' not in request.files:
+            flash('No file found', 'warning')
+            return redirect(request.url)
+        else:
+
+            file = request.files['file']
+            if file.filename == '':
+                flash('No selected file', 'warning')
+                return redirect(request.url)
+
+            if file:
+                soup = BeautifulSoup(file, "html.parser")
+                links = soup.findAll('a')
+
+                cur = conn.cursor()
+                for resource in links:
+                    link = resource['href']
+                    if resource.contents:
+                        title = resource.contents[0][0:99]
+                    else:
+                        title = link[0:50] +'...'
+
+                    timestamp = datetime.datetime.fromtimestamp(
+                        time()).strftime('%Y-%m-%d %H:%M:%S')
+                    user_id = session['user_id']
+
+                    cur.execute(
+                        ("""INSERT INTO resources(user_id,title,link,note,date_of_posting) VALUES (%s,%s,%s,%s,%s)"""),
+                        (user_id, title, link, "", timestamp)
+                    )
+
+                cur.close()
+                conn.commit()
+
+
+
+    return redirect(url_for('resources'))
 
 if __name__ == '__main__':
 
