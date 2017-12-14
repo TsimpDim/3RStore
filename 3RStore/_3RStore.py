@@ -320,6 +320,8 @@ def import_resources():
 
                 cur.close()
                 conn.commit()
+                flash('Resources imported successfully', 'success')
+
 
 
 
