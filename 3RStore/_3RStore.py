@@ -5,7 +5,7 @@ import psycopg2.extras
 import psycopg2 as pg
 from bs4 import BeautifulSoup
 from flask import Flask, request, session, g, redirect, url_for, abort, render_template, flash
-from wtforms import Form, StringField, TextAreaField, PasswordField, validators
+from wtforms import Form, StringField, TextAreaField, PasswordField, validators, ValidationError
 from passlib.hash import sha256_crypt
 
 app = Flask(__name__)
@@ -29,10 +29,10 @@ try:
     cur.execute(
         """CREATE TABLE IF NOT EXISTS users (
         id SERIAL,
-        email varchar(50) NOT NULL,
-        username varchar(45) NOT NULL,
-        password varchar(100) NOT NULL,
-        date_of_reg timestamp NOT NULL,
+        email VARCHAR(50) NOT NULL,
+        username VARCHAR(45) NOT NULL,
+        password VARCHAR(100) NOT NULL,
+        date_of_reg TIMESTAMP NOT NULL,
         PRIMARY KEY (id)
         )""")
 
@@ -40,10 +40,11 @@ try:
         """CREATE TABLE IF NOT EXISTS resources (
         re_id SERIAL,
         user_id INT NOT NULL REFERENCES users(id),
-        title varchar(100) NOT NULL,
+        title VARCHAR(100) NOT NULL,
         link TEXT NOT NULL,
         note TEXT,
-        date_of_posting timestamp NOT NULL,
+        tags VARCHAR(20)[1],
+        date_of_posting TIMESTAMP NOT NULL,
         PRIMARY KEY (re_id)
         )""")
     
@@ -174,6 +175,7 @@ def resources():
             )
 
         data = cur.fetchall()
+
         cur.close()
         conn.commit()
         return render_template('resources.html', resources=data)
@@ -182,6 +184,7 @@ def resources():
 
 # Resource Form Class
 class ResourceForm(Form):
+
     title = StringField('Title', [
         validators.DataRequired(),
         validators.Length(min=1, max=100)
@@ -191,7 +194,23 @@ class ResourceForm(Form):
         validators.URL()
         ])
     note = TextAreaField('Note')
+    tags = StringField('Tags')
 
+    def validate(self):
+
+        validation = Form.validate(self)
+        if not validation: return False
+
+        tags_list = self.tags.data.split(',')
+        for tag in tags_list:
+            if len(tag) > 20:
+                self.tags.errors.append('Each tag cannot be more than 20 characters. Seperate tags with a comma.')
+                return False
+
+            if not tag:
+                self.tags.errors.append('Empty tags are not allowed.')
+                return False
+        return True
 
 # Add resource
 @app.route('/add_resource', methods=['GET', 'POST'])
@@ -204,12 +223,19 @@ def add_resource():
         note = form.note.data
         timestamp = datetime.datetime.fromtimestamp(
             time()).strftime('%Y-%m-%d %H:%M:%S')
+
+        tags = form.tags.data
+        # If not empty format for proper insertion into postgresql
+        if tags:
+            tags = '{' + str(tags) + '}'
+
         user_id = session['user_id']
+
 
         cur = conn.cursor()
         cur.execute(
-            ("""INSERT INTO resources(user_id,title,link,note,date_of_posting) VALUES (%s,%s,%s,%s,%s)"""),
-            (user_id, title, link, note, timestamp)
+            ("""INSERT INTO resources(user_id,title,link,note,tags,date_of_posting) VALUES (%s,%s,%s,%s,%s,%s)"""),
+            (user_id, title, link, note, tags, timestamp)
             )
         cur.close()
         conn.commit()
@@ -256,6 +282,7 @@ def edit_res(user_id,re_id):
             form.title.data = data[0]['title']
             form.link.data = data[0]['link']
             form.note.data = data[0]['note']
+            form.tags.data = ','.join(data[0]['tags']) # Array to string
 
             return render_template('edit_resource.html', title=data[0]['title'], form=form)
 
@@ -263,22 +290,30 @@ def edit_res(user_id,re_id):
 
         form = ResourceForm(request.form)
         if form.validate():
+
             # Grab the new form and its data
             title = form.title.data
             link = form.link.data
             note = form.note.data
+            tags = form.tags.data
+
+            # If not empty format for proper insertion into postgresql
+            if tags:
+                tags = '{' + str(tags) + '}'
 
             # Update the row - keep date_of_posting, re_id and user_id the same
             cur = conn.cursor()
             cur.execute(
-                ("""UPDATE resources SET title=%s,link=%s,note=%s WHERE user_id=%s AND re_id=%s"""),
-                (title, link, note, user_id, re_id)
+                ("""UPDATE resources SET title=%s,link=%s,note=%s,tags=%s WHERE user_id=%s AND re_id=%s"""),
+                (title, link, note, tags, user_id, re_id)
                 )
             cur.close()
             conn.commit()
 
             flash('Resource edited successfully', 'success')
             return redirect(url_for('resources'))
+        else:
+            return render_template('edit_resource.html', form=form)
     return redirect(url_for('resources'))
 
 # Import resources
@@ -314,8 +349,8 @@ def import_resources():
                     user_id = session['user_id']
 
                     cur.execute(
-                        ("""INSERT INTO resources(user_id,title,link,note,date_of_posting) VALUES (%s,%s,%s,%s,%s)"""),
-                        (user_id, title, link, "", timestamp)
+                        ("""INSERT INTO resources(user_id,title,link,date_of_posting) VALUES (%s,%s,%s,%s)"""),
+                        (user_id, title, link, timestamp)
                     )
 
                 cur.close()

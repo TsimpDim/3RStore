@@ -1,10 +1,18 @@
 {% extends 'layout.html' %}
 
-{% block body%}
-<div class="container">
+
+{% block body %}
     <h1>Welcome {{session.username}}</h1>
-    <a class="up_but btn btn-success" href="/add_resource">Add new Resource</a>
-    <button class="up_but btn btn-info" type="button" data-toggle="collapse" data-target="#upload_file">Import from file</button>
+    <div class="up_but btn-group">
+        <a class="btn btn-success" href="/add_resource">
+            <span class="glyphicon glyphicon-plus-sign"></span>
+            Add new Resource
+        </a>
+        <button class="btn btn-info" type="button" data-toggle="collapse" data-target="#upload_file">
+            <span class="glyphicon glyphicon-open"></span>                
+            Import from file
+        </button>
+    </div>
 
     <form method="post" action="/import_resources" enctype="multipart/form-data" id="upload_file" class="collapse">
         <div id="form" class="jumbotron">
@@ -39,6 +47,14 @@
 
                 <h3><a id="re_title" href="{{re.link}}" class="list-group-item-heading">{{re.title}}</a></h3>
                 <a id="re_link" href="{{re.link}}" class="list-group-item-heading">{{re.link}}</a>
+                
+                <!-- Tags -->
+                {% if re.tags %}
+                    <br>
+                    {% for tag in re.tags[::-1] %}
+                        <div class="label label-default">{{tag}}</div>
+                    {% endfor %}
+                {% endif %}
             </div>
            
 
@@ -56,49 +72,4 @@
             {% endif %}
         </div>
     {% endfor %}
-</div>
-
-
-
-<style>
-
-    .up_but{
-        margin-bottom: 5em;
-    }
-
-    p{
-        word-wrap: break-word;        
-    }
-
-    a:hover{
-        text-decoration: none;
-    }
-
-    #delete_but{
-        color: rgb(206, 48, 48);
-        font-weight: bold;
-    }
-
-    #date{
-        font-size:1em;
-        color: grey;
-        text-align: center;
-    }
-
-    .list-group-item.active, .list-group-item.active:focus, .list-group-item.active:hover{
-        z-index: unset;
-    }
-
-    #re_title{
-        word-wrap: break-word;        
-    }
-
-    #re_link{
-        word-wrap: break-word;                
-    }
-
-</style>
-
-
-
 {% endblock %}

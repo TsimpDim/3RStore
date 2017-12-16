@@ -1,0 +1,39 @@
+.label{
+    letter-spacing: .1em;
+    font-weight: 100;
+}
+
+.up_but{
+    margin-bottom: 5em;
+}
+
+p{
+    word-wrap: break-word;        
+}
+
+a:hover{
+    text-decoration: none;
+}
+
+#delete_but{
+    color: rgb(206, 48, 48);
+    font-weight: bold;
+}
+
+#date{
+    font-size:1em;
+    color: grey;
+    text-align: center;
+}
+
+.list-group-item.active, .list-group-item.active:focus, .list-group-item.active:hover{
+    z-index: unset;
+}
+
+#re_title{
+    word-wrap: break-word;        
+}
+
+#re_link{
+    word-wrap: break-word;                
+}
