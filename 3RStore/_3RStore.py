@@ -282,7 +282,11 @@ def edit_res(user_id,re_id):
             form.title.data = data[0]['title']
             form.link.data = data[0]['link']
             form.note.data = data[0]['note']
-            form.tags.data = ','.join(data[0]['tags']) # Array to string
+
+            if data[0]['tags']:
+                form.tags.data = ','.join(data[0]['tags']) # Array to string
+            else:
+                form.tags.data = ""
 
             return render_template('edit_resource.html', title=data[0]['title'], form=form)
 
@@ -323,22 +327,25 @@ def import_resources():
     if request.method == 'POST':
 
         if 'file' not in request.files:
-            flash('No file found', 'warning')
+            flash('No file selected', 'warning')
             return redirect(request.url)
         else:
 
             file = request.files['file']
             if file.filename == '':
-                flash('No selected file', 'warning')
+                flash('No file selected', 'warning')
                 return redirect(request.url)
 
             if file:
+                # Find all <A> tags within the .html file
                 soup = BeautifulSoup(file, "html.parser")
                 links = soup.findAll('a')
 
                 cur = conn.cursor()
                 for resource in links:
                     link = resource['href']
+
+                    # Limit their title
                     if resource.contents:
                         title = resource.contents[0][0:99]
                     else:
@@ -356,10 +363,6 @@ def import_resources():
                 cur.close()
                 conn.commit()
                 flash('Resources imported successfully', 'success')
-
-
-
-
     return redirect(url_for('resources'))
 
 if __name__ == '__main__':
