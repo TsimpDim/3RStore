@@ -30,10 +30,16 @@ a:hover{
     z-index: unset;
 }
 
-#re_title{
+.re_title{
     word-wrap: break-word;        
 }
 
-#re_link{
+.re_link{
     word-wrap: break-word;                
+}
+
+#search{
+    display: inline;
+    width: 50%;
+    
 }

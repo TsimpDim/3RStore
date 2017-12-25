@@ -199,9 +199,17 @@ class ResourceForm(Form):
     def validate(self):
 
         validation = Form.validate(self)
-        if not validation: return False
+        if not validation:
+            return False
 
         tags_list = self.tags.data.split(',')
+        if not tags_list or (tags_list and tags_list[0] == ''): # If user has entered no tags
+            return True
+
+        if len(tags_list) != len(set(tags_list)): # If list contains duplicate values (the same tag many times)
+            self.tags.errors.append('Duplicate tags are not allowed.')
+            return False
+
         for tag in tags_list:
             if len(tag) > 20:
                 self.tags.errors.append('Each tag cannot be more than 20 characters. Seperate tags with a comma.')
@@ -228,6 +236,8 @@ def add_resource():
         # If not empty format for proper insertion into postgresql
         if tags:
             tags = '{' + str(tags) + '}'
+        else:
+            tags = None
 
         user_id = session['user_id']
 
