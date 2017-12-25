@@ -1,6 +1,6 @@
 $(document).ready(function(){
 
-    $('#search').change(function(){
+    $('#search').keyup(function(){
         let input = $('#search').val().toLowerCase().split(','); // Array with requested tags
         let resources = $('.list-group-item.active'); // Array with resources
 
