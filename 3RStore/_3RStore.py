@@ -3,9 +3,9 @@ import datetime
 from time import time
 import psycopg2.extras
 import psycopg2 as pg
+import helper_classes as hc
 from bs4 import BeautifulSoup
 from flask import Flask, request, session, g, redirect, url_for, abort, render_template, flash
-from wtforms import Form, StringField, TextAreaField, PasswordField, validators, ValidationError
 from passlib.hash import sha256_crypt
 
 app = Flask(__name__)
@@ -63,29 +63,12 @@ def index():
 def about():
     return render_template('about.html')
 
-# Register Form Class
-class RegisterForm(Form):
-    username = StringField('Username', [
-        validators.DataRequired(),
-        validators.Length(min=5, max=45)
-    ])
-    email = StringField('Email', [
-        validators.DataRequired(),
-        validators.Length(min=8, max=50),
-        validators.Email()
-        ])
-    password = PasswordField('Password', [
-        validators.DataRequired(),
-        validators.EqualTo('confirm', message='Passwords do not match')
-    ])
-
-    confirm = PasswordField('Confirm Password')
 
 # User Registration
 @app.route('/register', methods=['GET', 'POST'])
 def register():
 
-    form = RegisterForm(request.form)
+    form = hc.RegisterForm(request.form)
     if request.method == 'POST' and form.validate():
         username = form.username.data
         email = form.email.data
@@ -182,49 +165,12 @@ def resources():
 
     return render_template('resources.html')
 
-# Resource Form Class
-class ResourceForm(Form):
-
-    title = StringField('Title', [
-        validators.DataRequired(),
-        validators.Length(min=1, max=100)
-    ])
-    link = StringField('Link', [
-        validators.DataRequired(),
-        validators.URL()
-        ])
-    note = TextAreaField('Note')
-    tags = StringField('Tags')
-
-    def validate(self):
-
-        validation = Form.validate(self)
-        if not validation:
-            return False
-
-        tags_list = self.tags.data.split(',')
-        if not tags_list or (tags_list and tags_list[0] == ''): # If user has entered no tags
-            return True
-
-        if len(tags_list) != len(set(tags_list)): # If list contains duplicate values (the same tag many times)
-            self.tags.errors.append('Duplicate tags are not allowed.')
-            return False
-
-        for tag in tags_list:
-            if len(tag) > 20:
-                self.tags.errors.append('Each tag cannot be more than 20 characters. Seperate tags with a comma.')
-                return False
-
-            if not tag:
-                self.tags.errors.append('Empty tags are not allowed.')
-                return False
-        return True
 
 # Add resource
 @app.route('/add_resource', methods=['GET', 'POST'])
 def add_resource():
 
-    form = ResourceForm(request.form)
+    form = hc.ResourceForm(request.form)
     if request.method == 'POST' and form.validate():
         title = form.title.data
         link = form.link.data
@@ -288,7 +234,7 @@ def edit_res(user_id,re_id):
             conn.commit()
 
             # Fill the form with the data
-            form = ResourceForm()
+            form = hc.ResourceForm()
             form.title.data = data[0]['title']
             form.link.data = data[0]['link']
             form.note.data = data[0]['note']
@@ -302,7 +248,7 @@ def edit_res(user_id,re_id):
 
     elif request.method == 'POST':
 
-        form = ResourceForm(request.form)
+        form = hc.ResourceForm(request.form)
         if form.validate():
 
             # Grab the new form and its data
