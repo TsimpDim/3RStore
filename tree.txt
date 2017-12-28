@@ -1,0 +1,51 @@
+Šå©«˜ «ª ƒˆ€ƒ‹†‘ «à¤ ­˜¡â¢à¤
+ ˜¨ Ÿ£æª ©œ ¨áª «¦¬ «æ£¦¬ œå¤˜  4C3A-E415
+C:.
+|   .gitignore
+|   readme.md
+|   requirements.txt
+|   setup.py
+|   tree.txt
+|   
+\---_3RStore
+    |   db.json
+    |   forms.py
+    |   seckey.txt
+    |   views.py
+    |   __init__.py
+    |   
+    +---static
+    |   +---css
+    |   |       resources.css
+    |   |       
+    |   +---icons
+    |   |       3rlogo.png
+    |   |       3rstore_logo.png
+    |   |       android-chrome-192x192.png
+    |   |       android-chrome-512x512.png
+    |   |       apple-touch-icon.png
+    |   |       browserconfig.xml
+    |   |       favicon-16x16.png
+    |   |       favicon-32x32.png
+    |   |       favicon.ico
+    |   |       manifest.json
+    |   |       mstile-150x150.png
+    |   |       safari-pinned-tab.svg
+    |   |       
+    |   \---js
+    |           resources.js
+    |           
+    \---templates
+        |   add_resource.html
+        |   edit_resource.html
+        |   home.html
+        |   layout.html
+        |   login.html
+        |   register.html
+        |   resources.html
+        |   
+        \---includes
+                _formhelpers.html
+                _messages.html
+                _navbar.html
+                
