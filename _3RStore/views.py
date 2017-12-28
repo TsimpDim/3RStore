@@ -1,57 +1,11 @@
-import json
-import datetime
 from time import time
+import datetime
+from _3RStore import app, conn
 import psycopg2.extras
-import psycopg2 as pg
-import helper_classes as hc
 from bs4 import BeautifulSoup
-from flask import Flask, request, session, g, redirect, url_for, abort, render_template, flash
+from flask import request, session, redirect, url_for, render_template, flash
 from passlib.hash import sha256_crypt
-
-app = Flask(__name__)
-app.config.from_object(__name__)
-
-# Connect to PostgreSQL
-# Read database properties for URI
-DB_CONFIG = json.load(open('db.json'))
-USER = DB_CONFIG['user']
-PASSWORD = DB_CONFIG['password']
-HOST = DB_CONFIG['host']
-NAME = DB_CONFIG['database']
-
-conn = None  # Declared here so we can use it later
-try:
-    print("Connecting to database...")
-
-    conn = pg.connect(("dbname={} user={} host={} password={}").format(
-        NAME, USER, HOST, PASSWORD))
-    cur = conn.cursor()
-    cur.execute(
-        """CREATE TABLE IF NOT EXISTS users (
-        id SERIAL,
-        email VARCHAR(50) NOT NULL,
-        username VARCHAR(45) NOT NULL,
-        password VARCHAR(100) NOT NULL,
-        date_of_reg TIMESTAMP NOT NULL,
-        PRIMARY KEY (id)
-        )""")
-
-    cur.execute(
-        """CREATE TABLE IF NOT EXISTS resources (
-        re_id SERIAL,
-        user_id INT NOT NULL REFERENCES users(id),
-        title VARCHAR(100) NOT NULL,
-        link TEXT NOT NULL,
-        note TEXT,
-        tags VARCHAR(20)[1],
-        date_of_posting TIMESTAMP NOT NULL,
-        PRIMARY KEY (re_id)
-        )""")
-    
-    cur.close()
-    conn.commit()
-except (Exception, pg.DatabaseError) as error:
-    print("Unable to connect to the database" + error)
+from . import forms
 
 
 @app.route('/')
@@ -68,7 +22,7 @@ def about():
 @app.route('/register', methods=['GET', 'POST'])
 def register():
 
-    form = hc.RegisterForm(request.form)
+    form = forms.RegisterForm(request.form)
     if request.method == 'POST' and form.validate():
         username = form.username.data
         email = form.email.data
@@ -106,7 +60,7 @@ def login():
 
         # And get the user from the db
         cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor) # Treat result as a dictionary
-        get_user = cur.execute(("""
+        cur.execute(("""
         SELECT * FROM users WHERE username = %s
         """), (username,)) # Comma for single element tuple
 
@@ -170,7 +124,7 @@ def resources():
 @app.route('/add_resource', methods=['GET', 'POST'])
 def add_resource():
 
-    form = hc.ResourceForm(request.form)
+    form = forms.ResourceForm(request.form)
     if request.method == 'POST' and form.validate():
         title = form.title.data
         link = form.link.data
@@ -234,7 +188,7 @@ def edit_res(user_id,re_id):
             conn.commit()
 
             # Fill the form with the data
-            form = hc.ResourceForm()
+            form = forms.ResourceForm()
             form.title.data = data[0]['title']
             form.link.data = data[0]['link']
             form.note.data = data[0]['note']
@@ -248,7 +202,7 @@ def edit_res(user_id,re_id):
 
     elif request.method == 'POST':
 
-        form = hc.ResourceForm(request.form)
+        form = forms.ResourceForm(request.form)
         if form.validate():
 
             # Grab the new form and its data
@@ -320,13 +274,3 @@ def import_resources():
                 conn.commit()
                 flash('Resources imported successfully', 'success')
     return redirect(url_for('resources'))
-
-if __name__ == '__main__':
-
-    # Read secret key from file
-    try:
-        app.config['SECRET_KEY'] = open("seckey.txt", 'rb').read()
-        print("Read secret key succesfully")
-    except IOError:
-        print("Error: No secret key.")
-    app.run(debug=True)
