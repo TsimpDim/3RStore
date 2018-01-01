@@ -43,7 +43,7 @@ class ResourceForm(Form):
 # Register Form Class
 class RegisterForm(Form):
     '''Register Form Class. Gets input for username,email,and password and validates it'''
-    
+
     username = StringField('Username', [
         validators.DataRequired(),
         validators.Length(min=5, max=45)

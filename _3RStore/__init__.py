@@ -1,13 +1,16 @@
 import json
 from flask import Flask
 import psycopg2 as pg
+import os
 
 app = Flask(__name__)
 app.config.from_object(__name__)
 
+dir_path = os.path.dirname(os.path.realpath(__file__))
+
 # Read secret key from file
 try:
-    app.config['SECRET_KEY'] = open("seckey.txt", 'rb').read()
+    app.config['SECRET_KEY'] = open(os.path.join(dir_path,'seckey.txt'), 'rb').read()
     print("Read secret key succesfully")
 except IOError:
     print("Error: No secret key.")
@@ -15,7 +18,7 @@ except IOError:
 
 # Connect to PostgreSQL
 # Read database properties for URI
-DB_CONFIG = json.load(open('db.json'))
+DB_CONFIG = json.load(open(os.path.join(dir_path,'db.json'),'r'))
 USER = DB_CONFIG['user']
 PASSWORD = DB_CONFIG['password']
 HOST = DB_CONFIG['host']
@@ -54,6 +57,5 @@ try:
     conn.commit()
 except (Exception, pg.DatabaseError) as error:
     print("Unable to connect to the database" + error)
-
 
 import _3RStore.views
