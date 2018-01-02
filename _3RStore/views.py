@@ -155,7 +155,7 @@ def add_resource():
     return render_template('add_resource.html', form=form)
 
 # Delete resource
-@app.route('/del/<int:user_id>,<int:re_id>')
+@app.route('/del/<int:user_id>/<int:re_id>')
 def delete_res(user_id,re_id):
 
     if session.get('logged_in') and session['user_id'] == user_id:
@@ -170,7 +170,7 @@ def delete_res(user_id,re_id):
     return redirect(url_for('resources'))
 
 # Edit resource
-@app.route('/edit/<int:user_id>,<int:re_id>', methods=['GET', 'POST'])
+@app.route('/edit/<int:user_id>/<int:re_id>', methods=['GET', 'POST'])
 def edit_res(user_id,re_id):
 
     if request.method == 'GET':
