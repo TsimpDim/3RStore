@@ -2,8 +2,7 @@
 An application for storing links online.
 
 ## Status
-This is very much in the early development stages, use is not only impossible but also discouraged :)
-As soon as proper functionality and security measures are in place the plan is to make the app available to the public.
+This application is currently available [here](http://threerstore.herokuapp.com)
 
 ## Running it locally
 Ooh boy here we go.
