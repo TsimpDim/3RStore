@@ -3,7 +3,7 @@ import datetime
 from _3RStore import app, conn
 import psycopg2.extras
 from bs4 import BeautifulSoup
-from flask import request, session, redirect, url_for, render_template, flash
+from flask import request, session, redirect, url_for, render_template, flash, abort
 from passlib.hash import sha256_crypt
 from . import forms
 
@@ -186,6 +186,7 @@ def edit_res(user_id,re_id):
             data = cur.fetchall()
             cur.close()
             conn.commit()
+
 
             # Fill the form with the data
             form = forms.ResourceForm()
