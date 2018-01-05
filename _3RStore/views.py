@@ -215,6 +215,8 @@ def edit_res(user_id,re_id):
             # If not empty format for proper insertion into postgresql
             if tags:
                 tags = '{' + str(tags) + '}'
+            else:
+                tags = None
 
             # Update the row - keep date_of_posting, re_id and user_id the same
             cur = conn.cursor()
@@ -248,30 +250,42 @@ def import_resources():
                 return redirect(request.url)
 
             if file:
-                # Find all <A> tags within the .html file
+
                 soup = BeautifulSoup(file, "html.parser")
-                links = soup.findAll('a')
-
                 cur = conn.cursor()
-                for resource in links:
-                    link = resource['href']
 
-                    # Limit their title
-                    if resource.contents:
-                        title = resource.contents[0][0:99]
-                    else:
-                        title = link[0:50] +'...'
+                folders = soup.find_all('dl')
+                for folder in folders:
+                    
+                    header = folder.find_previous_sibling("h3")
 
-                    timestamp = datetime.datetime.fromtimestamp(
-                        time()).strftime('%Y-%m-%d %H:%M:%S')
-                    user_id = session['user_id']
+                    if header: # We filter the first DL which has an H1 tag before it and is not a 'folder'
 
-                    cur.execute(
-                        ("""INSERT INTO resources(user_id,title,link,date_of_posting) VALUES (%s,%s,%s,%s)"""),
-                        (user_id, title, link, timestamp)
-                    )
+                        if header['PERSONAL_TOOLBAT_FOLDER']: # We do not need a tag for the container folder
+                            tag = None
+                        else:
+                            tag = '{' + str(header.contents[0]) + '}'
+
+                        for resource in folder.findChildren('a'):
+                            link = resource['href']
+
+                            if resource.contents:
+                                title = resource.contents[0][0:99]
+                            else:
+                                title = link[0:50] + '...'
+
+                            timestamp = datetime.datetime.fromtimestamp(
+                                time()).strftime('%Y-%m-%d %H:%M:%S')
+                            user_id = session['user_id']
+
+
+                            cur.execute(
+                                ("""INSERT INTO resources(user_id,title,link,tags,date_of_posting) VALUES (%s,%s,%s,%s,%s)"""),
+                                (user_id, title, link, tag, timestamp)
+                            )
 
                 cur.close()
                 conn.commit()
-                flash('Resources imported successfully', 'success')
+
+            flash('Resources imported successfully', 'success')
     return redirect(url_for('resources'))

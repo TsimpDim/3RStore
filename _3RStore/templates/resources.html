@@ -69,7 +69,7 @@
 
 
             <!-- Note section -->
-            {% if re.note|length > 0 %}
+            {% if re.note %}
                 {% if re.note|length > 100 %}
                     <div class="list-group-item">
                         <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#{{re.re_id}}_note">Expand/Collapse Note</button>
