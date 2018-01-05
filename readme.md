@@ -19,7 +19,10 @@ Since the project's file structure has changed, a simple
 
     python __init__.py
 
-will not suffice. First you need to set the environment variable for the application.
+will not suffice. 
+
+### First way - Running the app with flask
+First you need to set the environment variable for the application.
 
 One way to do this is :
 
@@ -27,16 +30,15 @@ Navigate to 3RStore/_3RStore
 
 On linux:
 
-    export FLASK_APP = __init__.py
+    export FLASK_APP=__init__.py
 
 On windows:
 
-    set FLASK_APP = __init__.py
+    set FLASK_APP=__init__.py
 
 Then (from this directory) simply run :
 
     flask run
-
 
 to launch the server. A prompt indicating sucessfull launch should appear in the console.
 
@@ -44,17 +46,31 @@ Finally, open your browser and go to
 
     http://127.0.0.1:5000/
 
+
+### Running the app with waitress 
+
+First run
+
+    python server.py
+
+Then go to 
+
+    http://127.0.0.1:8080/
+
 Ta-da!
 
 ## File Structure
 <pre>
 |   .gitignore
+|   Procfile
 |   readme.md
 |   requirements.txt
+|   server.py
 |   setup.py
 |   
 \---_3RStore
     |   db.json
+    |   errors.py
     |   forms.py
     |   seckey.txt
     |   views.py
@@ -81,17 +97,18 @@ Ta-da!
     |   \---js
     |           resources.js
     |           
-    \---templates
-        |   add_resource.html
-        |   edit_resource.html
-        |   home.html
-        |   layout.html
-        |   login.html
-        |   register.html
-        |   resources.html
-        |   
-        \---includes
-                _formhelpers.html
-                _messages.html
-                _navbar.html
+    +---templates
+    |   |   add_resource.html
+    |   |   edit_resource.html
+    |   |   error.html
+    |   |   home.html
+    |   |   layout.html
+    |   |   login.html
+    |   |   register.html
+    |   |   resources.html
+    |   |   
+    |   \---includes
+    |           _formhelpers.html
+    |           _messages.html
+    |           _navbar.html
 <pre>
