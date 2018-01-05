@@ -233,6 +233,20 @@ def edit_res(user_id,re_id):
             return render_template('edit_resource.html', form=form)
     return redirect(url_for('resources'))
 
+# Delete all resources
+@app.route("/delall/<int:user_id>")
+def delall(user_id):
+
+    if session['user_id'] == user_id and session.get('logged_in'):
+        cur = conn.cursor()
+        cur.execute("""DELETE FROM resources WHERE user_id = %s""", (user_id,))
+        cur.close()
+        conn.commit()
+        flash('All resources deleted.', 'danger')
+
+    return redirect(url_for('resources'))
+
+
 # Import resources
 @app.route("/import_resources" , methods = ['GET', 'POST'])
 def import_resources():
@@ -256,15 +270,12 @@ def import_resources():
 
                 folders = soup.find_all('dl')
                 for folder in folders:
-                    
+
                     header = folder.find_previous_sibling("h3")
 
                     if header: # We filter the first DL which has an H1 tag before it and is not a 'folder'
 
-                        if header['PERSONAL_TOOLBAT_FOLDER']: # We do not need a tag for the container folder
-                            tag = None
-                        else:
-                            tag = '{' + str(header.contents[0]) + '}'
+                        tag = '{' + str(header.contents[0]) + '}'
 
                         for resource in folder.findChildren('a'):
                             link = resource['href']
@@ -286,6 +297,6 @@ def import_resources():
 
                 cur.close()
                 conn.commit()
+                flash('Resources imported successfully', 'success')
 
-            flash('Resources imported successfully', 'success')
     return redirect(url_for('resources'))
