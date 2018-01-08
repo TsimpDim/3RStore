@@ -3,7 +3,7 @@ import datetime
 from _3RStore import app, conn
 import psycopg2.extras
 from bs4 import BeautifulSoup
-from flask import request, session, redirect, url_for, render_template, flash, abort
+from flask import request, session, redirect, url_for, render_template, flash, abort, make_response
 from passlib.hash import sha256_crypt
 from . import forms
 
@@ -98,7 +98,17 @@ def logout():
 # Options
 @app.route('/options')
 def options():
-    return render_template('options.html')
+    sort = request.cookies.get('sort')
+    criteria = request.cookies.get('criteria')
+    return render_template('options.html', sort=sort, criteria=criteria)
+
+# Sorting order
+@app.route('/options/set_sort/<string:criteria>/<string:stype>')
+def set_asc(criteria, stype):
+    resp = make_response(redirect(url_for('options')))
+    resp.set_cookie('sort', stype)
+    resp.set_cookie('criteria', criteria)
+    return resp
 
 # Resources
 @app.route('/resources')
@@ -111,16 +121,36 @@ def resources():
         user_id = session['user_id']
 
         cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-        cur.execute(
-            ("""SELECT * FROM resources WHERE user_id = %s ORDER BY date_of_posting"""),
-            (user_id,)
-            )
+
+        sort = request.cookies.get('sort')
+        criteria = request.cookies.get('criteria')
+        if criteria == 'title':
+            if sort == 'asc' or not sort:
+                cur.execute(
+                    ("""SELECT * FROM resources WHERE user_id = %s ORDER BY title ASC"""),
+                    (user_id,)
+                )
+            else:
+                cur.execute(
+                    ("""SELECT * FROM resources WHERE user_id = %s ORDER BY title DESC"""),
+                    (user_id,)
+                )
+        elif criteria == 'time' or not criteria:
+            if sort == 'asc' or not sort:
+                cur.execute(
+                    ("""SELECT * FROM resources WHERE user_id = %s ORDER BY date_of_posting ASC"""),
+                    (user_id,)
+                )
+            else:
+                cur.execute(
+                    ("""SELECT * FROM resources WHERE user_id = %s ORDER BY date_of_posting DESC"""),
+                    (user_id,)
+                )
 
         data = cur.fetchall()
-
         cur.close()
         conn.commit()
-        return render_template('resources.html', resources=data)
+        return render_template('resources.html', resources=data, sort=sort)
 
     return render_template('resources.html')
 
