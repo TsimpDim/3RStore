@@ -110,10 +110,14 @@ def options():
 # Sorting order
 @app.route('/options/set_sort/<string:criteria>/<string:stype>')
 def set_asc(criteria, stype):
-    resp = make_response(redirect(url_for('options')))
-    resp.set_cookie('sort', stype)
-    resp.set_cookie('criteria', criteria)
-    return resp
+    if session.get('logged_in'):
+        resp = make_response(redirect(url_for('options')))
+        resp.set_cookie('sort', stype)
+        resp.set_cookie('criteria', criteria)
+        return resp
+    else:
+        flash('You must be logged in to access the options page', 'warning')
+        return redirect(url_for('login'))
 
 # Resources
 @app.route('/resources')
