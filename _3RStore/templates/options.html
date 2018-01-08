@@ -22,9 +22,9 @@
 
     <!-- Sorting by time of posting -->
     <h3>Sort by time of posting</h3>
-    <div class="">
+    <div>
         <div class="btn-group panel panel-default panel-body">
-            {% if criteria =='time' and sort == 'asc' or not sort %}
+            {% if criteria =='time' and sort == 'asc' or (not sort or not criteria) %}
                 <a class="btn btn-info" href="options/set_sort/time/asc">Ascending</a>
                 <a class="btn" href="options/set_sort/time/desc">Descending</a>
             {% elif criteria =='time' and sort == 'desc' %}
@@ -39,7 +39,7 @@
 
     <!-- Sorting by title -->
     <h3>Sort by title</h3>
-    <div class="">
+    <div>
         <div class="btn-group panel panel-default panel-body">
             {% if criteria == 'title' and sort == 'asc' or not sort %}
                 <a class="btn btn-info" href="options/set_sort/title/asc">Ascending</a>
