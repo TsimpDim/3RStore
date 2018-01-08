@@ -104,6 +104,7 @@ Ta-da!
     |   |   home.html
     |   |   layout.html
     |   |   login.html
+    |   |   options.html
     |   |   register.html
     |   |   resources.html
     |   |   
