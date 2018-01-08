@@ -95,6 +95,11 @@ def logout():
     flash('You are now logged out', 'success')
     return redirect('/')
 
+# Options
+@app.route('/options')
+def options():
+    return render_template('options.html')
+
 # Resources
 @app.route('/resources')
 def resources():
