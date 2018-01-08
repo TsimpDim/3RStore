@@ -98,9 +98,14 @@ def logout():
 # Options
 @app.route('/options')
 def options():
-    sort = request.cookies.get('sort')
-    criteria = request.cookies.get('criteria')
-    return render_template('options.html', sort=sort, criteria=criteria)
+
+    if session.get('logged_in'):
+        sort = request.cookies.get('sort')
+        criteria = request.cookies.get('criteria')
+        return render_template('options.html', sort=sort, criteria=criteria)
+    else:
+        flash('You must be logged in to access the options page', 'warning')
+        return redirect(url_for('login'))
 
 # Sorting order
 @app.route('/options/set_sort/<string:criteria>/<string:stype>')
