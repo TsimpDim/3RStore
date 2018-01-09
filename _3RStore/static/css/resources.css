@@ -1,3 +1,6 @@
+html{
+    overflow: scroll;
+}
 .label{
     letter-spacing: .1em;
     font-weight: 100;
@@ -9,6 +12,10 @@
 
 p{
     word-wrap: break-word;        
+}
+
+a{
+    text-decoration: none;
 }
 
 a:hover{
@@ -38,8 +45,14 @@ a:hover{
     word-wrap: break-word;                
 }
 
-#search{
-    display: inline;
-    width: 50%;
-    
+button{
+    min-width: 2em;
+}
+
+tr{width: 100%}
+
+@media(max-width: 650px) {
+    td {
+      display: table-row;
+    }
 }

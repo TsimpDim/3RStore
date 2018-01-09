@@ -3,20 +3,34 @@
 
 {% block body %}
     <h1>Welcome {{session.username}}</h1>
-    <div class="up_but">
-        <div  class="btn-group">
-            <a class="btn btn-success" href="/add_resource">
-                <span class="glyphicon glyphicon-plus-sign"></span>
-                Add new Resource
-            </a>
-            <button class="btn btn-info" type="button" data-toggle="collapse" data-target="#upload_file">
-                <span class="glyphicon glyphicon-open"></span>                
-                Import from file
-            </button>
-        </div>
 
-        <input id="search" type="text" class="form-control" placeholder="Search via tags or title...">
-    </div>
+    <table class="up_but table">
+        <tr>
+            <td>
+                <div  class="btn-group">
+                    <a class="btn btn-success" href="/add_resource">
+                        <span class="glyphicon glyphicon-plus-sign"></span>
+                        Add new Resource
+                    </a>
+                    <button class="btn btn-info" type="button" data-toggle="collapse" data-target="#upload_file">
+                        <span class="glyphicon glyphicon-open"></span>                
+                        Import from file
+                    </button>
+                </div>
+            </td>
+            <td>
+                <div class="input-group" id="searchbar_cont">
+                    <span class="input-group-addon"><i class="glyphicon glyphicon-search"></i></span>
+                    <input list="tags" type="text" id="search_input" class="form-control" placeholder="Search via tags or title...">
+                    <datalist id="tags">
+                        {% for tag in tags %}
+                        <option value="{{tag}}" class="datalist_option" ></option>
+                        {% endfor %}
+                    </datalist>
+                </div>
+            </td>
+        </tr>
+    </table>
     
     <form method="post" action="/import_resources" enctype="multipart/form-data" id="upload_file" class="collapse">
         <div id="form" class="jumbotron">

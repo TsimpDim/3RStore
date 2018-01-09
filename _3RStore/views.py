@@ -168,9 +168,21 @@ def resources():
                 )
 
         data = cur.fetchall()
+
+        cur.execute(
+            ("""SELECT DISTINCT unnest(tags) FROM resources WHERE user_id = %s"""),
+            (user_id,)
+        )
+
+        tags_raw = cur.fetchall()
+        # 'Unpack' tags_raw into one array
+        all_tags = []
+        for tag_arr in tags_raw:
+            all_tags.append(tag_arr[0])
+
         cur.close()
         conn.commit()
-        return render_template('resources.html', resources=data, sort=sort)
+        return render_template('resources.html', resources=data, sort=sort, tags=all_tags)
 
     return render_template('resources.html')
 
