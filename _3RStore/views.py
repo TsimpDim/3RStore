@@ -76,8 +76,17 @@ def login():
                 session['username'] = username
                 session['user_id'] = data['id']
 
+                # Set default cookies if they don't exist
+                resp = make_response(redirect(url_for('resources'))) # Build default response
+
+                sort = request.cookies.get('sort')
+                criteria = request.cookies.get('criteria')
+                if not sort or not criteria: # If any of them have not been set
+                    resp.set_cookie('sort', "desc")
+                    resp.set_cookie('criteria', "time")
+
                 flash('You are now logged in', 'success')
-                return redirect(url_for('resources'))
+                return resp
             else:
                 error = "Username or password are incorrect"
                 return render_template('login.html', error=error)
@@ -86,6 +95,8 @@ def login():
             return render_template('login.html', error=error)
 
         cur.close()
+
+
     return render_template('login.html')
 
 # Logout
