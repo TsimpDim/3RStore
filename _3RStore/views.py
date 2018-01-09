@@ -219,7 +219,22 @@ def add_resource():
 
         flash('Resource created successfully', 'success')
         return redirect(url_for('resources'))
-    return render_template('add_resource.html', form=form)
+    else:
+        user_id = session['user_id']
+        cur = conn.cursor()
+        cur.execute(
+            ("""SELECT DISTINCT unnest(tags) FROM resources WHERE user_id = %s"""),
+            (user_id,)
+        )
+
+        tags_raw = cur.fetchall()
+        # 'Unpack' tags_raw into one array
+        all_tags = []
+        for tag_arr in tags_raw:
+            all_tags.append(tag_arr[0])
+
+        cur.close()
+        return render_template('add_resource.html', form=form,tags=all_tags)
 
 # Delete resource
 @app.route('/del/<int:user_id>/<int:re_id>')
@@ -251,6 +266,19 @@ def edit_res(user_id,re_id):
                 )
 
             data = cur.fetchall()
+
+            # Get the tags to suggest to the user
+            cur.execute(
+                ("""SELECT DISTINCT unnest(tags) FROM resources WHERE user_id = %s"""),
+                (user_id,)
+            )
+
+            tags_raw = cur.fetchall()
+            # 'Unpack' tags_raw into one array
+            all_tags = []
+            for tag_arr in tags_raw:
+                all_tags.append(tag_arr[0])
+
             cur.close()
             conn.commit()
 
@@ -266,7 +294,7 @@ def edit_res(user_id,re_id):
             else:
                 form.tags.data = ""
 
-            return render_template('edit_resource.html', title=data[0]['title'], form=form)
+            return render_template('edit_resource.html', title=data[0]['title'], form=form,tags=all_tags)
 
     elif request.method == 'POST':
 
