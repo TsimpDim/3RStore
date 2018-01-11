@@ -82,8 +82,8 @@ def login():
                 sort = request.cookies.get('sort')
                 criteria = request.cookies.get('criteria')
                 if not sort or not criteria: # If any of them have not been set
-                    resp.set_cookie('sort', "desc")
-                    resp.set_cookie('criteria', "time")
+                    resp.set_cookie('sort', "desc", expires=datetime.datetime.now() + datetime.timedelta(days=30))
+                    resp.set_cookie('criteria', "time", expires=datetime.datetime.now() + datetime.timedelta(days=30))
 
                 flash('You are now logged in', 'success')
                 return resp
@@ -123,8 +123,8 @@ def options():
 def set_asc(criteria, stype):
     if session.get('logged_in'):
         resp = make_response(redirect(url_for('options')))
-        resp.set_cookie('sort', stype)
-        resp.set_cookie('criteria', criteria)
+        resp.set_cookie('sort', stype, expires=datetime.datetime.now() + datetime.timedelta(days=30))
+        resp.set_cookie('criteria', criteria, expires=datetime.datetime.now() + datetime.timedelta(days=30))
         return resp
     else:
         flash('You must be logged in to access the options page', 'warning')
