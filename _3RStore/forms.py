@@ -22,6 +22,7 @@ class ResourceForm(Form):
             return False
 
         tags_list = self.tags.data.split(',')
+
         # If user has entered no tags
         if not tags_list or (tags_list and tags_list[0] == ''):
             return True

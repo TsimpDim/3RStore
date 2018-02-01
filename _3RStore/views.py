@@ -26,6 +26,7 @@ def register():
     if request.method == 'POST' and form.validate():
         username = form.username.data
         email = form.email.data
+
         # Encrypt the password using sha256
         password = sha256_crypt.encrypt(str(form.password.data))
         timestamp = datetime.datetime.fromtimestamp(
@@ -85,9 +86,12 @@ def login():
                 criteria = request.cookies.get('criteria')
                 if not sort or not criteria:  # If any of them have not been set
                     resp.set_cookie(
-                        'sort', "desc", expires=datetime.datetime.now() + datetime.timedelta(days=30))
-                    resp.set_cookie('criteria', "time", expires=datetime.datetime.now(
-                    ) + datetime.timedelta(days=30))
+                        'sort', "desc", expires=datetime.datetime.now()
+                        + datetime.timedelta(days=30))
+
+                    resp.set_cookie(
+                        'criteria', "time", expires=datetime.datetime.now()
+                        + datetime.timedelta(days=30))
 
                 flash('You are now logged in', 'success')
                 return resp
@@ -127,9 +131,13 @@ def set_asc(criteria, stype):
     if session.get('logged_in'):
         resp = make_response(redirect(url_for('options')))
         resp.set_cookie(
-            'sort', stype, expires=datetime.datetime.now() + datetime.timedelta(days=30))
-        resp.set_cookie('criteria', criteria, expires=datetime.datetime.now(
-        ) + datetime.timedelta(days=30))
+            'sort', stype, expires=datetime.datetime.now()
+            + datetime.timedelta(days=30))
+
+        resp.set_cookie(
+            'criteria', criteria, expires=datetime.datetime.now()
+            + datetime.timedelta(days=30))
+
         return resp
     else:
         flash('You must be logged in to access the options page', 'warning')
@@ -180,6 +188,7 @@ def resources():
         )
 
         tags_raw = cur.fetchall()
+
         # 'Unpack' tags_raw into one array
         all_tags = []
         for tag_arr in tags_raw:
@@ -231,6 +240,7 @@ def add_resource():
         )
 
         tags_raw = cur.fetchall()
+
         # 'Unpack' tags_raw into one array
         all_tags = []
         for tag_arr in tags_raw:
@@ -277,7 +287,7 @@ def edit_res(user_id, re_id):
             )
 
             tags_raw = cur.fetchall()
-            
+
             # 'Unpack' tags_raw into one array
             all_tags = []
             for tag_arr in tags_raw:
@@ -371,7 +381,8 @@ def import_resources():
 
                     header = folder.find_previous_sibling("h3")
 
-                    if header:  # We filter the first DL which has an H1 tag before it and is not a 'folder'
+                    if header:
+                    # We filter the first DL which has an H1 tag before it and is not a 'folder'
 
                         tag = '{' + str(header.contents[0]).lower() + '}'
 

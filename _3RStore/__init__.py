@@ -49,7 +49,7 @@ try:
         title VARCHAR(100) NOT NULL,
         link TEXT NOT NULL,
         note TEXT,
-        tags VARCHAR(20)[1],
+        tags VARCHAR(40)[1],
         date_of_posting TIMESTAMP NOT NULL,
         PRIMARY KEY (re_id)
         )""")
