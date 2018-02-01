@@ -202,7 +202,7 @@ def add_resource():
         tags = form.tags.data
         # If not empty format for proper insertion into postgresql
         if tags:
-            tags = '{' + str(tags) + '}'
+            tags = '{' + str(tags).lower() + '}'
         else:
             tags = None
 
@@ -291,6 +291,7 @@ def edit_res(user_id,re_id):
 
             if data[0]['tags']:
                 form.tags.data = ','.join(data[0]['tags']) # Array to string
+                form.tags.data = form.tags.data.lower()
             else:
                 form.tags.data = ""
 
@@ -309,7 +310,7 @@ def edit_res(user_id,re_id):
 
             # If not empty format for proper insertion into postgresql
             if tags:
-                tags = '{' + str(tags) + '}'
+                tags = '{' + str(tags).lower() + '}'
             else:
                 tags = None
 
@@ -370,7 +371,7 @@ def import_resources():
 
                     if header: # We filter the first DL which has an H1 tag before it and is not a 'folder'
 
-                        tag = '{' + str(header.contents[0]) + '}'
+                        tag = '{' + str(header.contents[0]).lower() + '}'
 
                         for resource in folder.findChildren('a'):
                             link = resource['href']
