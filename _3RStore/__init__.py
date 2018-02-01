@@ -1,7 +1,7 @@
 import json
+import os
 from flask import Flask
 import psycopg2 as pg
-import os
 
 app = Flask(__name__)
 app.config.from_object(__name__)
@@ -10,7 +10,8 @@ dir_path = os.path.dirname(os.path.realpath(__file__))
 
 # Read secret key from file
 try:
-    app.config['SECRET_KEY'] = open(os.path.join(dir_path,'seckey.txt'), 'rb').read()
+    app.config['SECRET_KEY'] = open(
+        os.path.join(dir_path, 'seckey.txt'), 'rb').read()
     print("Read secret key succesfully")
 except IOError:
     print("Error: No secret key.")
@@ -18,7 +19,7 @@ except IOError:
 
 # Connect to PostgreSQL
 # Read database properties for URI
-DB_CONFIG = json.load(open(os.path.join(dir_path,'db.json'),'r'))
+DB_CONFIG = json.load(open(os.path.join(dir_path, 'db.json'), 'r'))
 USER = DB_CONFIG['user']
 PASSWORD = DB_CONFIG['password']
 HOST = DB_CONFIG['host']
@@ -48,7 +49,7 @@ try:
         title VARCHAR(100) NOT NULL,
         link TEXT NOT NULL,
         note TEXT,
-        tags VARCHAR(40)[1],
+        tags VARCHAR(20)[1],
         date_of_posting TIMESTAMP NOT NULL,
         PRIMARY KEY (re_id)
         )""")

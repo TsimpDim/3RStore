@@ -3,7 +3,7 @@ import datetime
 from _3RStore import app, conn
 import psycopg2.extras
 from bs4 import BeautifulSoup
-from flask import request, session, redirect, url_for, render_template, flash, abort, make_response
+from flask import request, session, redirect, url_for, render_template, flash, make_response
 from passlib.hash import sha256_crypt
 from . import forms
 
@@ -26,7 +26,8 @@ def register():
     if request.method == 'POST' and form.validate():
         username = form.username.data
         email = form.email.data
-        password = sha256_crypt.encrypt(str(form.password.data)) # Encrypt the password using sha256
+        # Encrypt the password using sha256
+        password = sha256_crypt.encrypt(str(form.password.data))
         timestamp = datetime.datetime.fromtimestamp(
             time()).strftime('%Y-%m-%d %H:%M:%S')
 
@@ -57,12 +58,12 @@ def login():
         username = request.form['username']
         password_candidate = request.form['password']
 
-
         # And get the user from the db
-        cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor) # Treat result as a dictionary
+        # Treat result as a dictionary
+        cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
         cur.execute(("""
         SELECT * FROM users WHERE username = %s
-        """), (username,)) # Comma for single element tuple
+        """), (username,))  # Comma for single element tuple
 
         # If we find a user with that username
         data = cur.fetchone()
@@ -77,13 +78,16 @@ def login():
                 session['user_id'] = data['id']
 
                 # Set default cookies if they don't exist
-                resp = make_response(redirect(url_for('resources'))) # Build default response
+                # Build default response
+                resp = make_response(redirect(url_for('resources')))
 
                 sort = request.cookies.get('sort')
                 criteria = request.cookies.get('criteria')
-                if not sort or not criteria: # If any of them have not been set
-                    resp.set_cookie('sort', "desc", expires=datetime.datetime.now() + datetime.timedelta(days=30))
-                    resp.set_cookie('criteria', "time", expires=datetime.datetime.now() + datetime.timedelta(days=30))
+                if not sort or not criteria:  # If any of them have not been set
+                    resp.set_cookie(
+                        'sort', "desc", expires=datetime.datetime.now() + datetime.timedelta(days=30))
+                    resp.set_cookie('criteria', "time", expires=datetime.datetime.now(
+                    ) + datetime.timedelta(days=30))
 
                 flash('You are now logged in', 'success')
                 return resp
@@ -95,7 +99,6 @@ def login():
             return render_template('login.html', error=error)
 
         cur.close()
-
 
     return render_template('login.html')
 
@@ -123,8 +126,10 @@ def options():
 def set_asc(criteria, stype):
     if session.get('logged_in'):
         resp = make_response(redirect(url_for('options')))
-        resp.set_cookie('sort', stype, expires=datetime.datetime.now() + datetime.timedelta(days=30))
-        resp.set_cookie('criteria', criteria, expires=datetime.datetime.now() + datetime.timedelta(days=30))
+        resp.set_cookie(
+            'sort', stype, expires=datetime.datetime.now() + datetime.timedelta(days=30))
+        resp.set_cookie('criteria', criteria, expires=datetime.datetime.now(
+        ) + datetime.timedelta(days=30))
         return resp
     else:
         flash('You must be logged in to access the options page', 'warning')
@@ -186,7 +191,6 @@ def resources():
 
     return render_template('resources.html')
 
-
 # Add resource
 @app.route('/add_resource', methods=['GET', 'POST'])
 def add_resource():
@@ -208,12 +212,11 @@ def add_resource():
 
         user_id = session['user_id']
 
-
         cur = conn.cursor()
         cur.execute(
             ("""INSERT INTO resources(user_id,title,link,note,tags,date_of_posting) VALUES (%s,%s,%s,%s,%s,%s)"""),
             (user_id, title, link, note, tags, timestamp)
-            )
+        )
         cur.close()
         conn.commit()
 
@@ -234,18 +237,18 @@ def add_resource():
             all_tags.append(tag_arr[0])
 
         cur.close()
-        return render_template('add_resource.html', form=form,tags=all_tags)
+        return render_template('add_resource.html', form=form, tags=all_tags)
 
 # Delete resource
 @app.route('/del/<int:user_id>/<int:re_id>')
-def delete_res(user_id,re_id):
+def delete_res(user_id, re_id):
 
     if session.get('logged_in') and session['user_id'] == user_id:
         cur = conn.cursor()
         cur.execute(
             ("""DELETE FROM resources WHERE user_id = %s and re_id = %s"""),
             (user_id, re_id)
-            )
+        )
 
         cur.close()
         conn.commit()
@@ -253,7 +256,7 @@ def delete_res(user_id,re_id):
 
 # Edit resource
 @app.route('/edit/<int:user_id>/<int:re_id>', methods=['GET', 'POST'])
-def edit_res(user_id,re_id):
+def edit_res(user_id, re_id):
 
     if request.method == 'GET':
         if session.get('logged_in') and session['user_id'] == user_id:
@@ -263,7 +266,7 @@ def edit_res(user_id,re_id):
             cur.execute(
                 ("""SELECT * FROM resources WHERE user_id = %s and re_id = %s"""),
                 (user_id, re_id)
-                )
+            )
 
             data = cur.fetchall()
 
@@ -274,6 +277,7 @@ def edit_res(user_id,re_id):
             )
 
             tags_raw = cur.fetchall()
+            
             # 'Unpack' tags_raw into one array
             all_tags = []
             for tag_arr in tags_raw:
@@ -282,7 +286,6 @@ def edit_res(user_id,re_id):
             cur.close()
             conn.commit()
 
-
             # Fill the form with the data
             form = forms.ResourceForm()
             form.title.data = data[0]['title']
@@ -290,12 +293,12 @@ def edit_res(user_id,re_id):
             form.note.data = data[0]['note']
 
             if data[0]['tags']:
-                form.tags.data = ','.join(data[0]['tags']) # Array to string
+                form.tags.data = ','.join(data[0]['tags'])  # Array to string
                 form.tags.data = form.tags.data.lower()
             else:
                 form.tags.data = ""
 
-            return render_template('edit_resource.html', title=data[0]['title'], form=form,tags=all_tags)
+            return render_template('edit_resource.html', title=data[0]['title'], form=form, tags=all_tags)
 
     elif request.method == 'POST':
 
@@ -319,7 +322,7 @@ def edit_res(user_id,re_id):
             cur.execute(
                 ("""UPDATE resources SET title=%s,link=%s,note=%s,tags=%s WHERE user_id=%s AND re_id=%s"""),
                 (title, link, note, tags, user_id, re_id)
-                )
+            )
             cur.close()
             conn.commit()
 
@@ -342,9 +345,8 @@ def delall(user_id):
 
     return redirect(url_for('resources'))
 
-
 # Import resources
-@app.route("/import_resources" , methods = ['GET', 'POST'])
+@app.route("/import_resources", methods=['GET', 'POST'])
 def import_resources():
 
     if request.method == 'POST':
@@ -369,7 +371,7 @@ def import_resources():
 
                     header = folder.find_previous_sibling("h3")
 
-                    if header: # We filter the first DL which has an H1 tag before it and is not a 'folder'
+                    if header:  # We filter the first DL which has an H1 tag before it and is not a 'folder'
 
                         tag = '{' + str(header.contents[0]).lower() + '}'
 
@@ -384,7 +386,6 @@ def import_resources():
                             timestamp = datetime.datetime.fromtimestamp(
                                 time()).strftime('%Y-%m-%d %H:%M:%S')
                             user_id = session['user_id']
-
 
                             cur.execute(
                                 ("""INSERT INTO resources(user_id,title,link,tags,date_of_posting) VALUES (%s,%s,%s,%s,%s)"""),
