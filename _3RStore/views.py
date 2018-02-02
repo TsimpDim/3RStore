@@ -3,9 +3,10 @@ import datetime
 from _3RStore import app, conn
 import psycopg2.extras
 from bs4 import BeautifulSoup
-from flask import request, session, redirect, url_for, render_template, flash, make_response
+from flask import request, session, redirect, url_for, render_template, flash, make_response, send_file
 from passlib.hash import sha256_crypt
 from . import forms
+from io import BytesIO
 
 
 @app.route('/')
@@ -408,3 +409,91 @@ def import_resources():
                 flash('Resources imported successfully', 'success')
 
     return redirect(url_for('resources'))
+
+@app.route('/export_to_html')
+def export_to_html():
+
+    # Get all of the user's resources
+    cur = conn.cursor()
+    user_id = session['user_id']
+
+    cur.execute(("""SELECT title, link, tags FROM resources WHERE user_id = %s"""),
+    (user_id,)
+    )
+
+    user_resources = cur.fetchall()
+
+    cur.execute(("""SELECT DISTINCT tags FROM resources WHERE user_id = %s"""),
+    (user_id,)
+    )
+
+    user_tags = cur.fetchall()
+
+    # Create base html
+    soup = BeautifulSoup('<!DOCTYPE NETSCAPE-Bookmark-file-1>', 'html.parser')
+    meta_tag = soup.new_tag('META')
+    meta_tag['HTTP-EQUIV'] = 'Content-Type'
+    meta_tag['CONTENT'] = 'text/html; charset=UTF-8'
+    soup.append(meta_tag)
+
+    title_tag = soup.new_tag('TITLE')
+    title_tag.string = '3RStore Resources'
+    soup.append(title_tag)
+
+    header_tag = soup.new_tag('H1')
+    header_tag.string = '3RStore'
+    soup.append(header_tag)
+
+    dl_tag = soup.new_tag('DL')
+    p_tag = soup.new_tag('P')
+    p_tag['TYPE'] = 'Main'
+    dl_tag.append(p_tag)
+    soup.append(dl_tag)
+    
+    # Create the folders in HTML form
+    for tag_array in user_tags:
+        for i, tag in enumerate(tag_array[0]):
+            # If the root folder does not exist, create it
+            if not soup.find('H3', string=tag_array[i-1][0]):
+                dt_tag = soup.new_tag('DT')
+                h3_tag = soup.new_tag('H3')
+                dl_tag = soup.new_tag('DL')
+                p_tag = soup.new_tag('P')
+
+                h3_tag.string = tag_array[i-1][0]
+
+                dt_tag.append(h3_tag)
+                dl_tag.append(p_tag)
+
+                main_tag = soup.find('P', {'TYPE' : 'Main'})
+                main_tag.append(dt_tag)
+                main_tag.append(dl_tag)
+            
+            # If the root folder exists
+            else:
+                main_tag = soup.find('H3', string=tag_array[i-1][0]).find_next('P')
+
+                dt_tag = soup.new_tag('DT')
+                h3_tag = soup.new_tag('H3')
+                h3_tag.string = tag
+
+                dl_tag = soup.new_tag('DL')
+                p_tag = soup.new_tag('P')
+
+                dt_tag.append(h3_tag)
+                dl_tag.append(p_tag)
+
+                main_tag.append(dt_tag)
+                main_tag.append(dl_tag)
+
+    # Save file
+    # Clean up text
+    final_text = str(soup).replace('</DT>', '\n').replace('</P>', ' ').replace('</META>', '\n')
+    
+    # Save text to byte object
+    strIO = BytesIO()
+    strIO.write(str.encode(final_text))
+    strIO.seek(0)
+
+    # Send html file to client
+    return send_file(strIO, attachment_filename='3RStore_export.html', as_attachment=True)
