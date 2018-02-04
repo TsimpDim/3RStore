@@ -7,6 +7,7 @@ from flask import request, session, redirect, url_for, render_template, flash, m
 from passlib.hash import sha256_crypt
 from . import forms
 from io import BytesIO
+import textwrap as tw
 
 
 @app.route('/')
@@ -17,7 +18,6 @@ def index():
 @app.route('/about')
 def about():
     return render_template('about.html')
-
 
 # User Registration
 @app.route('/register', methods=['GET', 'POST'])
@@ -412,6 +412,30 @@ def import_resources():
 
 @app.route('/export_to_html')
 def export_to_html():
+    def new_folder(main_tag, h3_text):
+        dt_tag = soup.new_tag('DT')
+        h3_tag = soup.new_tag('H3')
+        dl_tag = soup.new_tag('DL')
+        p_tag = soup.new_tag('P')
+
+        h3_tag.string = h3_text
+
+        dt_tag.append(h3_tag)
+        dl_tag.append(p_tag)
+
+        main_tag.append(dt_tag)
+        main_tag.append(dl_tag)
+        main_tag.append(soup.new_tag('P')) # To close each folder we created
+
+    def new_link(main_tag, title, link):
+        dt_tag = soup.new_tag('DT')
+        
+        a_tag = soup.new_tag('A')
+        a_tag['HREF'] = link
+        a_tag.string = title
+
+        dt_tag.append(a_tag)
+        main_tag.append(dt_tag)
 
     # Get all of the user's resources
     cur = conn.cursor()
@@ -430,7 +454,7 @@ def export_to_html():
     user_tags = cur.fetchall()
 
     # Create base html
-    soup = BeautifulSoup('<!DOCTYPE NETSCAPE-Bookmark-file-1>', 'html.parser')
+    soup = BeautifulSoup('<!DOCTYPE NETSCAPE-Bookmark-file-1>', 'lxml')
     meta_tag = soup.new_tag('META')
     meta_tag['HTTP-EQUIV'] = 'Content-Type'
     meta_tag['CONTENT'] = 'text/html; charset=UTF-8'
@@ -449,47 +473,40 @@ def export_to_html():
     p_tag['TYPE'] = 'Main'
     dl_tag.append(p_tag)
     soup.append(dl_tag)
+
+    soup.append(soup.new_tag('P')) # <P> closing the final </DL>
     
     # Create the folders in HTML form
     for tag_array in user_tags:
         for i, tag in enumerate(tag_array[0]):
+
+            root_folder_exists = soup.find('H3', string=tag_array[i-1][0])
+            curr_folder_exists = soup.find('H3', string=tag)
+
             # If the root folder does not exist, create it
-            if not soup.find('H3', string=tag_array[i-1][0]):
-                dt_tag = soup.new_tag('DT')
-                h3_tag = soup.new_tag('H3')
-                dl_tag = soup.new_tag('DL')
-                p_tag = soup.new_tag('P')
-
-                h3_tag.string = tag_array[i-1][0]
-
-                dt_tag.append(h3_tag)
-                dl_tag.append(p_tag)
-
+            if not root_folder_exists:
                 main_tag = soup.find('P', {'TYPE' : 'Main'})
-                main_tag.append(dt_tag)
-                main_tag.append(dl_tag)
-            
-            # If the root folder exists
-            else:
-                main_tag = soup.find('H3', string=tag_array[i-1][0]).find_next('P')
+                new_folder(main_tag, tag_array[i-1][0])
 
-                dt_tag = soup.new_tag('DT')
-                h3_tag = soup.new_tag('H3')
-                h3_tag.string = tag
+            # If the root folder exists and we have not created this folder previously
+            elif root_folder_exists and not curr_folder_exists:
+                main_tag = soup.find('H3', string=tag_array[i-1][0]).find_next('DL')
+                new_folder(main_tag, tag)
 
-                dl_tag = soup.new_tag('DL')
-                p_tag = soup.new_tag('P')
+    # Insert the links in the corresponding folders
+    for res in user_resources:
+        title = res[0]
+        link = res[1]
+        tags = res[2]
 
-                dt_tag.append(h3_tag)
-                dl_tag.append(p_tag)
-
-                main_tag.append(dt_tag)
-                main_tag.append(dl_tag)
+        print(tags)
+        main_tag = soup.find('H3', string=tags[-1]).find_next('P')
+        new_link(main_tag, title, link)
 
     # Save file
     # Clean up text
-    final_text = str(soup).replace('</DT>', '\n').replace('</P>', ' ').replace('</META>', '\n')
-    
+    final_text = str(soup).replace('</DT>', '').replace('</P>', '').replace('</META>', '')
+
     # Save text to byte object
     strIO = BytesIO()
     strIO.write(str.encode(final_text))
