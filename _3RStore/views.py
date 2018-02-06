@@ -1,6 +1,7 @@
 from time import time
 import datetime
 from _3RStore import app, conn
+from psycopg2 import DatabaseError
 import psycopg2.extras
 from bs4 import BeautifulSoup
 from flask import request, session, redirect, url_for, render_template, flash, make_response, send_file
@@ -358,6 +359,33 @@ def delall(user_id):
 # Import resources
 @app.route("/import_resources", methods=['GET', 'POST'])
 def import_resources():
+    cur = conn.cursor()
+
+    def add_res_to_db(resource, tags):
+
+        # Transform tags to all lowercase
+        tags = [tag.lower() for tag in tags]
+
+        link = resource['href']
+
+        if resource.contents:
+            title = resource.contents[0][0:99]
+        else:
+            title = link[0:50] + '...'
+
+        timestamp = datetime.datetime.fromtimestamp(
+            time()).strftime('%Y-%m-%d %H:%M:%S')
+        user_id = session['user_id']
+
+
+        try:
+            cur.execute(
+                ("""INSERT INTO resources(user_id,title,link,tags,date_of_posting) VALUES (%s,%s,%s,%s,%s)"""),
+                (user_id, title, link, tags, timestamp)
+            )
+        except DatabaseError:
+            conn.rollback()
+
 
     if request.method == 'POST':
 
@@ -373,35 +401,20 @@ def import_resources():
 
             if file:
 
-                soup = BeautifulSoup(file, "html.parser")
-                cur = conn.cursor()
+                soup = BeautifulSoup(file, "lxml")
 
-                folders = soup.find_all('dl')
-                for folder in folders:
+                tags = []
+                for curr_tag in soup.find_all():
 
-                    header = folder.find_previous_sibling("h3")
+                    if curr_tag.name.lower() == 'h3':
+                        tags.append(curr_tag.contents[0])
 
-                    if header:
-                    # We filter the first DL which has an H1 tag before it and is not a 'folder'
+                    elif curr_tag.name.lower() == 'a':
+                        add_res_to_db(curr_tag, tags)
 
-                        tag = '{' + str(header.contents[0]).lower() + '}'
+                    elif curr_tag.name.lower() == 'p' and curr_tag.find_previous().name == 'a':
+                        tags.pop()
 
-                        for resource in folder.findChildren('a'):
-                            link = resource['href']
-
-                            if resource.contents:
-                                title = resource.contents[0][0:99]
-                            else:
-                                title = link[0:50] + '...'
-
-                            timestamp = datetime.datetime.fromtimestamp(
-                                time()).strftime('%Y-%m-%d %H:%M:%S')
-                            user_id = session['user_id']
-
-                            cur.execute(
-                                ("""INSERT INTO resources(user_id,title,link,tags,date_of_posting) VALUES (%s,%s,%s,%s,%s)"""),
-                                (user_id, title, link, tag, timestamp)
-                            )
 
                 cur.close()
                 conn.commit()
