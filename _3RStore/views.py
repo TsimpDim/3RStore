@@ -7,7 +7,6 @@ from flask import request, session, redirect, url_for, render_template, flash, m
 from passlib.hash import sha256_crypt
 from . import forms
 from io import BytesIO
-import textwrap as tw
 
 
 @app.route('/')
@@ -499,13 +498,14 @@ def export_to_html():
         link = res[1]
         tags = res[2]
 
-        print(tags)
         main_tag = soup.find('H3', string=tags[-1]).find_next('P')
         new_link(main_tag, title, link)
 
     # Save file
-    # Clean up text
-    final_text = str(soup).replace('</DT>', '').replace('</P>', '').replace('</META>', '')
+    # Clean up text - It's a hacky solution, i know
+    final_text = str(soup).replace('</META>', '\n').replace('</TITLE>', '</TITLE>\n') \
+    .replace('</H1>', '</H1>\n').replace('<DT>', '\n\t<DT>').replace('<DL>', '\n\t<DL>') \
+    .replace('</DT>', '').replace('</P>', '').replace('</DL><P>', '\n\t</DL><P>')
 
     # Save text to byte object
     strIO = BytesIO()
