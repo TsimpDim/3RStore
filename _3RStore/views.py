@@ -412,7 +412,10 @@ def import_resources():
                     elif curr_tag.name.lower() == 'a':
                         add_res_to_db(curr_tag, tags)
 
-                    elif curr_tag.name.lower() == 'p' and curr_tag.find_previous().name == 'a':
+                    elif curr_tag.name.lower() == 'p' and tags \
+                                                      and curr_tag.find_previous() \
+                                                      and (curr_tag.find_previous().name == 'a' \
+                                                      or curr_tag.find_previous().name == 'p'):
                         tags.pop()
 
 
