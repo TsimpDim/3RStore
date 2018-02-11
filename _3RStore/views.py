@@ -18,11 +18,6 @@ def make_session_permanent():
 def index():
     return render_template('home.html')
 
-# About
-@app.route('/about')
-def about():
-    return render_template('about.html')
-
 # User Registration
 @app.route('/register', methods=['GET', 'POST'])
 def register():
