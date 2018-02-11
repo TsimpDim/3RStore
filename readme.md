@@ -26,15 +26,15 @@ First you need to set the environment variable for the application.
 
 One way to do this is :
 
-Navigate to 3RStore/_3RStore 
+From /3RStore
 
 On linux:
 
-    export FLASK_APP=__init__.py
+    export FLASK_APP=_3RStore/__init__.py
 
 On windows:
 
-    set FLASK_APP=__init__.py
+    set FLASK_APP=_3RStore/__init__.py
 
 Then (from this directory) simply run :
 
@@ -42,12 +42,22 @@ Then (from this directory) simply run :
 
 to launch the server. A prompt indicating sucessfull launch should appear in the console.
 
-Finally, open your browser and go to 
+If you want to set Flask's debug mode on you can use:
+
+    export FLASK_DEBUG=true
+
+And
+
+    set FLASK_DEBUG=true
+
+For Linux and Windows respectively.
+
+Finally, you can open your browser and go to 
 
     http://127.0.0.1:5000/
 
 
-### Running the app with waitress 
+### Second way - Running the app with waitress 
 
 First run
 
