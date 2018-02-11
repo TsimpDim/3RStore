@@ -10,6 +10,10 @@ from . import forms
 from io import BytesIO
 
 
+@app.before_request
+def make_session_permanent():
+    session.permanent = True
+
 @app.route('/')
 def index():
     return render_template('home.html')
