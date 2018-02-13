@@ -2,64 +2,68 @@
 {% block body %}
 
 <h2>Options</h2>
-<div class="well">
-    
-    <!-- Delete all dropdown -->
-    <h3>Delete all resources</h3>
-    <div class="dropdown">
-        <button class="panel panel-danger panel-body" data-toggle="dropdown" style="margin-bottom:0;">
-            <span class="glyphicon glyphicon-remove"></span>  
-            Delete all resources
-        </button>
+<div class="card">
+    <div class="card-body">
+        <!-- Delete all dropdown -->
+        <h3 class="card-header">Delete all resources</h3>
+        <div class="card-block">
+            <div class="dropdown">
+                <button class="btn btn-danger" data-toggle="dropdown" style="margin-bottom:0;">
+                    <span class="fa fa-remove"></span>  
+                    Delete all resources
+                </button>
 
-        <ul class="dropdown-menu">
-            <li><a id="delete_all" href="/delall/{{session.user_id}}">
-                <span class="glyphicon glyphicon-ok"></span> 
-                Confirm</a></li>
-        </ul>
-    </div>
-    <!-- /Delete all dropdown -->
+                <div class="dropdown-menu">
+                    <a id="delete_all" class="dropdown-item" href="/delall/{{session.user_id}}">
+                        <span class="fa fa-check"></span> 
+                        Confirm</a></li>
+                </div>
+            </div>
+        </div>
 
-    <!-- Sorting by time of posting -->
-    <h3>Sort by time of posting</h3>
-    <div>
-        <div class="btn-group panel panel-default panel-body">
-            {% if criteria =='time' and sort == 'asc' %}
-                <a class="btn btn-info" href="options/set_sort/time/asc">Ascending</a>
-                <a class="btn" href="options/set_sort/time/desc">Descending</a>
-            {% elif criteria =='time' and sort == 'desc' %}
-                <a class="btn" href="options/set_sort/time/asc">Ascending</a>
-                <a class="btn btn-info" href="options/set_sort/time/desc">Descending</a>
-            {% else %}
-                <a class="btn" href="options/set_sort/time/asc">Ascending</a>
-                <a class="btn" href="options/set_sort/time/desc">Descending</a>
-            {% endif %}
+        <!-- Sorting by time of posting -->
+        <h3 class="card-header">Sort by time of posting</h3>
+        <div class="card-block">
+            <div class="btn-group">
+                {% if criteria =='time' and sort == 'asc' %}
+                    <a class="btn btn-outline-primary" href="options/set_sort/time/asc">Ascending</a>
+                    <a class="btn btn-outline-secondary" href="options/set_sort/time/desc">Descending</a>
+                {% elif criteria =='time' and sort == 'desc' %}
+                    <a class="btn btn-outline-secondary" href="options/set_sort/time/asc">Ascending</a>
+                    <a class="btn btn-outline-primary" href="options/set_sort/time/desc">Descending</a>
+                {% else %}
+                    <a class="btn btn-outline-secondary" href="options/set_sort/time/asc">Ascending</a>
+                    <a class="btn btn-outline-secondary" href="options/set_sort/time/desc">Descending</a>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Sorting by title -->
+        <h3 class="card-header">Sort by title</h3>
+        <div class="card-block">
+            <div class="btn-group">
+                {% if criteria == 'title' and sort == 'asc' %}
+                    <a class="btn btn-outline-primary" href="options/set_sort/title/asc">Ascending</a>
+                    <a class="btn btn-outline-secondary" href="options/set_sort/title/desc">Descending</a>
+                {% elif criteria == 'title' and sort == 'desc' %}
+                    <a class="btn btn-outline-secondary" href="options/set_sort/title/asc">Ascending</a>
+                    <a class="btn btn-outline-primary" href="options/set_sort/title/desc">Descending</a>
+                {% else %}
+                    <a class="btn btn-outline-secondary" href="options/set_sort/title/asc">Ascending</a>
+                    <a class="btn btn-outline-secondary" href="options/set_sort/title/desc">Descending</a>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Export to file -->
+        <h3 class="card-header">Export to file</h3>
+        <div class="card-block">
+            <a href="/export_to_html" class="btn btn-info" style="color:black;">
+                <span class="fa fa-save"></span>  
+                Export to HTML
+            </a>
         </div>
     </div>
-
-    <!-- Sorting by title -->
-    <h3>Sort by title</h3>
-    <div>
-        <div class="btn-group panel panel-default panel-body">
-            {% if criteria == 'title' and sort == 'asc' %}
-                <a class="btn btn-info" href="options/set_sort/title/asc">Ascending</a>
-                <a class="btn" href="options/set_sort/title/desc">Descending</a>
-            {% elif criteria == 'title' and sort == 'desc' %}
-                <a class="btn" href="options/set_sort/title/asc">Ascending</a>
-                <a class="btn btn-info" href="options/set_sort/title/desc">Descending</a>
-            {% else %}
-                <a class="btn" href="options/set_sort/title/asc">Ascending</a>
-                <a class="btn" href="options/set_sort/title/desc">Descending</a>
-            {% endif %}
-        </div>
-    </div>
-
-    <!-- Export to file -->
-    <h3>Export to file</h3>
-        <a href="/export_to_html" class="btn panel panel-info panel-body" style="color:black;">
-            <span class="glyphicon glyphicon-save"></span>  
-            Export to HTML
-        </a>
 </div>
 
 {% endblock %}

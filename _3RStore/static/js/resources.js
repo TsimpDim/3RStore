@@ -13,28 +13,29 @@ function containsOtherArray(thisArray, otherArray){
 
 function initiateSearch(){
     let input = $('#search_input').val().toLowerCase().split(','); // Array with requested tags
-    let resources = $('.list-group-item.active'); // Array with resources
+    let resources = $('.re_cards'); // Array with resources
 
     if(input.length == 1 && input[0] == ""){ // If no tags have been entered
-        $('.list-group').show(); // Show all the resources
+        $('.re_cards').show(); // Show all the resources
     }else{
         resources.each(function(){
             
-            let tags = $(this).children('.label.label-default');
+            let tags = $(this).find('.re_tags'); 
             let tag_array = [];
-            let curr_resource = $(this).parent();
-            let curr_resource_title = $(this).children('h3').children('.re_title').text().toLowerCase();
+            let cur_r_title = $(this).find('h4 > a').text().toLowerCase();
 
+            // Get a cleaned up array of the given (by the user) tags
             tags.each(function(i){
-                let curr_tag = $(this).text().toLowerCase().trim();
+                let curr_tag = $(this).text().trim();
                 if(curr_tag != null || curr_tag.length > 0)
                     tag_array.push(curr_tag);
             });
 
-            if(containsOtherArray(input, tag_array) || curr_resource_title.includes(input[0]))
-                curr_resource.show();
+            // Show the resource if the tags match or if the title includes the input
+            if(containsOtherArray(input, tag_array) || cur_r_title.includes(input[0]))
+                $(this).show();
             else
-                curr_resource.hide();
+                $(this).hide();
 
         });
     }

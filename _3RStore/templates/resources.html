@@ -2,35 +2,37 @@
 
 
 {% block body %}
-    <h1>Welcome {{session.username}}</h1>
+    <h1>{{session.username}}</h1>
 
-    <table class="up_but table">
-        <tr>
-            <td>
-                <div  class="btn-group">
-                    <a class="btn btn-success" href="/add_resource">
-                        <span class="glyphicon glyphicon-plus-sign"></span>
-                        Add new Resource
-                    </a>
-                    <button class="btn btn-info" type="button" data-toggle="collapse" data-target="#upload_file">
-                        <span class="glyphicon glyphicon-open"></span>                
-                        Import from file
-                    </button>
-                </div>
-            </td>
-            <td>
-                <div class="input-group" id="searchbar_cont">
-                    <span class="input-group-addon"><i class="glyphicon glyphicon-search"></i></span>
-                    <input list="tags" type="text" id="search_input" class="form-control" placeholder="Search via tags or title...">
-                    <datalist id="tags">
-                        {% for tag in tags %}
-                        <option value="{{tag}}" class="datalist_option" ></option>
-                        {% endfor %}
-                    </datalist>
-                </div>
-            </td>
-        </tr>
-    </table>
+    <div class="table-responsive">
+        <table class="up_but table">
+            <tr>
+                <td>
+                    <div  class="btn-group">
+                        <a class="btn btn-success" href="/add_resource">
+                            <span class="fa fa-plus-circle"></span>
+                            Add new Resource
+                        </a>
+                        <button class="btn btn-info" type="button" data-toggle="collapse" data-target="#upload_file">
+                            <span class="fa fa-upload"></span>                
+                            Import from file
+                        </button>
+                    </div>
+                </td>
+                <td>
+                    <div class="input-group" id="searchbar_cont">
+                        <span class="input-group-addon"><i class="fa fa-search"></i></span>
+                        <input list="tags" type="text" id="search_input" class="form-control" placeholder="Search via tags or title...">
+                        <datalist id="tags">
+                            {% for tag in tags %}
+                                <option value="{{tag}}" class="datalist_option" ></option>
+                            {% endfor %}
+                        </datalist>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
     
     <form method="post" action="/import_resources" enctype="multipart/form-data" id="upload_file" class="collapse">
         <div id="form" class="jumbotron">
@@ -51,48 +53,53 @@
 
 
     {% for re in resources %}
-        <div class="list-group">
+    <div class="card card-primary re_cards">
+        
+        <div class="card-header d-flex flex-column justify-content-between" style="flex:1;min-width:0;">    
+            <div class="d-flex flex-row justify-content-between" style="flex:1;minw-dith:0;">
+                
+                <h4><a href="{{re.link}}" class="re_info">{{re.title}}</a></h4>
 
-             <!--Blue header-->
-            <div class="list-group-item active">
                 <!--Dropdown-->
-                <div class="dropdown pull-right">
-                    <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">
-                    <span class="caret"></span></button>
-                    <ul class="dropdown-menu" id="ddmenu">
-                        <li><a href="/edit/{{re.user_id}}/{{re.re_id}}"><span class="glyphicon glyphicon-pencil"></span>  Edit</a></li>
-                        <li><a id="delete_but" href="/del/{{re.user_id}}/{{re.re_id}}" ><span class="glyphicon glyphicon-remove"></span>  Delete</a></li>
-                        <li><div class="divider"></div></li>
-                        <li><a id="date" class="dropdown-item">Added {{re.date_of_posting.strftime('%Y-%m-%d')}}</a></li>
-                    </ul>
+                <div class="dropdown align-self-start"> 
+                    <button class="btn btn-sm btn-primary dropdown-but" type="button" data-toggle="dropdown"><span class="fa fa-caret-down"></span></button>
+                    
+                    <div class="dropdown-menu dropdown-menu-right" id="ddmenu" aria-labelledby="dropdown">
+                        <a class="dropdown-item" href="/edit/{{re.user_id}}/{{re.re_id}}"><span class="fa fa-pencil"></span>  Edit</a>
+                        <a class="dropdown-item" id="delete_but" href="/del/{{re.user_id}}/{{re.re_id}}" ><span class="fa fa-remove"></span>  Delete</a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" id="date">Added {{re.date_of_posting.strftime('%Y-%m-%d')}}</a>
+                    </div>
                 </div>
                 <!--/Dropdown-->
 
-                <h3><a href="{{re.link}}" class="list-group-item-heading re_title">{{re.title}}</a></h3>
-                <a href="{{re.link}}" class="list-group-item-heading re_link">{{re.link}}</a>
-                
-                <!-- Tags -->
-                {% if re.tags %}
-                    <br>
+            </div>
+               
+            <!-- Link -->
+            <a href="{{re.link}}" class="re_info">{{re.link}}</a>
+
+            <!-- Tags -->
+            {% if re.tags %}
+                <div>
                     {% for tag in re.tags %}
-                        <div class="label label-default">{{tag}}</div>
+                        <div class="badge badge-default re_tags">{{tag}}</div>
                     {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+            
+
+        <!-- Note section -->
+        {% if re.note %}
+            <div class="card-footer">
+                {% if re.note|length > 100 %}
+                    <button class="btn btn-info" type="button" data-toggle="collapse" data-target="#{{re.re_id}}_note">Expand/Collapse Note</button>
+                    <p id="{{re.re_id}}_note" class="collapse re_note"><br>{{re.note}}</p>
+                {% else %}
+                    <p id="{{re.re_id}}_note" class="re_note" >{{re.note}}</p>
                 {% endif %}
             </div>
-           
-
-
-            <!-- Note section -->
-            {% if re.note %}
-                {% if re.note|length > 100 %}
-                    <div class="list-group-item">
-                        <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#{{re.re_id}}_note">Expand/Collapse Note</button>
-                        <p class="collapse" id="{{re.re_id}}_note"><br>{{re.note}}</p>
-                    </div>
-                {% else %}
-                    <p class="list-group-item" id="{{re.re_id}}_note">{{re.note}}</p>
-                {% endif %}
-            {% endif %}
+        {% endif %}
         </div>
     {% endfor %}
 {% endblock %}

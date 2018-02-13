@@ -1,6 +1,8 @@
-html{
+html {
     overflow: scroll;
+    overflow-x: hidden;
 }
+
 .label{
     letter-spacing: .1em;
     font-weight: 100;
@@ -14,12 +16,9 @@ p{
     word-wrap: break-word;        
 }
 
-a{
+a, a:hover, a:active, a:focus{
     text-decoration: none;
-}
-
-a:hover{
-    text-decoration: none;
+    color:white;
 }
 
 #delete_but{
@@ -33,26 +32,65 @@ a:hover{
     text-align: center;
 }
 
-.list-group-item.active, .list-group-item.active:focus, .list-group-item.active:hover{
-    z-index: unset;
+.re_info{
+    color:white;
+
+    text-overflow: ellipsis;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    word-break: break-word;
+    -ms-hyphens: auto;
+    -moz-hyphens: auto;
+    -webkit-hyphens: auto;
+    hyphens: auto;
+    
+    min-width:0;
+    
+    flex-shrink: 1;
+    flex-basis:5%;
 }
 
-.re_title{
-    word-wrap: break-word;        
+.re_info:hover{
+    color: white;
 }
 
-.re_link{
-    word-wrap: break-word;                
+.re_cards{
+    margin-bottom:1em;
 }
 
-button{
-    min-width: 2em;
+.re_tags{
+    font-weight:400;
+    letter-spacing: .1em;
+}
+
+.dropdown-but{
+    border-color: #0054A0;
+    flex-grow:1;
+}
+
+.dropdown{
+    margin-right: -1em;
+    margin-top: -.5em;
+}
+.card-footer{
+    background: white !important;
+    color:black;
+}
+
+.re_note{
+    color:black;
+    margin-bottom:0;
 }
 
 tr{width: 100%}
 
-@media(max-width: 650px) {
+@media(max-width: 767px) {
     td {
       display: table-row;
     }
 }
+@media(max-width: 480px) {
+    h4 {
+      font-size: 12pt;
+    }
+  }
