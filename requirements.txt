@@ -1,8 +1,8 @@
-WTForms==2.1
-passlib==1.7.1
-psycopg2==2.7.3.2
-Flask==0.12.2
 setuptools==28.8.0
+psycopg2==2.7.3.2
+passlib==1.7.1
+Flask_SSLify==0.1.5
+Flask==0.12.2
+WTForms==2.1
 waitress==1.1.0
-lxml==4.1.1
 beautifulsoup4==4.6.0
