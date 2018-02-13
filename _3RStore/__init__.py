@@ -7,7 +7,13 @@ from flask_sslify import SSLify
 app = Flask(__name__)
 app.config.from_object(__name__)
 
-if os.environ.get('DYNO'): # Only server over HTTPS on Heroku
+if os.environ.get('DYNO'): # Only serve over HTTPS on Heroku
+    app.config.update(
+        SESSION_COOKIE_SECURE = True,
+        REMEMBER_COOKIE_SECURE = True,
+        SESSION_COOKIE_HTTPONLY = True,
+        REMEMBER_COOKIE_HTTPONLY = True
+    )
     sslify = SSLify(app, subdomains=True, permanent=True)
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
