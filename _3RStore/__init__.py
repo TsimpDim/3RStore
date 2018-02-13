@@ -2,9 +2,13 @@ import json
 import os
 from flask import Flask
 import psycopg2 as pg
+from flask_sslify import SSLify
 
 app = Flask(__name__)
 app.config.from_object(__name__)
+
+if os.environ.get('DYNO'): # Only server over HTTPS on Heroku
+    sslify = SSLify(app, subdomains=True, permanent=True)
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
