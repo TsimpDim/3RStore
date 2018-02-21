@@ -8,6 +8,7 @@ from flask import request, session, redirect, url_for, render_template, flash, m
 from passlib.hash import sha256_crypt
 from . import forms
 from io import BytesIO
+from urllib import parse
 
 
 @app.before_request
@@ -207,7 +208,7 @@ def add_resource():
     form = forms.ResourceForm(request.form)
     if request.method == 'POST' and form.validate():
         title = form.title.data
-        link = form.link.data
+        link = parse.unquote(form.link.data)
         note = form.note.data
         timestamp = datetime.datetime.fromtimestamp(
             time()).strftime('%Y-%m-%d %H:%M:%S')
