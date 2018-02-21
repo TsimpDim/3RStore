@@ -121,7 +121,25 @@ def options():
     if session.get('logged_in'):
         sort = request.cookies.get('sort')
         criteria = request.cookies.get('criteria')
-        return render_template('options.html', sort=sort, criteria=criteria)
+
+        # Get all tags
+        cur = conn.cursor()
+        user_id = session['user_id']
+
+        cur.execute(
+        ("""SELECT DISTINCT unnest(tags) FROM resources WHERE user_id = %s"""),
+        (user_id,)
+        )
+
+        tags_raw = cur.fetchall()
+
+        # 'Unpack' tags_raw into one array
+        all_tags = []
+        for tag_arr in tags_raw:
+            all_tags.append(tag_arr[0])
+
+        
+        return render_template('options.html', sort=sort, criteria=criteria, tags=all_tags)
     else:
         flash('You must be logged in to access the options page', 'warning')
         return redirect(url_for('login'))
@@ -331,8 +349,8 @@ def edit_res(user_id, re_id):
             # Update the row - keep date_of_posting, re_id and user_id the same
             cur = conn.cursor()
             cur.execute(
-                ("""UPDATE resources SET title=%s,link=%s,note=%s,tags=%s WHERE user_id=%s AND re_id=%s"""),
-                (title, link, note, tags, user_id, re_id)
+            ("""UPDATE resources SET title=%s,link=%s,note=%s,tags=%s WHERE user_id=%s AND re_id=%s"""),
+            (title, link, note, tags, user_id, re_id)
             )
             cur.close()
             conn.commit()
@@ -355,6 +373,28 @@ def delall(user_id):
         flash('All resources deleted.', 'danger')
 
     return redirect(url_for('resources'))
+
+# Filtered delete
+@app.route("/fildel", methods=['POST'])
+def fildel():
+
+    tags_to_del = request.form.get('tags')
+    user_id = session['user_id']
+
+    tags_array = '{' + tags_to_del + '}'
+
+    cur = conn.cursor()
+    cur.execute(
+    ("""DELETE FROM resources WHERE user_id = %s AND tags @> %s"""),
+    (user_id, tags_array)
+    )
+
+    cur.close()
+    conn.commit()
+
+    flash('Resources deleted successfully', 'danger')
+    return redirect(url_for('options'))
+
 
 # Import resources
 @app.route("/import_resources", methods=['GET', 'POST'])

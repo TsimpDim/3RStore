@@ -4,11 +4,13 @@
 <h2>Options</h2>
 <div class="card">
     <div class="card-body">
-        <!-- Delete all dropdown -->
-        <h3 class="card-header">Delete all resources</h3>
-        <div class="card-block">
+
+        <!-- Delete resources section -->
+        <h3 class="card-header">Delete resources</h3>
+        <div class="card-block d-flex flex-row justify-content-between align-items-start">
+            <!-- Delete all -->
             <div class="dropdown">
-                <button class="btn btn-danger" data-toggle="dropdown" style="margin-bottom:0;">
+                <button class="btn btn-danger" data-toggle="dropdown">
                     <span class="fa fa-remove"></span>  
                     Delete all resources
                 </button>
@@ -18,6 +20,33 @@
                         <span class="fa fa-check"></span> 
                         Confirm</a></li>
                 </div>
+            </div>
+
+            <!-- Filtered delete -->
+            <div class="d-flex flex-column">
+                <form method="POST" action="fildel">
+                    <div class="dropdown">
+                        <button class="btn btn-danger" data-toggle="dropdown">
+                            <span class="fa fa-remove"></span>  
+                            Filtered delete
+                        </button>
+        
+                        <div class="dropdown-menu">
+                            <button class="dropdown-item" type="submit">
+                                <span class="fa fa-check"></span> 
+                                Confirm</button></li>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <input list="tags" type="text" name="tags" id="search_input" class="form-control" placeholder="Tags to delete...">
+                        <datalist id="tags">
+                            {% for tag in tags %}
+                                <option value="{{tag}}" class="datalist_option" ></option>
+                            {% endfor %}
+                        </datalist>
+                    </div>
+                </form>
             </div>
         </div>
 
