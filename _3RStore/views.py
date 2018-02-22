@@ -362,17 +362,24 @@ def edit_res(user_id, re_id):
     return redirect(url_for('resources'))
 
 # Delete all resources
-@app.route("/delall/<int:user_id>")
-def delall(user_id):
+@app.route("/delall", methods=['GET','POST'])
+def delall():
+
+    user_id = request.form.get('user_id')
+    if not user_id:
+        flash('Something went wrong when handling your request', 'danger')
+        return redirect(url_for('login'))
 
     if session['user_id'] == user_id and session.get('logged_in'):
         cur = conn.cursor()
         cur.execute("""DELETE FROM resources WHERE user_id = %s""", (user_id,))
+        
         cur.close()
         conn.commit()
         flash('All resources deleted.', 'danger')
-
     return redirect(url_for('resources'))
+
+
 
 # Filtered delete
 @app.route("/fildel", methods=['POST'])
