@@ -92,7 +92,7 @@
         <!-- Note section -->
         {% if re.note %}
             <div class="card-footer">
-                {% if re.note|length > 100 %}
+                {% if re.note|length > 600 %}
                     <button class="btn btn-info" type="button" data-toggle="collapse" data-target="#{{re.re_id}}_note">Expand/Collapse Note</button>
                     <p id="{{re.re_id}}_note" class="collapse re_note"><br>{{re.note}}</p>
                 {% else %}
