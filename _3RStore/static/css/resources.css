@@ -82,6 +82,10 @@ a, a:hover, a:active, a:focus{
     margin-bottom:0;
 }
 
+.form_item{
+    margin-bottom: 1em;
+}
+
 tr{width: 100%}
 
 @media(max-width: 767px) {
@@ -93,4 +97,4 @@ tr{width: 100%}
     h4 {
       font-size: 12pt;
     }
-  }
+}

@@ -1,5 +1,6 @@
 $(document).ready(function(){
-    $('#search_input').on('input',initiateSearch);
+    $('#search_input').on('input', initiateSearch);
+    $('input').on('input', checkDisabled);
 });
 
 
@@ -39,4 +40,20 @@ function initiateSearch(){
 
         });
     }
+}
+
+function checkDisabled(){
+
+    if ($(this).attr('name') == 'incl' && $(this).val().length > 0){
+        $("input[name='excl']").prop('disabled', true);
+    }else{
+        $("input[name='excl']").prop('disabled', false);
+    }
+
+    if ($(this).attr('name') == 'excl' && $(this).val().length > 0){
+        $("input[name='incl']").prop('disabled', true);
+    }else{
+        $("input[name='incl']").prop('disabled', false);
+    }
+
 }

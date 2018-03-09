@@ -365,21 +365,20 @@ def edit_res(user_id, re_id):
 @app.route("/delall", methods=['GET','POST'])
 def delall():
 
-    user_id = request.form.get('user_id')
+    user_id = int(request.form.get('user_id'))
     if not user_id:
         flash('Something went wrong when handling your request', 'danger')
         return redirect(url_for('login'))
 
     if session['user_id'] == user_id and session.get('logged_in'):
         cur = conn.cursor()
+
         cur.execute("""DELETE FROM resources WHERE user_id = %s""", (user_id,))
-        
+
         cur.close()
         conn.commit()
         flash('All resources deleted.', 'danger')
     return redirect(url_for('resources'))
-
-
 
 # Filtered delete
 @app.route("/fildel", methods=['POST'])
@@ -401,7 +400,6 @@ def fildel():
 
     flash('Resources deleted successfully', 'danger')
     return redirect(url_for('options'))
-
 
 # Import resources
 @app.route("/import_resources", methods=['GET', 'POST'])
@@ -433,7 +431,46 @@ def import_resources():
         except DatabaseError:
             conn.rollback()
 
+    def search_and_insert(filters=None, incl=None):
+        tags = []
+        include_folder = None
+        if filters:
+            filters = [f.lower() for f in filters] # Transform into all lowercase
 
+        for cur_el in soup.find_all():
+
+            prev_tag = cur_el.find_previous('h3')
+            if prev_tag:
+                prev_tag = prev_tag.contents[0].lower()
+
+            if cur_el.name.lower() == 'h3':
+                cur_tag = cur_el.contents[0].lower()
+
+                if filters:
+                    include_folder = (incl == True and cur_tag in filters) or \
+                                     (incl == False and cur_tag not in filters)
+
+                if not filters or include_folder:
+                    tags.append(cur_tag)
+                else:
+                    continue
+
+            elif cur_el.name.lower() == 'a':
+
+                if include_folder or not filters:
+                    add_res_to_db(cur_el, tags)
+
+
+            elif cur_el.name.lower() == 'p' and tags \
+                                            and cur_el.find_previous() \
+                                            and (cur_el.find_previous().name == 'a' \
+                                            or cur_el.find_previous().name == 'p') \
+                                            and (prev_tag in tags):
+                tags.pop()
+
+                if not tags:
+                    break
+                
     if request.method == 'POST':
 
         if 'file' not in request.files:
@@ -450,20 +487,19 @@ def import_resources():
 
                 soup = BeautifulSoup(file, "lxml")
 
-                tags = []
-                for curr_tag in soup.find_all():
+                incl = request.form.get('incl')
+                excl = request.form.get('excl')
 
-                    if curr_tag.name.lower() == 'h3':
-                        tags.append(curr_tag.contents[0])
+                if not incl and not excl: # Default import
+                    search_and_insert()
 
-                    elif curr_tag.name.lower() == 'a':
-                        add_res_to_db(curr_tag, tags)
+                elif incl and not excl: # Include only
+                    incl_items = incl.split(',')
+                    search_and_insert(incl_items, incl=True)
 
-                    elif curr_tag.name.lower() == 'p' and tags \
-                                                      and curr_tag.find_previous() \
-                                                      and (curr_tag.find_previous().name == 'a' \
-                                                      or curr_tag.find_previous().name == 'p'):
-                        tags.pop()
+                elif not incl and excl: # Exclude only
+                    excl_items = excl.split(',')
+                    search_and_insert(excl_items, incl=False)
 
 
                 cur.close()
@@ -472,6 +508,7 @@ def import_resources():
 
     return redirect(url_for('resources'))
 
+# Export resources
 @app.route('/export_to_html')
 def export_to_html():
     def new_folder(main_tag, h3_text):

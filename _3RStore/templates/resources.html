@@ -34,15 +34,17 @@
         </table>
     </div>
     
-    <form method="post" action="/import_resources" enctype="multipart/form-data" id="upload_file" class="collapse">
-        <div id="form" class="jumbotron">
-            <div class="form-group">
-                <label>Choose file to import from</label>
-                <input class="form-control-file" type="file" name="file" accept=".html">
-            </div>
-            <div class="form-group">
-                <input type="submit"></input>
-            </div>
+    <form method="POST" action="/import_resources" enctype="multipart/form-data" id="upload_file"  class="collapse jumbotron form-group">
+        <label>Select file to import from</label>
+        <input class="form_item form-control-file" type="file" name="file" accept=".html">
+
+        <div class="col-4">
+            <input class="form_item form-control" type="text" name="incl" placeholder="Include only folder(s)...">
+            <input class="form_item form-control" type="text" name="excl" placeholder="Exclude folder(s)...">
+        </div>
+
+        <div class="col-2">
+            <button type="submit" class="btn btn-primary">Submit</button>
         </div>
     </form>
     
