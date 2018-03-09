@@ -77,7 +77,7 @@ Ta-da!
 |   requirements.txt
 |   server.py
 |   setup.py
-|   
+|       
 \---_3RStore
     |   db.json
     |   errors.py
@@ -88,6 +88,7 @@ Ta-da!
     |   
     +---static
     |   +---css
+    |   |       options.css
     |   |       resources.css
     |   |       
     |   +---icons
@@ -121,5 +122,5 @@ Ta-da!
     |   \---includes
     |           _formhelpers.html
     |           _messages.html
-    |           _navbar.html
+    |           _navbar.html 
 <pre>
