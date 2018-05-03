@@ -2,7 +2,7 @@
 
 
 {% block body %}
-    <h1>{{session.username}}</h1>
+    <h1>{{session.username}} <span id="re_amount"> - {{resources|length}} resources saved.</span></h1>
 
     <div class="table-responsive">
         <table class="up_but table">
