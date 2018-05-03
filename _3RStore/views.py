@@ -201,11 +201,14 @@ def resources():
 
         data = cur.fetchall()
 
-        cur.execute(
-            ("""SELECT DISTINCT unnest(tags) FROM resources WHERE user_id = %s"""),
-            (user_id,)
-        )
-
+        try:
+            cur.execute(
+                ("""SELECT DISTINCT unnest(tags) FROM resources WHERE user_id = %s"""),
+                (user_id,)
+            )
+        except DatabaseError:
+            conn.rollbal()
+            
         tags_raw = cur.fetchall()
 
         # 'Unpack' tags_raw into one array
@@ -399,6 +402,27 @@ def fildel():
     conn.commit()
 
     flash('Resources deleted successfully', 'danger')
+    return redirect(url_for('options'))
+
+# Remove tag
+@app.route("/remtag", methods=['POST'])
+def remtag():
+
+    tags = request.form.get('tags')
+
+    if tags:
+        tags_to_rem = tags.split(',')
+
+        for tag in tags_to_rem:
+            cur = conn.cursor()
+            cur.execute("UPDATE resources SET tags = array_remove(tags, %s )",
+            (tag,)
+            )
+
+        cur.close()
+        conn.commit()
+
+    flash('Tag(s) removed successfully', 'danger')
     return redirect(url_for('options'))
 
 # Import resources
