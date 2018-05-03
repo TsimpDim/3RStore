@@ -41,8 +41,8 @@
                     </div>
 
                     <div class="input-group">
-                        <input list="tags" type="text" name="tags" id="search_input" class="form-control" placeholder="Tags to delete...">
-                        <datalist id="tags">
+                        <input list="tags_deltag" type="text" name="tags" class="form-control" placeholder="Tags to delete...">
+                        <datalist id="tags_deltag">
                             {% for tag in tags %}
                                 <option value="{{tag}}" class="datalist_option" ></option>
                             {% endfor %}
@@ -84,6 +84,34 @@
                     <a class="btn btn-outline-secondary" href="options/set_sort/title/desc">Descending</a>
                 {% endif %}
             </div>
+        </div>
+
+        <!-- Remove tag -->
+        <h3 class="card-header">Remove tags</h3>
+        <div class="card-block d-flex flex-row flex-wrap align-content-center justify-content-between align-items-start" id="filtered_del">
+            <form method="POST" action="remtag">
+                <div class="dropdown">
+                    <button class="btn btn-danger" data-toggle="dropdown">
+                        <span class="fa fa-minus-square"></span>  
+                        Remove tags
+                    </button>
+    
+                    <div class="dropdown-menu">
+                        <button class="dropdown-item" type="submit">
+                            <span class="fa fa-check"></span> 
+                            Confirm</button></li>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <input list="tags_remtag" type="text" name="tags" class="form-control" placeholder="Tags to remove...">
+                    <datalist id="tags_remtag">
+                        {% for tag in tags %}
+                            <option value="{{tag}}" class="datalist_option" ></option>
+                        {% endfor %}
+                    </datalist>
+                </div>
+            </form>
         </div>
 
         <!-- Export to file -->
