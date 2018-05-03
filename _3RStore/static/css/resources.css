@@ -32,6 +32,11 @@ a, a:hover, a:active, a:focus{
     text-align: center;
 }
 
+#re_amount{
+    font-size:.4em;
+    color: grey;
+    font-style: italic;
+}
 .re_info{
     color:white;
 
