@@ -123,6 +123,25 @@
             </a>
         </div>
     </div>
+
+    <!-- Delete account -->
+    <h3 class="card-header">Delete account</h3>
+    <div class="card-block d-flex flex-row flex-wrap align-content-center justify-content-between align-items-start" id="del_acc">
+            <div class="dropdown">
+                    <button class="btn btn-danger" data-toggle="dropdown">
+                        <span class="fa fa-remove"></span>  
+                        Delete account permanently
+                    </button>
+    
+                    <div class="dropdown-menu">
+                        <form action="/delacc" method="POST">
+                        <button id="delete_acc" class="dropdown-item" type="submit" name="user_id" value="{{session.user_id}}">
+                            <span class="fa fa-check"></span> 
+                            Confirm</a></li>
+                        </form>
+                    </div>
+            </div>
+    </div>
 </div>
 
 {% endblock %}

@@ -114,6 +114,28 @@ def logout():
     flash('You are now logged out', 'success')
     return redirect('/')
 
+# Delete account
+@app.route('/delacc', methods=['POST'])
+def delacc():
+    user_id = request.form.get('user_id')
+
+    cur = conn.cursor()
+    try:
+        # First delete from `resources` so as not to violate foreign key constraints
+        cur.execute('DELETE FROM resources WHERE user_id = %s',
+        (user_id,)
+        )
+
+        cur.execute('DELETE FROM users WHERE id = %s',
+        (user_id,)
+        )
+    except DatabaseError:
+        cur.rollback()
+
+    session.clear()
+    flash('Account deleted. Sad to see you go :(', 'danger')
+    return redirect('/')
+
 # Options
 @app.route('/options')
 def options():

@@ -1,3 +1,7 @@
+.card{
+    margin-bottom: 2em;
+}
+
 @media(max-width: 485px){
     #filtered_del{
         margin-top:1em;

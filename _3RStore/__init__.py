@@ -67,7 +67,8 @@ try:
     cur.close()
     conn.commit()
 except (Exception, pg.DatabaseError) as error:
-    print("Unable to connect to the database" + error)
+    print("Unable to connect to the database")
+    raise error
 
 import _3RStore.views
 import _3RStore.errors
