@@ -2,6 +2,9 @@
     margin-bottom: 2em;
 }
 
+.conf_inp_but{
+    margin-right: .2em;
+}
 @media(max-width: 485px){
     #filtered_del{
         margin-top:1em;
