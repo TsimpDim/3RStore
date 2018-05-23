@@ -1,5 +1,5 @@
 from wtforms import Form, StringField, TextAreaField, PasswordField, validators
-
+from _3RStore import conn
 
 class ResourceForm(Form):
     '''Resource form class. Gets input for title,link,note and tags and validates it.'''
@@ -17,6 +17,7 @@ class ResourceForm(Form):
 
     def validate(self):
 
+        # Validate as is and then go ahead with the other checks
         validation = Form.validate(self)
         if not validation:
             return False
@@ -59,7 +60,41 @@ class RegisterForm(Form):
     ])
     password = PasswordField('Password', [
         validators.DataRequired(),
-        validators.EqualTo('confirm', message='Passwords do not match')
+        validators.EqualTo('confirm', message='Passwords do not match'),
+        validators.Length(min=8)
     ])
 
     confirm = PasswordField('Confirm Password')
+
+    def validate(self):
+        
+        # Validate as is and then go ahead with the other checks
+        validation = Form.validate(self)
+        if not validation:
+            return False
+
+        cur = conn.cursor()
+
+        # If username exists
+        cur.execute("SELECT username FROM users WHERE username=%s",
+        (self.username.data,)
+        )
+
+        exists = cur.fetchall()
+
+        if exists:
+            self.username.errors.append('Username already exists')
+            return False
+    
+        # If email exists
+        cur.execute("SELECT email FROM users WHERE email=%s",
+        (self.email.data,)
+        )
+
+        exists = cur.fetchall()
+
+        if exists:
+            self.email.errors.append('Email is already registered')
+            return False
+        return True
+        
