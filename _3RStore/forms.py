@@ -60,7 +60,7 @@ class RegisterForm(Form):
     ])
     password = PasswordField('Password', [
         validators.DataRequired(),
-        validators.EqualTo('confirm', message='Passwords do not match'),
+        validators.EqualTo('confirm', message='Passwords do not match.'),
         validators.Length(min=8)
     ])
 
@@ -83,7 +83,7 @@ class RegisterForm(Form):
         exists = cur.fetchall()
 
         if exists:
-            self.username.errors.append('Username already exists')
+            self.username.errors.append('Username already exists.')
             return False
     
         # If email exists
@@ -94,7 +94,7 @@ class RegisterForm(Form):
         exists = cur.fetchall()
 
         if exists:
-            self.email.errors.append('Email is already registered')
+            self.email.errors.append('Email is already registered.')
             return False
         return True
         
