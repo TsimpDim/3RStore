@@ -252,7 +252,7 @@ def add_resource():
     if request.method == 'POST' and form.validate():
         title = form.title.data
         link = parse.unquote(form.link.data)
-        note = form.note.data
+        note = form.note.data.replace('\n','</br>') # So we can show the newlines in the note section
         timestamp = datetime.datetime.fromtimestamp(
             time()).strftime('%Y-%m-%d %H:%M:%S')
 
@@ -344,7 +344,7 @@ def edit_res(user_id, re_id):
             form = forms.ResourceForm()
             form.title.data = data[0]['title']
             form.link.data = data[0]['link']
-            form.note.data = data[0]['note']
+            form.note.data = data[0]['note'].replace('</br>','\n') # Else the </br> tags will display as text
 
             if data[0]['tags']:
                 form.tags.data = ','.join(data[0]['tags'])  # Array to string
@@ -362,7 +362,7 @@ def edit_res(user_id, re_id):
             # Grab the new form and its data
             title = form.title.data
             link = form.link.data
-            note = form.note.data
+            note = form.note.data.replace('\n','</br>') # Save newlines as </br> to display them properly later
             tags = form.tags.data
 
             # If not empty format for proper insertion into postgresql
