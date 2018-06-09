@@ -453,7 +453,7 @@ def import_resources():
     cur = conn.cursor()
 
     def add_res_to_db(resource, tags):
-
+        print("_ADD_DB")
         # Transform tags to all lowercase
         tags = [tag.lower() for tag in tags]
 
@@ -485,13 +485,17 @@ def import_resources():
 
         for cur_el in soup.find_all():
 
+            print('-'*10)
             prev_tag = cur_el.find_previous('h3')
             if prev_tag:
                 prev_tag = prev_tag.contents[0].lower()
+                print("_PREV_TAG_")
+                print(prev_tag)
 
             if cur_el.name.lower() == 'h3':
                 cur_tag = cur_el.contents[0].lower()
-
+                print("_CUR_TAG_FOLDER")
+                print(cur_tag)
                 if filters:
                     include_folder = (incl == True and cur_tag in filters) or \
                                      (incl == False and cur_tag not in filters)
@@ -502,7 +506,9 @@ def import_resources():
                     continue
 
             elif cur_el.name.lower() == 'a':
-
+                
+                print("_RESOURCE_(A)_")
+                print(cur_el.string)
                 if include_folder or not filters:
                     add_res_to_db(cur_el, tags)
 
@@ -513,7 +519,8 @@ def import_resources():
                                             or cur_el.find_previous().name == 'p') \
                                             and (prev_tag in tags):
                 tags.pop()
-
+                print("_TAGS_")
+                print(tags)
                 if not tags:
                     break
                 
@@ -601,8 +608,8 @@ def export_to_html():
     # Create base html
     soup = BeautifulSoup('<!DOCTYPE NETSCAPE-Bookmark-file-1>', 'lxml')
     meta_tag = soup.new_tag('META')
-    meta_tag['HTTP-EQUIV'] = 'Content-Type'
     meta_tag['CONTENT'] = 'text/html; charset=UTF-8'
+    meta_tag['HTTP-EQUIV'] = 'Content-Type'
     soup.append(meta_tag)
 
     title_tag = soup.new_tag('TITLE')
@@ -622,20 +629,31 @@ def export_to_html():
     soup.append(soup.new_tag('P')) # <P> closing the final </DL>
     
     # Create the folders in HTML form
+    print(user_tags)
     for tag_array in user_tags:
         for i, tag in enumerate(tag_array[0]):
 
-            root_folder_exists = soup.find('H3', string=tag_array[i-1][0])
+            print(i)
+            print(tag)
+            print(tag_array[0])
+
+
+            try:
+                root_folder_exists = soup.find('H3', string=tag_array[0][i-1])
+                print(tag_array[i-1][0])
+            except:
+                print(tag_array)
+
             curr_folder_exists = soup.find('H3', string=tag)
 
             # If the root folder does not exist, create it
             if not root_folder_exists:
                 main_tag = soup.find('P', {'TYPE' : 'Main'})
-                new_folder(main_tag, tag_array[i-1][0])
+                new_folder(main_tag, tag_array[0][i-1])
 
             # If the root folder exists and we have not created this folder previously
             elif root_folder_exists and not curr_folder_exists:
-                main_tag = soup.find('H3', string=tag_array[i-1][0]).find_next('DL')
+                main_tag = soup.find('H3', string=tag_array[0][i-1]).find_next('DL')
                 new_folder(main_tag, tag)
 
     # Insert the links in the corresponding folders
@@ -644,13 +662,17 @@ def export_to_html():
         link = res[1]
         tags = res[2]
 
-        main_tag = soup.find('H3', string=tags[-1]).find_next('P')
+        if not tags:
+            main_tag = soup.find('H3').find_next('P') # Find the first folder 
+        else:
+            main_tag = soup.find('H3', string=tags[-1]).find_next('P')
+
         new_link(main_tag, title, link)
 
     # Save file
     # Clean up text - It's a hacky solution, i know
     final_text = str(soup).replace('</META>', '\n').replace('</TITLE>', '</TITLE>\n') \
-    .replace('</H1>', '</H1>\n').replace('<DT>', '\n\t<DT>').replace('<DL>', '\n\t<DL>') \
+    .replace('<DT>', '\n\t<DT>').replace('<DL>', '\n\t<DL>') \
     .replace('</DT>', '').replace('</P>', '').replace('</DL><P>', '\n\t</DL><P>')
 
     # Save text to byte object
