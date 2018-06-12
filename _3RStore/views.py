@@ -601,11 +601,11 @@ def export_to_html():
 
     # Build relevant structure
 
-    def_folder = AnyNode(name="def", parent=None) # Tree Root
+    def_folder = Node(name="def", parent=None) # Tree Root
     def_folder.parent = None
 
     for res in user_resources:
-        cur_res = AnyNode(title=res[0], link=res[1], tags=res[2], name=res[0])
+        cur_res = classes.MixinResource(*res, res[0], 0, 0) # Set name same as title
         tags = res[2]
 
         if not tags:
@@ -619,7 +619,7 @@ def export_to_html():
                 # Check if folder/node already exists
                 folder_exists = find(def_folder, lambda node: node.name == tag)
                 if not folder_exists:
-                    new_folder = AnyNode(name=tag)
+                    new_folder = Node(name=tag)
 
                     new_folder.parent = prev_folder # In the first iter this will be def_folder
                     prev_folder = new_folder
