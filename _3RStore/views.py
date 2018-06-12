@@ -600,32 +600,39 @@ def export_to_html():
     user_resources = cur.fetchall()
 
     # Build relevant structure
-
     def_folder = Node(name="def", parent=None) # Tree Root
-    def_folder.parent = None
 
     for res in user_resources:
+        # Build a new node for each resource
         cur_res = classes.MixinResource(*res, res[0], 0, 0) # Set name same as title
         tags = res[2]
 
+        # If a resource has no tags, put it in the root folder
         if not tags:
             cur_res.parent = def_folder
             continue
         else:
 
+            # Build every subfolder of the resource
+            # Which means creating a new node for every tag
             prev_folder = def_folder
-            for idx,tag in enumerate(tags):
+            for tag in tags:
 
                 # Check if folder/node already exists
-                folder_exists = find(def_folder, lambda node: node.name == tag)
-                if not folder_exists:
+                potential_folder = find(def_folder, lambda node: node.name == tag)
+                if not potential_folder:
                     new_folder = Node(name=tag)
-
                     new_folder.parent = prev_folder # In the first iter this will be def_folder
                     prev_folder = new_folder
+                else:
+                    # So that despite not creating a new node the prev_folder
+                    # Still holds the previous node/subfolder correctly
+                    prev_folder = potential_folder
     
             # Add resource to the last Node/Folder
             cur_res.parent = find(def_folder, lambda node: node.name == tags[-1])
+    
+    # TODO :: With the structure now built, handle the actual exporting
     print(RenderTree(def_folder, style=AsciiStyle()).by_attr())
 
     # Save text to byte object
