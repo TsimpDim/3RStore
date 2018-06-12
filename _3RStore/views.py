@@ -9,6 +9,8 @@ from passlib.hash import sha256_crypt
 from . import forms
 from io import BytesIO
 from urllib import parse
+from . import classes
+from anytree import Node, RenderTree, find, AsciiStyle, NodeMixin, AnyNode
 
 
 @app.before_request
@@ -491,13 +493,9 @@ def import_resources():
             prev_tag = cur_el.find_previous('h3')
             if prev_tag:
                 prev_tag = prev_tag.contents[0].lower()
-                print("_PREV_TAG_")
-                print(prev_tag)
 
             if cur_el.name.lower() == 'h3':
                 cur_tag = cur_el.contents[0].lower()
-                print("_CUR_TAG_FOLDER")
-                print(cur_tag)
                 if filters:
                     include_folder = (incl == True and cur_tag in filters) or \
                                      (incl == False and cur_tag not in filters)
@@ -595,92 +593,45 @@ def export_to_html():
     cur = conn.cursor()
     user_id = session['user_id']
 
-    cur.execute(("""SELECT title, link, tags FROM resources WHERE user_id = %s"""),
+    cur.execute(("""SELECT title, link, tags FROM resources WHERE user_id = %s ORDER BY tags"""),
     (user_id,)
     )
 
     user_resources = cur.fetchall()
 
-    cur.execute(("""SELECT DISTINCT tags FROM resources WHERE user_id = %s"""),
-    (user_id,)
-    )
+    # Build relevant structure
 
-    user_tags = cur.fetchall()
+    def_folder = AnyNode(name="def", parent=None) # Tree Root
+    def_folder.parent = None
 
-    # Create base html
-    soup = BeautifulSoup('<!DOCTYPE NETSCAPE-Bookmark-file-1>', 'lxml')
-    meta_tag = soup.new_tag('META')
-    meta_tag['CONTENT'] = 'text/html; charset=UTF-8'
-    meta_tag['HTTP-EQUIV'] = 'Content-Type'
-    soup.append(meta_tag)
-
-    title_tag = soup.new_tag('TITLE')
-    title_tag.string = '3RStore Resources'
-    soup.append(title_tag)
-
-    header_tag = soup.new_tag('H1')
-    header_tag.string = '3RStore'
-    soup.append(header_tag)
-
-    dl_tag = soup.new_tag('DL')
-    p_tag = soup.new_tag('P')
-    p_tag['TYPE'] = 'Main'
-    dl_tag.append(p_tag)
-    soup.append(dl_tag)
-
-    soup.append(soup.new_tag('P')) # <P> closing the final </DL>
-    
-    # Create the folders in HTML form
-    print(user_tags)
-    for tag_array in user_tags:
-        for i, tag in enumerate(tag_array[0]):
-
-            print(i)
-            print(tag)
-            print(tag_array[0])
-
-
-            try:
-                root_folder_exists = soup.find('H3', string=tag_array[0][i-1])
-                print(tag_array[i-1][0])
-            except:
-                print(tag_array)
-
-            curr_folder_exists = soup.find('H3', string=tag)
-
-            # If the root folder does not exist, create it
-            if not root_folder_exists:
-                main_tag = soup.find('P', {'TYPE' : 'Main'})
-                new_folder(main_tag, tag_array[0][i-1])
-
-            # If the root folder exists and we have not created this folder previously
-            elif root_folder_exists and not curr_folder_exists:
-                main_tag = soup.find('H3', string=tag_array[0][i-1]).find_next('DL')
-                new_folder(main_tag, tag)
-
-    # Insert the links in the corresponding folders
     for res in user_resources:
-        title = res[0]
-        link = res[1]
+        cur_res = AnyNode(title=res[0], link=res[1], tags=res[2], name=res[0])
         tags = res[2]
 
         if not tags:
-            main_tag = soup.find('H3').find_next('P') # Find the first folder 
+            cur_res.parent = def_folder
+            continue
         else:
-            main_tag = soup.find('H3', string=tags[-1]).find_next('P')
 
-        new_link(main_tag, title, link)
+            prev_folder = def_folder
+            for idx,tag in enumerate(tags):
 
-    # Save file
-    # Clean up text - It's a hacky solution, i know
-    final_text = str(soup).replace('</META>', '\n').replace('</TITLE>', '</TITLE>\n') \
-    .replace('<DT>', '\n\t<DT>').replace('<DL>', '\n\t<DL>') \
-    .replace('</DT>', '').replace('</P>', '').replace('</DL><P>', '\n\t</DL><P>')
+                # Check if folder/node already exists
+                folder_exists = find(def_folder, lambda node: node.name == tag)
+                if not folder_exists:
+                    new_folder = AnyNode(name=tag)
+
+                    new_folder.parent = prev_folder # In the first iter this will be def_folder
+                    prev_folder = new_folder
+    
+            # Add resource to the last Node/Folder
+            cur_res.parent = find(def_folder, lambda node: node.name == tags[-1])
+    print(RenderTree(def_folder, style=AsciiStyle()).by_attr())
 
     # Save text to byte object
-    strIO = BytesIO()
-    strIO.write(str.encode(final_text))
-    strIO.seek(0)
+    #strIO = BytesIO()
+    #strIO.write(str.encode(final_text))
+    #strIO.seek(0)
 
     # Send html file to client
-    return send_file(strIO, attachment_filename='3RStore_export.html', as_attachment=True)
+    #return send_file(strIO, attachment_filename='3RStore_export.html', as_attachment=True)
