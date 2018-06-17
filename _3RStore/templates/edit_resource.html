@@ -5,16 +5,16 @@
 {% from "includes/_formhelpers.html" import render_field %}
 <form method="POST" action="">
     <div class="form-group">
-        {{render_field(form.title, class_= "form-control")}}
+        {{ render_field(form.title, class_= "form-control") }}
     </div>
     <div class="form-group">
-        {{render_field(form.link, class_= "form-control")}}
+        {{ render_field(form.link, class_= "form-control") }}
     </div>
     <div class="form-group">
-        {{render_field(form.note, class_= "form-control")}}
+        {{ render_field(form.note, class_= "form-control") }}
     </div>
     <div class="form-group">
-            {{render_field(form.tags, class_= "form-control", list="tag_list")}}
+            {{ render_field(form.tags, class_= "form-control", list="tag_list") }}
             <datalist id="tag_list">
                 {% for tag in tags %}
                 <option value="{{tag}}"></option>
