@@ -9,8 +9,8 @@ from passlib.hash import sha256_crypt
 from . import forms
 from io import BytesIO
 from urllib import parse
-from . import classes
-from anytree import Node, RenderTree, find, AsciiStyle, NodeMixin, AnyNode
+from . import classes as cc
+from anytree import Node, RenderTree, find, AsciiStyle, NodeMixin, AnyNode, PreOrderIter
 
 
 @app.before_request
@@ -564,22 +564,51 @@ def import_resources():
 # Export resources
 @app.route('/export_to_html')
 def export_to_html():
-    def new_folder(main_tag, h3_text):
+
+    def base_html():
+        soup = BeautifulSoup('<!DOCTYPE NETSCAPE-Bookmark-file-1>', 'lxml')
+        meta_tag = soup.new_tag('META')
+        meta_tag['HTTP-EQUIV'] = 'Content-Type'
+        meta_tag['CONTENT'] = 'text/html; charset=UTF-8'
+        soup.append(meta_tag)
+
+        title_tag = soup.new_tag('TITLE')
+        title_tag.string = '3RStore Resources'
+        soup.append(title_tag)
+
+        header_tag = soup.new_tag('H1')
+        header_tag.string = '3RStore'
+        soup.append(header_tag)
+
+        dl_tag = soup.new_tag('DL')
+        p_tag = soup.new_tag('P')
+        p_tag['TYPE'] = 'Main'
+        dl_tag.append(p_tag)
+        soup.append(dl_tag)
+
+        soup.append(soup.new_tag('P')) # <P> closing the final </DL>
+
+        return soup
+
+    def new_bkmrk_folder(main_tag, folder_name):
         dt_tag = soup.new_tag('DT')
         h3_tag = soup.new_tag('H3')
         dl_tag = soup.new_tag('DL')
         p_tag = soup.new_tag('P')
 
-        h3_tag.string = h3_text
+        h3_tag.string = folder_name
 
         dt_tag.append(h3_tag)
         dl_tag.append(p_tag)
 
         main_tag.append(dt_tag)
         main_tag.append(dl_tag)
-        main_tag.append(soup.new_tag('P')) # To close each folder we created
+        new_folder = soup.new_tag('P')
+        main_tag.append(new_folder) # To close each folder we created
 
-    def new_link(main_tag, title, link):
+        return new_folder
+
+    def new_bkmrk_link(main_tag, title, link):
         dt_tag = soup.new_tag('DT')
         
         a_tag = soup.new_tag('A')
@@ -604,7 +633,7 @@ def export_to_html():
 
     for res in user_resources:
         # Build a new node for each resource
-        cur_res = classes.MixinResource(*res, res[0], 0, 0) # Set name same as title
+        cur_res = cc.MixinResource(res[0], res[1], res[2], res[0], 0, 0) # Set name same as title
         tags = res[2]
 
         # If a resource has no tags, put it in the root folder
@@ -632,9 +661,23 @@ def export_to_html():
             # Add resource to the last Node/Folder
             cur_res.parent = find(def_folder, lambda node: node.name == tags[-1])
     
-    # TODO :: With the structure now built, handle the actual exporting
-    print(RenderTree(def_folder, style=AsciiStyle()).by_attr())
+    # Handle the actual exporting
+    soup = base_html()
+    main_tag = soup.find('P', {'TYPE' : 'Main'})
+    prev_folder = main_tag
+    prev_was_res = False
+    for node in PreOrderIter(def_folder):
 
+        if type(node) == cc.MixinResource:
+            new_bkmrk_link(prev_folder, node.title, node.link)
+
+            if not prev_was_res : prev_was_res = True
+        else:
+            if prev_was_res: prev_folder = main_tag
+
+            prev_folder = new_bkmrk_folder(prev_folder, node.name)
+        
+    print(soup.prettify())
     # Save text to byte object
     #strIO = BytesIO()
     #strIO.write(str.encode(final_text))
