@@ -348,7 +348,7 @@ def edit_res(user_id, re_id):
             form.link.data = data[0]['link']
             form.note.data = data[0]['note']
             if form.note.data:
-                form.note.data.replace('</br>','\n') # Else the </br> tags will display as text
+                form.note.data = form.note.data.replace('</br>','\n') # Else the </br> tags will display as text
 
             if data[0]['tags']:
                 form.tags.data = ','.join(data[0]['tags'])  # Array to string
