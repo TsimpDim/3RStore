@@ -11,7 +11,7 @@ from io import BytesIO
 from urllib import parse
 from . import classes as cc
 from anytree import Node, RenderTree, find, AsciiStyle, NodeMixin, AnyNode, PreOrderIter
-
+import re as r
 
 @app.before_request
 def make_session_permanent():
@@ -566,6 +566,29 @@ def import_resources():
 def export_to_html():
 
     def base_html():
+        '''
+        This function creates the following HTML structure:
+
+            <!DOCTYPE NETSCAPE-Bookmark-file-1>
+            <META CONTENT="text/html; charset=UTF-8" HTTP-EQUIV="Content-Type"></META>
+            <TITLE>3RStore Resources</TITLE>
+            <H1>3RStore</H1>
+            <DL>
+            <P TYPE="Main"></P>
+            </DL><P></P>
+
+        After the tag cleanup later on, what remains is the appropriate
+        parsable form
+
+            <!DOCTYPE NETSCAPE-Bookmark-file-1>
+            <META CONTENT="text/html; charset=UTF-8" HTTP-EQUIV="Content-Type">
+            <TITLE>3RStore Resources</TITLE>
+            <H1>3RStore</H1>
+            <DL><P TYPE="Main">
+                {folder contents}
+            </DL><P>
+        '''
+
         soup = BeautifulSoup('<!DOCTYPE NETSCAPE-Bookmark-file-1>', 'lxml')
         meta_tag = soup.new_tag('META')
         meta_tag['HTTP-EQUIV'] = 'Content-Type'
@@ -590,11 +613,28 @@ def export_to_html():
 
         return soup
 
-    def new_bkmrk_folder(main_tag, folder_name):
-        dt_tag = soup.new_tag('DT')
-        h3_tag = soup.new_tag('H3')
-        dl_tag = soup.new_tag('DL')
-        p_tag = soup.new_tag('P')
+    def new_bkmrk_folder(main_tag, folder_name, depth):
+        '''
+        This functions creates an HTML structure like so:
+
+            
+            <DT><H3> {folder name} </H3></DT>
+            <DL><P></P>
+            </DL><P></P>
+        
+        After the tag cleanup later on, what remains is the appropriate
+        parsable form
+
+            <DT><H3> {folder name} </H3>
+            <DL><P>
+            </DL><P>
+        '''
+
+
+        dt_tag = soup.new_tag('DT', ident=depth)
+        h3_tag = soup.new_tag('H3', ident=depth)
+        dl_tag = soup.new_tag('DL', ident=depth)
+        p_tag = soup.new_tag('P', ident=depth)
 
         h3_tag.string = folder_name
 
@@ -603,15 +643,26 @@ def export_to_html():
 
         main_tag.append(dt_tag)
         main_tag.append(dl_tag)
-        new_folder = soup.new_tag('P')
-        main_tag.append(new_folder) # To close each folder we created
+        main_tag.append(soup.new_tag('P', ident=depth)) # To close each folder we created
 
-        return new_folder
+        return p_tag
 
-    def new_bkmrk_link(main_tag, title, link):
-        dt_tag = soup.new_tag('DT')
+    def new_bkmrk_link(main_tag, title, link, depth):
+        ''' 
+        This function creates an HTML structure like so:
+
+            <DT><A {href = link}> {title} </A></DT>
+
+        After the tag cleanup later on, what remains is the appropriate
+        parsable form
+
+            <DT><A {href = link}> {title} </A>
+
+        '''
+
+        dt_tag = soup.new_tag('DT', ident=depth)
         
-        a_tag = soup.new_tag('A')
+        a_tag = soup.new_tag('A', ident=depth)
         a_tag['HREF'] = link
         a_tag.string = title
 
@@ -663,25 +714,46 @@ def export_to_html():
     
     # Handle the actual exporting
     soup = base_html()
+
     main_tag = soup.find('P', {'TYPE' : 'Main'})
     prev_folder = main_tag
     prev_was_res = False
+
+    # Build the HTML string/file
     for node in PreOrderIter(def_folder):
 
         if type(node) == cc.MixinResource:
-            new_bkmrk_link(prev_folder, node.title, node.link)
+            new_bkmrk_link(prev_folder, node.title, node.link, (node.depth + 1))
 
             if not prev_was_res : prev_was_res = True
         else:
             if prev_was_res: prev_folder = main_tag
 
-            prev_folder = new_bkmrk_folder(prev_folder, node.name)
+            prev_folder = new_bkmrk_folder(prev_folder, node.name, (node.depth + 1))
         
-    print(soup.prettify())
+    # Remove unecessary tags and add newlines
+    final_text = str(soup).replace('</META>', '\n').replace('</TITLE>', '</TITLE>\n') \
+    .replace('</H1>', '</H1>\n').replace('<DT', '\n<DT').replace('<DL', '\n<DL') \
+    .replace('</P>', '').replace('</DT>', '').replace('</DL><P', '\n</DL><P')
+
+    # Add proper identation
+    split_text = final_text.splitlines()
+    for idx,line in enumerate(split_text):
+        res = r.search(r'(?<=.ident=\")\d+', line)
+
+        if res:
+            tabs = int(res.group(0))
+            split_text[idx] = '\t'*tabs + line
+            
+            # Remove the custom"ident" property
+            split_text[idx] = r.sub(r' ident=\"\d+\"', '', split_text[idx]) 
+    
+    final_text = '\n'.join(split_text)
+
     # Save text to byte object
-    #strIO = BytesIO()
-    #strIO.write(str.encode(final_text))
-    #strIO.seek(0)
+    strIO = BytesIO()
+    strIO.write(str.encode(final_text))
+    strIO.seek(0)
 
     # Send html file to client
-    #return send_file(strIO, attachment_filename='3RStore_export.html', as_attachment=True)
+    return send_file(strIO, attachment_filename='3RStore_export.html', as_attachment=True)
