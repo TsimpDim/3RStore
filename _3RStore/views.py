@@ -457,7 +457,7 @@ def import_resources():
     cur = conn.cursor()
 
     def add_res_to_db(resource, tags):
-        print("_ADD_DB")
+
         # Transform tags to all lowercase
         tags = [tag.lower() for tag in tags]
 
@@ -482,47 +482,51 @@ def import_resources():
             conn.rollback()
 
     def search_and_insert(filters=None, incl=None):
+
+        def_folder = Node("d", parent=None)
+        folders = [def_folder]
         tags = []
         include_folder = None
+        prev_was_res = False
+
+
         if filters:
             filters = [f.lower() for f in filters] # Transform into all lowercase
 
+        # Build tree
         for cur_el in soup.find_all():
 
-            print('-'*10)
-            prev_tag = cur_el.find_previous('h3')
-            if prev_tag:
-                prev_tag = prev_tag.contents[0].lower()
+            # Detect folders, aka <DT><H3> {folder name} </H3>
 
-            if cur_el.name.lower() == 'h3':
-                cur_tag = cur_el.contents[0].lower()
-                if filters:
-                    include_folder = (incl == True and cur_tag in filters) or \
-                                     (incl == False and cur_tag not in filters)
-
-                if not filters or include_folder:
-                    tags.append(cur_tag)
-                else:
-                    continue
-
-            elif cur_el.name.lower() == 'a':
+            if cur_el.name == 'h3':
                 
-                print("_RESOURCE_(A)_")
-                print(cur_el.string)
-                if include_folder or not filters:
-                    add_res_to_db(cur_el, tags)
+                if prev_was_res : 
+                    folders.pop()
+                    tags.pop()
 
+                new_folder = Node(cur_el.string)
+                new_folder.parent = folders[-1]
 
-            elif cur_el.name.lower() == 'p' and tags \
-                                            and cur_el.find_previous() \
-                                            and (cur_el.find_previous().name == 'a' \
-                                            or cur_el.find_previous().name == 'p') \
-                                            and (prev_tag in tags):
-                tags.pop()
-                print("_TAGS_")
-                print(tags)
-                if not tags:
-                    break
+                folders.append(new_folder)
+                tags.append(cur_el.string)
+
+            # Detect resources/links aka <DT><A {href}> {title} </A>
+            if cur_el.name == 'a':
+                new_resource = cc.MixinResource(cur_el.string, 
+                                                cur_el.get('href'),
+                                                tags, # Remove def_folder's name
+                                                cur_el.string,
+                                                0,
+                                                0)
+
+                new_resource.parent = folders[-1]
+                if not prev_was_res: prev_was_res = True
+
+        print(RenderTree(def_folder, style=AsciiStyle()).by_attr())
+            
+               
+        
+
                 
     if request.method == 'POST':
 
