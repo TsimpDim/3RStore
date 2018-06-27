@@ -456,17 +456,17 @@ def remtag():
 def import_resources():
     cur = conn.cursor()
 
-    def add_res_to_db(resource, tags):
+    def add_res_to_db(res:cc.BaseResource):
 
         # Transform tags to all lowercase
-        tags = [tag.lower() for tag in tags]
+        tags = [tag.lower() for tag in res.tags]
 
-        link = resource['href']
+        link = res.link
 
-        if resource.contents:
-            title = resource.contents[0][0:99]
+        if res.title:
+            title = res.title[0:99]
         else:
-            title = link[0:50] + '...'
+            title = res.link[0:50] + '...'
 
         timestamp = datetime.datetime.fromtimestamp(
             time()).strftime('%Y-%m-%d %H:%M:%S')
@@ -483,49 +483,30 @@ def import_resources():
 
     def search_and_insert(filters=None, incl=None):
 
-        def_folder = Node("d", parent=None)
-        folders = [def_folder]
         tags = []
-        include_folder = None
         prev_was_res = False
 
 
         if filters:
             filters = [f.lower() for f in filters] # Transform into all lowercase
 
-        # Build tree
         for cur_el in soup.find_all():
 
             # Detect folders, aka <DT><H3> {folder name} </H3>
-
             if cur_el.name == 'h3':
                 
                 if prev_was_res : 
-                    folders.pop()
                     tags.pop()
-
-                new_folder = Node(cur_el.string)
-                new_folder.parent = folders[-1]
-
-                folders.append(new_folder)
                 tags.append(cur_el.string)
 
             # Detect resources/links aka <DT><A {href}> {title} </A>
             if cur_el.name == 'a':
-                new_resource = cc.MixinResource(cur_el.string, 
+                new_resource = cc.BaseResource(cur_el.string, 
                                                 cur_el.get('href'),
-                                                tags, # Remove def_folder's name
-                                                cur_el.string,
-                                                0,
-                                                0)
+                                                tags)
 
-                new_resource.parent = folders[-1]
+                add_res_to_db(new_resource)
                 if not prev_was_res: prev_was_res = True
-
-        print(RenderTree(def_folder, style=AsciiStyle()).by_attr())
-            
-               
-        
 
                 
     if request.method == 'POST':
