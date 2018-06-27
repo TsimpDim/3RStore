@@ -495,17 +495,21 @@ def import_resources():
             # Detect folders, aka <DT><H3> {folder name} </H3>
             if cur_el.name == 'h3':
                 
-                if prev_was_res : 
+                if prev_was_res and tags: 
                     tags.pop()
-                tags.append(cur_el.string)
+                tags.append(cur_el.string.lower())
 
             # Detect resources/links aka <DT><A {href}> {title} </A>
             if cur_el.name == 'a':
                 new_resource = cc.BaseResource(cur_el.string, 
                                                 cur_el.get('href'),
                                                 tags)
+                                    
+                if (not incl and not filters) \
+                or (incl and any(f in tags for f in filters)) \
+                or (not incl and all(f not in tags for f in filters)):
+                    add_res_to_db(new_resource)
 
-                add_res_to_db(new_resource)
                 if not prev_was_res: prev_was_res = True
 
                 
