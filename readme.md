@@ -76,9 +76,9 @@ Ta-da!
 |   readme.md
 |   requirements.txt
 |   server.py
-|   setup.py
-|       
+|   setup.py    
 \---_3RStore
+    |   classes.py
     |   db.json
     |   errors.py
     |   forms.py
@@ -89,6 +89,7 @@ Ta-da!
     +---static
     |   +---css
     |   |       options.css
+    |   |       register.css
     |   |       resources.css
     |   |       
     |   +---icons
@@ -109,18 +110,18 @@ Ta-da!
     |           resources.js
     |           
     +---templates
-    |   |   add_resource.html
-    |   |   edit_resource.html
-    |   |   error.html
-    |   |   home.html
-    |   |   layout.html
-    |   |   login.html
-    |   |   options.html
-    |   |   register.html
-    |   |   resources.html
-    |   |   
-    |   \---includes
-    |           _formhelpers.html
-    |           _messages.html
-    |           _navbar.html 
+        |   add_resource.html
+        |   edit_resource.html
+        |   error.html
+        |   home.html
+        |   layout.html
+        |   login.html
+        |   options.html
+        |   register.html
+        |   resources.html
+        |   
+        \---includes
+                _formhelpers.html
+                _messages.html
+                _navbar.html
 <pre>
