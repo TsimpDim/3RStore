@@ -9,7 +9,9 @@ from passlib.hash import sha256_crypt
 from . import forms
 from io import BytesIO
 from urllib import parse
-
+from . import classes as cc
+from anytree import Node, RenderTree, find, AsciiStyle, NodeMixin, AnyNode, PreOrderIter
+import re as r
 
 @app.before_request
 def make_session_permanent():
@@ -454,17 +456,17 @@ def remtag():
 def import_resources():
     cur = conn.cursor()
 
-    def add_res_to_db(resource, tags):
+    def add_res_to_db(res:cc.BaseResource):
 
         # Transform tags to all lowercase
-        tags = [tag.lower() for tag in tags]
+        tags = [tag.lower() for tag in res.tags]
 
-        link = resource['href']
+        link = res.link
 
-        if resource.contents:
-            title = resource.contents[0][0:99]
+        if res.title:
+            title = res.title[0:99]
         else:
-            title = link[0:50] + '...'
+            title = res.link[0:50] + '...'
 
         timestamp = datetime.datetime.fromtimestamp(
             time()).strftime('%Y-%m-%d %H:%M:%S')
@@ -480,44 +482,36 @@ def import_resources():
             conn.rollback()
 
     def search_and_insert(filters=None, incl=None):
+
         tags = []
-        include_folder = None
+        prev_was_res = False
+
+
         if filters:
             filters = [f.lower() for f in filters] # Transform into all lowercase
 
         for cur_el in soup.find_all():
 
-            prev_tag = cur_el.find_previous('h3')
-            if prev_tag:
-                prev_tag = prev_tag.contents[0].lower()
+            # Detect folders, aka <DT><H3> {folder name} </H3>
+            if cur_el.name == 'h3':
+                
+                if prev_was_res and tags: 
+                    tags.pop()
+                tags.append(cur_el.string.lower())
 
-            if cur_el.name.lower() == 'h3':
-                cur_tag = cur_el.contents[0].lower()
+            # Detect resources/links aka <DT><A {href}> {title} </A>
+            if cur_el.name == 'a':
+                new_resource = cc.BaseResource(cur_el.string, 
+                                                cur_el.get('href'),
+                                                tags)
+                                    
+                if (not incl and not filters) \
+                or (incl and any(f in tags for f in filters)) \
+                or (not incl and all(f not in tags for f in filters)):
+                    add_res_to_db(new_resource)
 
-                if filters:
-                    include_folder = (incl == True and cur_tag in filters) or \
-                                     (incl == False and cur_tag not in filters)
+                if not prev_was_res: prev_was_res = True
 
-                if not filters or include_folder:
-                    tags.append(cur_tag)
-                else:
-                    continue
-
-            elif cur_el.name.lower() == 'a':
-
-                if include_folder or not filters:
-                    add_res_to_db(cur_el, tags)
-
-
-            elif cur_el.name.lower() == 'p' and tags \
-                                            and cur_el.find_previous() \
-                                            and (cur_el.find_previous().name == 'a' \
-                                            or cur_el.find_previous().name == 'p') \
-                                            and (prev_tag in tags):
-                tags.pop()
-
-                if not tags:
-                    break
                 
     if request.method == 'POST':
 
@@ -559,25 +553,105 @@ def import_resources():
 # Export resources
 @app.route('/export_to_html')
 def export_to_html():
-    def new_folder(main_tag, h3_text):
-        dt_tag = soup.new_tag('DT')
-        h3_tag = soup.new_tag('H3')
+
+    def base_html():
+        '''
+        This function creates the following HTML structure:
+
+            <!DOCTYPE NETSCAPE-Bookmark-file-1>
+            <META CONTENT="text/html; charset=UTF-8" HTTP-EQUIV="Content-Type"></META>
+            <TITLE>3RStore Resources</TITLE>
+            <H1>3RStore</H1>
+            <DL>
+            <P TYPE="Main"></P>
+            </DL><P></P>
+
+        After the tag cleanup later on, what remains is the appropriate
+        parsable form
+
+            <!DOCTYPE NETSCAPE-Bookmark-file-1>
+            <META CONTENT="text/html; charset=UTF-8" HTTP-EQUIV="Content-Type">
+            <TITLE>3RStore Resources</TITLE>
+            <H1>3RStore</H1>
+            <DL><P TYPE="Main">
+                {folder contents}
+            </DL><P>
+        '''
+
+        soup = BeautifulSoup('<!DOCTYPE NETSCAPE-Bookmark-file-1>', 'lxml')
+        meta_tag = soup.new_tag('META')
+        meta_tag['HTTP-EQUIV'] = 'Content-Type'
+        meta_tag['CONTENT'] = 'text/html; charset=UTF-8'
+        soup.append(meta_tag)
+
+        title_tag = soup.new_tag('TITLE')
+        title_tag.string = '3RStore Resources'
+        soup.append(title_tag)
+
+        header_tag = soup.new_tag('H1')
+        header_tag.string = '3RStore'
+        soup.append(header_tag)
+
         dl_tag = soup.new_tag('DL')
         p_tag = soup.new_tag('P')
+        p_tag['TYPE'] = 'Main'
+        dl_tag.append(p_tag)
+        soup.append(dl_tag)
 
-        h3_tag.string = h3_text
+        soup.append(soup.new_tag('P')) # <P> closing the final </DL>
+
+        return soup
+
+    def new_bkmrk_folder(main_tag, folder_name, depth):
+        '''
+        This functions creates an HTML structure like so:
+
+            
+            <DT><H3> {folder name} </H3></DT>
+            <DL><P></P>
+            </DL><P></P>
+        
+        After the tag cleanup later on, what remains is the appropriate
+        parsable form
+
+            <DT><H3> {folder name} </H3>
+            <DL><P>
+            </DL><P>
+        '''
+
+
+        dt_tag = soup.new_tag('DT', ident=depth)
+        h3_tag = soup.new_tag('H3', ident=depth)
+        dl_tag = soup.new_tag('DL', ident=depth)
+        p_tag = soup.new_tag('P', ident=depth)
+
+        h3_tag.string = folder_name
 
         dt_tag.append(h3_tag)
         dl_tag.append(p_tag)
 
         main_tag.append(dt_tag)
         main_tag.append(dl_tag)
-        main_tag.append(soup.new_tag('P')) # To close each folder we created
+        main_tag.append(soup.new_tag('P', ident=depth)) # To close each folder we created
 
-    def new_link(main_tag, title, link):
-        dt_tag = soup.new_tag('DT')
+        return p_tag
+
+    def new_bkmrk_link(main_tag, title, link, depth):
+        ''' 
+        This function creates an HTML structure like so:
+
+            <DT><A {href = link}> {title} </A></DT>
+
+        After the tag cleanup later on, what remains is the appropriate
+        parsable form
+
+            <DT><A {href = link}> {title} </A>
+
+        '''
+
+        dt_tag = soup.new_tag('DT', ident=depth)
         
-        a_tag = soup.new_tag('A')
+        a_tag = soup.new_tag('A', ident=depth)
         a_tag['HREF'] = link
         a_tag.string = title
 
@@ -588,72 +662,82 @@ def export_to_html():
     cur = conn.cursor()
     user_id = session['user_id']
 
-    cur.execute(("""SELECT title, link, tags FROM resources WHERE user_id = %s"""),
+    cur.execute(("""SELECT title, link, tags FROM resources WHERE user_id = %s ORDER BY tags"""),
     (user_id,)
     )
 
     user_resources = cur.fetchall()
 
-    cur.execute(("""SELECT DISTINCT tags FROM resources WHERE user_id = %s"""),
-    (user_id,)
-    )
+    # Build relevant structure
+    def_folder = Node(name="def", parent=None) # Tree Root
 
-    user_tags = cur.fetchall()
-
-    # Create base html
-    soup = BeautifulSoup('<!DOCTYPE NETSCAPE-Bookmark-file-1>', 'lxml')
-    meta_tag = soup.new_tag('META')
-    meta_tag['HTTP-EQUIV'] = 'Content-Type'
-    meta_tag['CONTENT'] = 'text/html; charset=UTF-8'
-    soup.append(meta_tag)
-
-    title_tag = soup.new_tag('TITLE')
-    title_tag.string = '3RStore Resources'
-    soup.append(title_tag)
-
-    header_tag = soup.new_tag('H1')
-    header_tag.string = '3RStore'
-    soup.append(header_tag)
-
-    dl_tag = soup.new_tag('DL')
-    p_tag = soup.new_tag('P')
-    p_tag['TYPE'] = 'Main'
-    dl_tag.append(p_tag)
-    soup.append(dl_tag)
-
-    soup.append(soup.new_tag('P')) # <P> closing the final </DL>
-    
-    # Create the folders in HTML form
-    for tag_array in user_tags:
-        for i, tag in enumerate(tag_array[0]):
-
-            root_folder_exists = soup.find('H3', string=tag_array[i-1][0])
-            curr_folder_exists = soup.find('H3', string=tag)
-
-            # If the root folder does not exist, create it
-            if not root_folder_exists:
-                main_tag = soup.find('P', {'TYPE' : 'Main'})
-                new_folder(main_tag, tag_array[i-1][0])
-
-            # If the root folder exists and we have not created this folder previously
-            elif root_folder_exists and not curr_folder_exists:
-                main_tag = soup.find('H3', string=tag_array[i-1][0]).find_next('DL')
-                new_folder(main_tag, tag)
-
-    # Insert the links in the corresponding folders
     for res in user_resources:
-        title = res[0]
-        link = res[1]
+        # Build a new node for each resource
+        cur_res = cc.MixinResource(res[0], res[1], res[2], res[0], 0, 0) # Set name same as title
         tags = res[2]
 
-        main_tag = soup.find('H3', string=tags[-1]).find_next('P')
-        new_link(main_tag, title, link)
+        # If a resource has no tags, put it in the root folder
+        if not tags:
+            cur_res.parent = def_folder
+            continue
+        else:
 
-    # Save file
-    # Clean up text - It's a hacky solution, i know
+            # Build every subfolder of the resource
+            # Which means creating a new node for every tag
+            prev_folder = def_folder
+            for tag in tags:
+
+                # Check if folder/node already exists
+                potential_folder = find(def_folder, lambda node: node.name == tag)
+                if not potential_folder:
+                    new_folder = Node(name=tag)
+                    new_folder.parent = prev_folder # In the first iter this will be def_folder
+                    prev_folder = new_folder
+                else:
+                    # So that despite not creating a new node the prev_folder
+                    # Still holds the previous node/subfolder correctly
+                    prev_folder = potential_folder
+    
+            # Add resource to the last Node/Folder
+            cur_res.parent = find(def_folder, lambda node: node.name == tags[-1])
+    
+    # Handle the actual exporting
+    soup = base_html()
+
+    main_tag = soup.find('P', {'TYPE' : 'Main'})
+    prev_folder = main_tag
+    prev_was_res = False
+
+    # Build the HTML string/file
+    for node in PreOrderIter(def_folder):
+
+        if type(node) == cc.MixinResource:
+            new_bkmrk_link(prev_folder, node.title, node.link, (node.depth + 1))
+
+            if not prev_was_res : prev_was_res = True
+        else:
+            if prev_was_res: prev_folder = main_tag
+
+            prev_folder = new_bkmrk_folder(prev_folder, node.name, (node.depth + 1))
+        
+    # Remove unecessary tags and add newlines
     final_text = str(soup).replace('</META>', '\n').replace('</TITLE>', '</TITLE>\n') \
-    .replace('</H1>', '</H1>\n').replace('<DT>', '\n\t<DT>').replace('<DL>', '\n\t<DL>') \
-    .replace('</DT>', '').replace('</P>', '').replace('</DL><P>', '\n\t</DL><P>')
+    .replace('</H1>', '</H1>\n').replace('<DT', '\n<DT').replace('<DL', '\n<DL') \
+    .replace('</P>', '').replace('</DT>', '').replace('</DL><P', '\n</DL><P')
+
+    # Add proper identation
+    split_text = final_text.splitlines()
+    for idx,line in enumerate(split_text):
+        res = r.search(r'(?<=.ident=\")\d+', line)
+
+        if res:
+            tabs = int(res.group(0))
+            split_text[idx] = '\t'*tabs + line
+            
+            # Remove the custom"ident" property
+            split_text[idx] = r.sub(r' ident=\"\d+\"', '', split_text[idx]) 
+    
+    final_text = '\n'.join(split_text)
 
     # Save text to byte object
     strIO = BytesIO()
