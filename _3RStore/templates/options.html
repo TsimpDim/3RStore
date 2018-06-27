@@ -3,11 +3,10 @@
 
 <h2>Options</h2>
 <div class="card">
-    <div class="card-body">
 
         <!-- Delete resources section -->
-        <h3 class="card-header">Delete resources</h3>
-        <div class="card-block d-flex flex-row flex-wrap align-content-center justify-content-between align-items-start">
+        <h3 class="card-header" >Delete resources</h3>
+        <div class="card-body d-flex flex-row flex-wrap align-content-center justify-content-between align-items-start">
             <!-- Delete all -->
             <div class="dropdown">
                 <button class="btn btn-danger" data-toggle="dropdown">
@@ -54,7 +53,7 @@
 
         <!-- Sorting by time of posting -->
         <h3 class="card-header">Sort by time of posting</h3>
-        <div class="card-block">
+        <div class="card-body">
             <div class="btn-group">
                 {% if criteria =='time' and sort == 'asc' %}
                     <a class="btn btn-outline-primary" href="options/set_sort/time/asc">Ascending</a>
@@ -71,7 +70,7 @@
 
         <!-- Sorting by title -->
         <h3 class="card-header">Sort by title</h3>
-        <div class="card-block">
+        <div class="card-body">
             <div class="btn-group">
                 {% if criteria == 'title' and sort == 'asc' %}
                     <a class="btn btn-outline-primary" href="options/set_sort/title/asc">Ascending</a>
@@ -88,7 +87,7 @@
 
         <!-- Remove tags -->
         <h3 class="card-header">Remove tags</h3>
-        <div class="card-block d-flex flex-wrap align-content-center justify-content-between align-items-start" id="filtered_del">
+        <div class="card-body d-flex flex-wrap align-content-center justify-content-between align-items-start">
             <form method="POST" action="remtag">
                 <div class="d-flex flex-row">
                     <div class="dropdown">
@@ -117,17 +116,16 @@
 
         <!-- Export to file -->
         <h3 class="card-header">Export to file</h3>
-        <div class="card-block">
+        <div class="card-body">
             <a href="/export_to_html" class="btn btn-info" style="color:black;">
                 <span class="fa fa-save"></span>  
                 Export to HTML
             </a>
         </div>
-    </div>
 
     <!-- Delete account -->
     <h3 class="card-header">Delete account</h3>
-    <div class="card-block d-flex flex-row flex-wrap align-content-center justify-content-between align-items-start" id="del_acc">
+    <div class="card-body d-flex flex-row flex-wrap align-content-center justify-content-between align-items-start" id="del_acc">
             <div class="dropdown">
                     <button class="btn btn-danger" data-toggle="dropdown">
                         <span class="fa fa-remove"></span>  

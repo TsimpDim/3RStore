@@ -1,3 +1,7 @@
+.filtered_del{
+    margin-top: 0;
+}
+
 .card{
     margin-bottom: 2em;
 }
@@ -6,7 +10,7 @@
     margin-right: .2em;
 }
 @media(max-width: 485px){
-    #filtered_del{
-        margin-top:1em;
+    .filtered_del{
+        margin-top:5em;
     }
 }
