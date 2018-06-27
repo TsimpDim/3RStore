@@ -63,10 +63,13 @@ def login():
         # And get the user from the db
         # Treat result as a dictionary
         cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-        cur.execute(("""
-        SELECT * FROM users WHERE username = %s
-        """), (username,))  # Comma for single element tuple
-
+        try:
+            cur.execute(("""
+            SELECT * FROM users WHERE username = %s
+            """), (username,))  # Comma for single element tuple
+        except DatabaseError:
+            cur.rollback()
+            
         # If we find a user with that username
         data = cur.fetchone()
         if data:

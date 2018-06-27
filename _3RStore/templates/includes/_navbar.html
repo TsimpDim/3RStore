@@ -1,23 +1,26 @@
-<nav class="navbar navbar-inverse navbar-toggleable" style="margin-bottom:2em;background-color:#323232">
-
-  <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <a class="navbar-brand" href="/">3R</a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo02" aria-controls="navbarTogglerDemo02" aria-expanded="false" aria-label="Toggle navigation">
     <span class="navbar-toggler-icon"></span>
   </button>
-  
-  <a href="/" class="navbar-brand"><img src="/static/icons/3rstore_logo.png" width="80" height="40" class="d-inline-block align-top" alt="3RStore"></a>
-  <div class="collapse navbar-collapse" id="navbarNav">
-      <ul class="navbar-nav">
-        <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
-        <li class="nav-item"><a class="nav-link" href="/resources">Resources</a></li>
-        <li class="nav-item"><a class="nav-link" href="/options">Options</a></li>
-      </ul>
-          <ul class="navbar-nav navbar-right ml-auto">
-        {% if session.logged_in %}
-          <li class="nav-item"><a class="nav-link" href="/logout">Logout</a></li>
-        {% else %}
-          <li class="nav-item"><a class="nav-link" href="/register">Register</a></li>
-          <li class="nav-item"><a class="nav-link" href="/login">Login</a></li>
-        {% endif %}
-      </ul>
-</div>
+
+  <div class="collapse navbar-collapse" id="navbarTogglerDemo02">
+    <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
+      <li class="nav-item">
+        <a class="nav-link" href="/resources">Resources <span class="sr-only">resources</span></a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/options">Options <span class="sr-only">options</span></a>
+      </li>
+    </ul>
+
+    <ul class="navbar-nav navbar-right ml-auto">
+      {% if session.logged_in %}
+        <li class="nav-item"><a class="nav-link" href="/logout">Logout</a></li>
+      {% else %}
+        <li class="nav-item"><a class="nav-link" href="/register">Register</a></li>
+        <li class="nav-item"><a class="nav-link" href="/login">Login</a></li>
+      {% endif %}
+    </ul>
+  </div>
 </nav>
