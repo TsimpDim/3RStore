@@ -3,6 +3,15 @@ html {
     overflow-x: hidden;
 }
 
+#res_panel{
+    margin-bottom: 3em;
+    margin-top: 1em;
+}
+
+#searchbar_cont{
+    width:50%;
+}
+
 .label{
     letter-spacing: .1em;
     font-weight: 100;
@@ -91,15 +100,23 @@ a, a:hover, a:active, a:focus{
     margin-bottom: 1em;
 }
 
-tr{width: 100%}
+@media (max-width: 800px){
+    .text_hide{
+        display:none;
+    }
 
-@media(max-width: 767px) {
-    td {
-      display: table-row;
+    #searchbar_cont{
+        width:100%;
+        margin-top: .5em;
+    }
+
+    #res_panel{
+        flex-wrap: wrap;
     }
 }
-@media(max-width: 480px) {
-    h4 {
-      font-size: 12pt;
+
+@media (max-width: 360px){
+    #res_pg_header{
+        font-size: 2em;
     }
 }

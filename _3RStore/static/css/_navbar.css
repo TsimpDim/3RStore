@@ -1,0 +1,7 @@
+nav{
+    margin-bottom: 2em;
+}
+
+.active{
+    border-bottom: 3px solid white;
+}
