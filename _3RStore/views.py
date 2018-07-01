@@ -88,6 +88,7 @@ def login():
                 # Build default response
                 resp = make_response(redirect(url_for('resources')))
 
+                # Sorting cookies
                 sort = request.cookies.get('sort')
                 criteria = request.cookies.get('criteria')
                 if not sort or not criteria:  # If any of them have not been set
@@ -97,6 +98,12 @@ def login():
 
                     resp.set_cookie(
                         'criteria', "time", expires=datetime.datetime.now()
+                        + datetime.timedelta(days=30))
+
+                # View cookies
+                view = request.cookies.get('view')
+                if not view:
+                    resp.set_cookie('view', 'full', expires=datetime.datetime.now()
                         + datetime.timedelta(days=30))
 
                 flash('You are now logged in', 'success')
@@ -148,6 +155,7 @@ def options():
     if session.get('logged_in'):
         sort = request.cookies.get('sort')
         criteria = request.cookies.get('criteria')
+        view = request.cookies.get('view')
 
         # Get all tags
         cur = conn.cursor()
@@ -166,7 +174,7 @@ def options():
             all_tags.append(tag_arr[0])
 
         
-        return render_template('options.html', sort=sort, criteria=criteria, tags=all_tags)
+        return render_template('options.html', sort=sort, criteria=criteria, tags=all_tags, view=view)
     else:
         flash('You must be logged in to access the options page', 'warning')
         return redirect(url_for('login'))
@@ -182,6 +190,19 @@ def set_asc(criteria, stype):
 
         resp.set_cookie(
             'criteria', criteria, expires=datetime.datetime.now()
+            + datetime.timedelta(days=30))
+
+        return resp
+    else:
+        flash('You must be logged in to access the options page', 'warning')
+        return redirect(url_for('login'))
+
+# View type
+@app.route('/options/set_view/<string:view>')
+def set_view(view):
+    if session.get('logged_in'):
+        resp = make_response(redirect(url_for('options')))
+        resp.set_cookie('view', view, expires=datetime.datetime.now()
             + datetime.timedelta(days=30))
 
         return resp
@@ -245,7 +266,12 @@ def resources():
 
         cur.close()
         conn.commit()
-        return render_template('resources.html', resources=data, sort=sort, tags=all_tags)
+
+        view = request.cookies.get('view')
+        if view == 'full':
+            return render_template('resources.html', resources=data, sort=sort, tags=all_tags)
+        else:
+            return render_template('resources_cmpct.html', resources=data, sort=sort, tags=all_tags)
 
     return render_template('resources.html')
 
