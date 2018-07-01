@@ -454,6 +454,25 @@ def remtag():
     flash('Tag(s) removed successfully', 'danger')
     return redirect(url_for('options'))
 
+# Rename tag
+@app.route("/renametag", methods=['POST'])
+def renametag():
+
+    tag = request.form.get('tag')
+    replacement = request.form.get('replacement')
+
+    if tag:
+        cur = conn.cursor()
+        cur.execute("UPDATE resources SET tags = array_replace(tags,%s,%s)",
+        (tag, replacement)
+        )
+
+        cur.close()
+        conn.commit()
+    
+    flash('Tag renamed successfully', 'success')
+    return redirect(url_for('options'))
+
 # Import resources
 @app.route("/import_resources", methods=['GET', 'POST'])
 def import_resources():
