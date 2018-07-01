@@ -269,9 +269,9 @@ def resources():
 
         view = request.cookies.get('view')
         if view == 'full':
-            return render_template('resources.html', resources=data, sort=sort, tags=all_tags)
+            return render_template('resources.html', resources=data, sort=sort, tags=all_tags, view=view) # Pass 'view' attribute to use the correct .css file
         else:
-            return render_template('resources_cmpct.html', resources=data, sort=sort, tags=all_tags)
+            return render_template('resources_cmpct.html', resources=data, sort=sort, tags=all_tags, view=view)
 
     return render_template('resources.html')
 
