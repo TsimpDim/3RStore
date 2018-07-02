@@ -46,6 +46,7 @@ a, a:hover, a:active, a:focus{
     color: grey;
     font-style: italic;
 }
+
 .re_info{
     color:white;
 
@@ -62,6 +63,10 @@ a, a:hover, a:active, a:focus{
     
     flex-shrink: 1;
     flex-basis:5%;
+
+    margin-right: 1em;
+    line-height: 1;
+    display: block;
 }
 
 .re_info:hover{
@@ -69,12 +74,13 @@ a, a:hover, a:active, a:focus{
 }
 
 .re_cards{
-    margin-bottom:1em;
+    margin-bottom:.5em;
 }
 
 .re_tags{
     font-weight:400;
     letter-spacing: .1em;
+    display: inline;
 }
 
 .res_dropdown_but{
@@ -86,9 +92,9 @@ a, a:hover, a:active, a:focus{
     margin-right: -1em;
     margin-top: -.5em;
 }
+
 .card-footer{
-    background: white !important;
-    color:black;
+    display:none;
 }
 
 .re_note{
@@ -98,6 +104,16 @@ a, a:hover, a:active, a:focus{
 
 .form_item{
     margin-bottom: 1em;
+}
+
+.show-note{
+    border-color: #0054A0;
+}
+
+.show-note-prim{
+    margin-top:1em;
+    margin-right:-1em;
+    padding:0;
 }
 
 @media (max-width: 800px){
@@ -115,8 +131,30 @@ a, a:hover, a:active, a:focus{
     }
 }
 
+@media (max-width: 700px){
+    .re_info{
+        font-size: .8em;
+        font-weight: 450;
+
+    }
+
+    .re_tags{
+        font-size: .8em;
+    }
+}
+
 @media (max-width: 360px){
     #res_pg_header{
         font-size: 2em;
+    }
+
+    .re_info{
+        font-size: .5em;
+        font-weight: 400;
+
+    }
+
+    .re_tags{
+        font-size: .5em;
     }
 }

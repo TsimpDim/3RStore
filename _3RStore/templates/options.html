@@ -142,6 +142,20 @@
             </form>
         </div>
 
+        <!-- Sorting by title -->
+        <h3 class="card-header">View size</h3>
+        <div class="card-body">
+            <div class="btn-group">
+                {% if view == 'full' %}
+                    <a class="btn btn-outline-primary" href="options/set_view/full">Full</a>
+                    <a class="btn btn-outline-secondary" href="options/set_view/compact">Compact</a>
+                {% else %}
+                    <a class="btn btn-outline-secondary" href="options/set_view/full">Full</a>
+                    <a class="btn btn-outline-primary" href="options/set_view/compact">Compact</a>
+                {% endif %}
+            </div>
+        </div>
+
 
         <!-- Export to file -->
         <h3 class="card-header">Export to file</h3>
