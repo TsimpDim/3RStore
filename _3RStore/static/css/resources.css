@@ -25,10 +25,7 @@ p{
     word-wrap: break-word;        
 }
 
-a, a:hover, a:active, a:focus{
-    text-decoration: none;
-    color:white;
-}
+
 
 #delete_but{
     color: rgb(206, 48, 48);
@@ -46,6 +43,7 @@ a, a:hover, a:active, a:focus{
     color: grey;
     font-style: italic;
 }
+
 .re_info{
     color:white;
 
@@ -64,8 +62,9 @@ a, a:hover, a:active, a:focus{
     flex-basis:5%;
 }
 
-.re_info:hover{
-    color: white;
+.re_info, .re_info:hover, .re_info:active, .re_info:focus{
+    text-decoration: none;
+    color:white;
 }
 
 .re_cards{
@@ -86,6 +85,7 @@ a, a:hover, a:active, a:focus{
     margin-right: -1em;
     margin-top: -.5em;
 }
+
 .card-footer{
     background: white !important;
     color:black;
