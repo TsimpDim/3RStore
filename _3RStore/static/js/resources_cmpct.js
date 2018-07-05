@@ -8,17 +8,18 @@ $(document).ready(function(){
 function containsOtherArray(thisArray, otherArray){
     for(let i = 0; i < thisArray.length; i++){
       if(otherArray.indexOf(thisArray[i]) === -1)
-         return false;
+        return false;
     }
     return true;
 }
 
 function initiateSearch(){
     let input = $('#search_input').val().toLowerCase().split(','); // Array with requested tags
-    let resources = $('.re_cards'); // Array with resources
+    let resources = $('.re_card'); // Array with resources
 
     if(input.length == 1 && input[0] == ""){ // If no tags have been entered
-        $('.re_cards').show(); // Show all the resources
+        $("#cards_cont").show(); // Show all the resources
+        $('.re_card').show();
     }else{
         resources.each(function(){
             
@@ -34,12 +35,18 @@ function initiateSearch(){
             });
 
             // Show the resource if the tags match or if the title includes the input
-            if(containsOtherArray(input, tag_array) || cur_r_title.includes(input[0]))
+            if(containsOtherArray(input, tag_array) || cur_r_title.includes(input[0])){
                 $(this).show();
-            else
+                $("#cards_cont").show();
+            }else
                 $(this).hide();
 
         });
+
+        if($("#cards_cont").children(':visible').length == 0)
+            $("#cards_cont").hide();
+        else
+            $("#cards_cont").show();
     }
 }
 
