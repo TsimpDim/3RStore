@@ -5,3 +5,9 @@
 .conf_inp_but{
     margin-right: .2em;
 }
+
+@media (max-width:768px){
+    #delete_all_cont{
+        margin-bottom: 3em;
+    }
+}
