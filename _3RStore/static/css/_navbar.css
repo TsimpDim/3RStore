@@ -1,3 +1,11 @@
+a:focus { 
+    outline: none; 
+}
+
+.navbar-toggler:focus {
+    outline: none;
+}
+
 nav{
     margin-bottom: 2em;
 }
