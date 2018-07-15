@@ -108,6 +108,10 @@ p{
     padding:0;
 }
 
+#cards_cont{
+    margin-bottom: 2em;
+}
+
 @media (max-width: 800px){
     .text_hide{
         display:none;
