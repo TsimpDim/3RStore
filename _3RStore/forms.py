@@ -44,7 +44,6 @@ class ResourceForm(Form):
                 return False
         return True
 
-
 # Register Form Class
 class RegisterForm(Form):
     '''Register Form Class. Gets input for username,email,and password and validates it'''
@@ -98,3 +97,13 @@ class RegisterForm(Form):
             return False
         return True
         
+# Change password Form Class
+class ChangePassForm(Form):
+     
+    password = PasswordField('Password', [
+        validators.DataRequired(),
+        validators.EqualTo('confirm', message='Passwords do not match.'),
+        validators.Length(min=8)
+    ])
+
+    confirm = PasswordField('Confirm Password')
