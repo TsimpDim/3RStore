@@ -148,6 +148,29 @@ def delacc():
     flash('Account deleted. Sad to see you go :(', 'danger')
     return redirect('/')
 
+# Change Password
+@app.route('/chpass', methods=['GET', 'POST'])
+def chpass():
+
+    form = forms.ChangePassForm(request.form)
+    if request.method == 'POST' and form.validate():
+        new_password = sha256_crypt.encrypt(str(form.password.data))
+        user_id = session['user_id']
+
+        cur = conn.cursor()
+        cur.execute(
+        ("""UPDATE users SET password = %s WHERE id = %s"""), (
+            new_password, user_id)
+        )
+
+        cur.close()
+        conn.commit()
+
+        flash('Password changed successfully', 'success')
+        return redirect(url_for('options'))
+    return render_template('chng_password.html', form=form)
+    
+
 # Options
 @app.route('/options')
 def options():
@@ -794,3 +817,4 @@ def export_to_html():
 
     # Send html file to client
     return send_file(strIO, attachment_filename='3RStore_export.html', as_attachment=True)
+
