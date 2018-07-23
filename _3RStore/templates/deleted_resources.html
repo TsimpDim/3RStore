@@ -1,0 +1,7 @@
+{% extends 'layout.html' %}
+{% block body %}
+
+{% for res in del_resources %}
+    <h5>{{ res.title }}</h5>
+{% endfor %}
+{% endblock %}

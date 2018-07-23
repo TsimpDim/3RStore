@@ -64,6 +64,18 @@ try:
         PRIMARY KEY (re_id)
         )""")
 
+    cur.execute(
+        """CREATE TABLE IF NOT EXISTS trash (
+        re_id SERIAL,
+        user_id INT NOT NULL REFERENCES users(id),
+        title VARCHAR(100) NOT NULL,
+        link TEXT NOT NULL,
+        note TEXT,
+        tags VARCHAR(40)[1],
+        date_of_posting TIMESTAMP NOT NULL,
+        PRIMARY KEY (re_id)
+        )""")
+
     cur.close()
     conn.commit()
 except (Exception, pg.DatabaseError) as error:

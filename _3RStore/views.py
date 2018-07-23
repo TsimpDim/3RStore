@@ -353,6 +353,14 @@ def delete_res(user_id, re_id):
 
     if session.get('logged_in') and session['user_id'] == user_id:
         cur = conn.cursor()
+
+        # First add resource to trash bin
+        cur.execute(
+            ("""INSERT INTO trash SELECT * FROM resources WHERE user_id = %s and re_id = %s"""),
+            (user_id, re_id)
+        )
+        
+        # And then delete it
         cur.execute(
             ("""DELETE FROM resources WHERE user_id = %s and re_id = %s"""),
             (user_id, re_id)
@@ -361,6 +369,27 @@ def delete_res(user_id, re_id):
         cur.close()
         conn.commit()
     return redirect(url_for('resources'))
+
+# Trash bin
+@app.route('/trash')
+def deleted_res():
+    if not session.get('logged_in'):
+        flash('You must be logged in to access your deleted resources page', 'warning')
+        return redirect(url_for('login'))
+    else:
+
+        user_id = session['user_id']
+        cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+
+        cur.execute(
+            ("""SELECT * FROM trash WHERE user_id = %s"""),
+            (user_id,)
+        )
+
+        del_resources = cur.fetchall()
+
+        return render_template('deleted_resources.html', del_resources=del_resources)
+
 
 # Edit resource
 @app.route('/edit/<int:user_id>/<int:re_id>', methods=['GET', 'POST'])
