@@ -169,7 +169,6 @@ def chpass():
         flash('Password changed successfully', 'success')
         return redirect(url_for('options'))
     return render_template('chng_password.html', form=form)
-    
 
 # Options
 @app.route('/options')
@@ -388,7 +387,47 @@ def deleted_res():
 
         del_resources = cur.fetchall()
 
-        return render_template('deleted_resources.html', del_resources=del_resources)
+        is_empty = False if del_resources else True
+
+        return render_template('deleted_resources.html', del_resources=del_resources, is_empty=is_empty)
+
+# Undo resources
+@app.route('/undo_trash_res', methods=['POST'])
+def undo_trash_res():
+    res_id = request.form.get('res_id')
+    user_id = session['user_id']
+    cur = conn.cursor()
+
+    # Undo single resource
+    if res_id != '*':
+
+        cur.execute(
+            ("""INSERT INTO resources SELECT * FROM trash WHERE user_id = %s and re_id = %s"""),
+            (user_id, res_id)
+        )
+
+        cur.execute(
+            ("""DELETE FROM trash WHERE user_id = %s and re_id = %s"""),
+            (user_id, res_id)
+        )
+
+    # Undo all resources
+    else:
+
+        cur.execute(
+            ("""INSERT INTO RESOURCES SELECT * FROM trash WHERE user_id = %s"""),
+            (user_id,)
+        )
+
+        cur.execute(
+            ("""DELETE FROM trash WHERE user_id = %s"""),
+            (user_id,)
+        )
+
+    cur.close()
+    conn.commit()
+
+    return redirect(url_for('deleted_res'))
 
 
 # Edit resource
