@@ -380,8 +380,9 @@ def deleted_res():
         user_id = session['user_id']
         cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
 
+        # Show in reverse order
         cur.execute(
-            ("""SELECT * FROM trash WHERE user_id = %s"""),
+            ("""SELECT * FROM trash WHERE user_id = %s ORDER BY ctid ASC"""),
             (user_id,)
         )
 
