@@ -430,6 +430,33 @@ def undo_trash_res():
 
     return redirect(url_for('deleted_res'))
 
+# Delete resources from trash
+@app.route('/del_trash_res', methods=['POST'])
+def del_trash_res():
+    res_id = request.form.get('res_id')
+    user_id = session['user_id']
+    cur = conn.cursor()
+
+    # Undo single resource
+    if res_id != '*':
+
+        cur.execute(
+            ("""DELETE FROM trash WHERE user_id = %s and re_id = %s"""),
+            (user_id, res_id)
+        )
+
+    # Undo all resources
+    else:
+
+        cur.execute(
+            ("""DELETE FROM trash WHERE user_id = %s"""),
+            (user_id,)
+        )
+
+    cur.close()
+    conn.commit()
+
+    return redirect(url_for('deleted_res'))
 
 # Edit resource
 @app.route('/edit/<int:user_id>/<int:re_id>', methods=['GET', 'POST'])
