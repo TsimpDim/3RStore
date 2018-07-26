@@ -169,7 +169,6 @@ def chpass():
         flash('Password changed successfully', 'success')
         return redirect(url_for('options'))
     return render_template('chng_password.html', form=form)
-    
 
 # Options
 @app.route('/options')
@@ -353,6 +352,14 @@ def delete_res(user_id, re_id):
 
     if session.get('logged_in') and session['user_id'] == user_id:
         cur = conn.cursor()
+
+        # First add resource to trash bin
+        cur.execute(
+            ("""INSERT INTO trash SELECT * FROM resources WHERE user_id = %s and re_id = %s"""),
+            (user_id, re_id)
+        )
+        
+        # And then delete it
         cur.execute(
             ("""DELETE FROM resources WHERE user_id = %s and re_id = %s"""),
             (user_id, re_id)
@@ -361,6 +368,95 @@ def delete_res(user_id, re_id):
         cur.close()
         conn.commit()
     return redirect(url_for('resources'))
+
+# Trash bin
+@app.route('/trash')
+def deleted_res():
+    if not session.get('logged_in'):
+        flash('You must be logged in to access your deleted resources page', 'warning')
+        return redirect(url_for('login'))
+    else:
+
+        user_id = session['user_id']
+        cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+
+        # Show in reverse order
+        cur.execute(
+            ("""SELECT * FROM trash WHERE user_id = %s ORDER BY ctid ASC"""),
+            (user_id,)
+        )
+
+        del_resources = cur.fetchall()
+
+        is_empty = False if del_resources else True
+
+        return render_template('deleted_resources.html', del_resources=del_resources, is_empty=is_empty)
+
+# Undo resources
+@app.route('/undo_trash_res', methods=['POST'])
+def undo_trash_res():
+    res_id = request.form.get('res_id')
+    user_id = session['user_id']
+    cur = conn.cursor()
+
+    # Undo single resource
+    if res_id != '*':
+
+        cur.execute(
+            ("""INSERT INTO resources SELECT * FROM trash WHERE user_id = %s and re_id = %s"""),
+            (user_id, res_id)
+        )
+
+        cur.execute(
+            ("""DELETE FROM trash WHERE user_id = %s and re_id = %s"""),
+            (user_id, res_id)
+        )
+
+    # Undo all resources
+    else:
+
+        cur.execute(
+            ("""INSERT INTO RESOURCES SELECT * FROM trash WHERE user_id = %s"""),
+            (user_id,)
+        )
+
+        cur.execute(
+            ("""DELETE FROM trash WHERE user_id = %s"""),
+            (user_id,)
+        )
+
+    cur.close()
+    conn.commit()
+
+    return redirect(url_for('deleted_res'))
+
+# Delete resources from trash
+@app.route('/del_trash_res', methods=['POST'])
+def del_trash_res():
+    res_id = request.form.get('res_id')
+    user_id = session['user_id']
+    cur = conn.cursor()
+
+    # Undo single resource
+    if res_id != '*':
+
+        cur.execute(
+            ("""DELETE FROM trash WHERE user_id = %s and re_id = %s"""),
+            (user_id, res_id)
+        )
+
+    # Undo all resources
+    else:
+
+        cur.execute(
+            ("""DELETE FROM trash WHERE user_id = %s"""),
+            (user_id,)
+        )
+
+    cur.close()
+    conn.commit()
+
+    return redirect(url_for('deleted_res'))
 
 # Edit resource
 @app.route('/edit/<int:user_id>/<int:re_id>', methods=['GET', 'POST'])

@@ -1,0 +1,12 @@
+.undo_btn{margin-right: 0.5em;}
+
+button:focus {outline:0;}
+
+.res_title{
+    vertical-align: middle;
+    margin-top: .5em;
+}
+
+#master_undo:hover{
+    color:white;
+}
