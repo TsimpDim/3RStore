@@ -1,4 +1,4 @@
 .vscode
-db.json
 __pycache__
-seckey.txt
+*.pyc
+config.json
