@@ -1,14 +1,16 @@
 from time import time
 import datetime
-from _3RStore import app, conn
+from _3RStore import app, conn, mail
 from psycopg2 import DatabaseError
 import psycopg2.extras
 from bs4 import BeautifulSoup
 from flask import request, session, redirect, url_for, render_template, flash, make_response, send_file
+from flask_mail import Message
 from passlib.hash import sha256_crypt
 from . import forms
 from io import BytesIO
-from urllib import parse
+from itsdangerous import URLSafeTimedSerializer
+import urllib.parse
 from . import classes as cc
 from anytree import Node, RenderTree, find, AsciiStyle, NodeMixin, AnyNode, PreOrderIter
 import re as r
@@ -75,7 +77,6 @@ def login():
         # If we find a user with that username
         data = cur.fetchone()
         if data:
-            app.logger.info('USER FOUND')
             password = data['password']
 
             # Validate pass
@@ -105,6 +106,7 @@ def login():
                 if not view:
                     resp.set_cookie('view', 'full', expires=datetime.datetime.now()
                         + datetime.timedelta(days=30))
+
 
                 flash('You are now logged in', 'success')
                 return resp
@@ -304,7 +306,7 @@ def add_resource():
     form = forms.ResourceForm(request.form)
     if request.method == 'POST' and form.validate():
         title = form.title.data
-        link = parse.unquote(form.link.data)
+        link = urllib.parse.unquote(form.link.data)
         note = form.note.data.replace('\n','</br>') # So we can show the newlines in the note section
         timestamp = datetime.datetime.fromtimestamp(
             time()).strftime('%Y-%m-%d %H:%M:%S')
@@ -623,7 +625,8 @@ def renametag():
 def import_resources():
     cur = conn.cursor()
 
-    def add_res_to_db(res:cc.BaseResource):
+    # res = cc.BaseResource
+    def add_res_to_db(res):
 
         # Transform tags to all lowercase
         tags = [tag.lower() for tag in res.tags]
@@ -914,3 +917,78 @@ def export_to_html():
     # Send html file to client
     return send_file(strIO, attachment_filename='3RStore_export.html', as_attachment=True)
 
+@app.route('/reset', methods=['GET', 'POST'])
+def reset():
+    def send_pwd_reset_email(user_email):
+        pwd_reset_serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'])
+        
+        # Store the email in the URL
+        pwd_reset_url = url_for(
+        'reset_w_token',
+        token = pwd_reset_serializer.dumps(user_email, salt='password-reset-salt'),
+        _external=True)
+
+        # Get the completed HTML from the template
+        html = render_template('email_pwd_reset.html', pwd_reset_url=pwd_reset_url)
+
+        # Build the message
+        msg = Message(
+        subject='Password Recovery',
+        html=html,
+        recipients=[user_email]
+        )
+
+        # Send it
+        mail.send(msg)
+
+    form = forms.EmailForm(request.form)
+    email = form.email.data
+
+    if request.method == 'POST' and form.validate():
+        send_pwd_reset_email(email)
+        flash('Please check your email for a password reset link.', 'success')
+    
+    return render_template('reset_password_start.html', form=form)
+
+@app.route('/reset/<token>', methods=['GET', 'POST'])
+def reset_w_token(token):
+
+    # Get email from token
+    try:
+        pwd_reset_serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'])
+        email = pwd_reset_serializer.loads(token, salt='password-reset-salt', max_age=3600)
+    except:
+        flash('The password reset link is invalid or has expired.', 'danger')
+        return redirect(url_for('login'))
+ 
+    
+    form = forms.ChangePassForm(request.form) 
+    if request.method == 'POST' and form.validate():
+
+        cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        cur.execute(
+        ("""SELECT * FROM users WHERE email=%s"""),
+        (email,)
+        )
+
+        user = cur.fetchall()[0]
+
+        if not user:
+            flash('Invalid email address!', 'danger')
+            return redirect(url_for('login'))
+
+
+        new_password = sha256_crypt.encrypt(str(form.password.data))
+
+        cur.execute(
+        ("""UPDATE users SET password = %s WHERE email = %s"""), 
+        (new_password, email)
+        )
+
+        cur.close()
+        conn.commit()
+
+        flash('Password changed successfully', 'success')
+        return redirect(url_for('login'))
+ 
+    return render_template('chng_password.html', form=form)
