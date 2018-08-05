@@ -1,11 +1,18 @@
 import json
 import os
 from flask import Flask
+from flask_mail import Mail
 import psycopg2 as pg
 from flask_sslify import SSLify
 
 app = Flask(__name__)
+dir_path = os.path.dirname(os.path.realpath(__file__))
+CONFIG = json.load(open(os.path.join(dir_path, 'config.json'), 'r'))
+
 app.config.from_object(__name__)
+app.config.update(CONFIG)
+
+mail = Mail(app)
 
 if os.environ.get('DYNO'): # Only serve over HTTPS on Heroku
     app.config.update(
@@ -16,24 +23,13 @@ if os.environ.get('DYNO'): # Only serve over HTTPS on Heroku
     )
     sslify = SSLify(app, subdomains=True, permanent=True)
 
-dir_path = os.path.dirname(os.path.realpath(__file__))
-
-# Read secret key from file
-try:
-    app.config['SECRET_KEY'] = open(
-        os.path.join(dir_path, 'seckey.txt'), 'rb').read()
-    print("Read secret key succesfully")
-except IOError:
-    print("Error: No secret key.")
-
 
 # Connect to PostgreSQL
 # Read database properties for URI
-DB_CONFIG = json.load(open(os.path.join(dir_path, 'db.json'), 'r'))
-USER = DB_CONFIG['user']
-PASSWORD = DB_CONFIG['password']
-HOST = DB_CONFIG['host']
-NAME = DB_CONFIG['database']
+USER = CONFIG['DB']['USER']
+PASSWORD = CONFIG['DB']['PWD']
+HOST = CONFIG['DB']['HOST']
+NAME = CONFIG['DB']['DATABASE']
 
 conn = None  # Declared here so we can use it later
 try:
@@ -81,6 +77,8 @@ try:
 except (Exception, pg.DatabaseError) as error:
     print("Unable to connect to the database")
     raise error
+
+print("Connected to databse successfully.")
 
 import _3RStore.views
 import _3RStore.errors
