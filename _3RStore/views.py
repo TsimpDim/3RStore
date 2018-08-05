@@ -625,7 +625,8 @@ def renametag():
 def import_resources():
     cur = conn.cursor()
 
-    def add_res_to_db(res:cc.BaseResource):
+    # res = cc.BaseResource
+    def add_res_to_db(res):
 
         # Transform tags to all lowercase
         tags = [tag.lower() for tag in res.tags]
