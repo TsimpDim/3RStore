@@ -107,3 +107,31 @@ class ChangePassForm(Form):
     ])
 
     confirm = PasswordField('Confirm Password')
+
+# Recover password Form Class
+class EmailForm(Form):
+    email = StringField('Email', validators=[
+        validators.DataRequired(),
+        validators.Email()
+    ])
+
+    
+
+    def validate(self):
+        validation = Form.validate(self)
+        if not validation:
+            return False
+
+        cur = conn.cursor()
+
+        # If email exists
+        cur.execute("SELECT email FROM users WHERE email=%s",
+        (self.email.data,)
+        )
+
+        exists = cur.fetchall()
+
+        if not exists:
+            self.email.errors.append('Invalid email address.')
+            return False
+        return True
