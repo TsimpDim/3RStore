@@ -39,6 +39,12 @@ class ResourceForm(Form):
                     'Each tag cannot be more than 20 characters. Seperate tags with a comma.')
                 return False
 
+            if '-' in tag:
+                self.tags.errors.append(
+                    "Character '-' is not allowed in tags."
+                )
+                return False
+
             if not tag:
                 self.tags.errors.append('Empty tags are not allowed.')
                 return False
