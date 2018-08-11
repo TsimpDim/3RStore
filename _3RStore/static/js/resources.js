@@ -4,14 +4,6 @@ $(document).ready(function(){
 });
 
 
-function containsOtherArray(thisArray, otherArray){
-    for(let i = 0; i < thisArray.length; i++){
-      if(otherArray.indexOf(thisArray[i]) === -1)
-         return false;
-    }
-    return true;
-}
-
 function initiateSearch(){
     let inputTags = $('#search_input').val().toLowerCase().split(','); // Array with requested tags
     let resources = $('.re_cards'); // Array with resources
@@ -32,17 +24,17 @@ function initiateSearch(){
             
             let tags = $(this).find('.re_tags'); 
             let resTagArray = [];
-            let cur_r_title = $(this).find('h4 > a').text().toLowerCase();
+            let curResTitle = $(this).find('h4 > a').text().toLowerCase();
 
             // Get a cleaned up array of the given (by the user) tags
             tags.each(function(i){
-                let curr_tag = $(this).text().trim();
-                if(curr_tag != null || curr_tag.length > 0)
-                    resTagArray.push(curr_tag);
+                let curTag = $(this).text().trim();
+                if(curTag != null || curTag.length > 0)
+                    resTagArray.push(curTag);
             });
 
             // Show the resource if the tags match or if the title includes the input
-            if((containsOtherArray(inputTags, resTagArray) || cur_r_title.includes(inputTags[0]))){
+            if((containsOtherArray(inputTags, resTagArray) || curResTitle.includes(inputTags[0]))){
                 if(useFilters && !checkFilters(resTagArray, filters))
                     $(this).hide();
                 else
@@ -53,6 +45,14 @@ function initiateSearch(){
 
         });
     }
+}
+
+function containsOtherArray(thisArray, otherArray){
+    for(let i = 0; i < thisArray.length; i++){
+      if(otherArray.indexOf(thisArray[i]) === -1)
+         return false;
+    }
+    return true;
 }
 
 function checkDisabled(){
