@@ -697,7 +697,7 @@ def import_resources():
 
             if file:
 
-                soup = BeautifulSoup(file, "lxml")
+                soup = BeautifulSoup(file, "html.parser")
 
                 incl = request.form.get('incl')
                 excl = request.form.get('excl')
@@ -748,7 +748,7 @@ def export_to_html():
             </DL><P>
         '''
 
-        soup = BeautifulSoup('<!DOCTYPE NETSCAPE-Bookmark-file-1>', 'lxml')
+        soup = BeautifulSoup('<!DOCTYPE NETSCAPE-Bookmark-file-1>', 'html.parser')
         meta_tag = soup.new_tag('META')
         meta_tag['HTTP-EQUIV'] = 'Content-Type'
         meta_tag['CONTENT'] = 'text/html; charset=UTF-8'
