@@ -75,9 +75,10 @@
                             
                             <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuLink">
                                 <a class="dropdown-item" href="/edit/{{re.user_id}}/{{re.re_id}}"><span class="fa fa-pencil"></span>  Edit</a>
+                                <button class="dropdown-item copy_link" data-link={{re.link}} data-id="{{re.re_id}}"><span class="fa fa-clone"> Copy Link</span></button>
                                 <a class="dropdown-item" id="delete_but" href="/del/{{re.user_id}}/{{re.re_id}}" ><span class="fa fa-remove"></span>  Delete</a>
                                 {% if re.note %}
-                                    <button class="dropdown-item show-note"  data-id="{{re.re_id}}"><span class="fa fa-sticky-note"></span> Show note</button>
+                                    <button class="dropdown-item show-note" data-id="{{re.re_id}}"><span class="fa fa-sticky-note"></span> Show note</button>
                                 {% endif %}
                                 <div class="dropdown-divider"></div>
                                 <a class="dropdown-item" id="date">Added {{re.date_of_posting.strftime('%Y-%m-%d')}}</a>

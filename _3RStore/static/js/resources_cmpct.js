@@ -2,6 +2,7 @@ $(document).ready(function(){
     $('#search_input').on('input', initiateSearch);
     $('input').on('input', checkDisabled);
     $('.show-note').on('click', showNote);
+    $('.copy_link').on('click', copyLink);
 });
 
 function initiateSearch(){
@@ -95,4 +96,18 @@ function checkFilters(tags, filter){
     });
 
     return include;
+}
+
+function copyLink(){
+    let link = $(this).data('link');
+
+    let el = document.createElement('input');
+    el.value = link;
+
+    document.body.appendChild(el);
+    el.select();
+
+    document.execCommand('copy');
+
+    document.body.removeChild(el);
 }
