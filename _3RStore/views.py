@@ -552,6 +552,10 @@ def delall():
     if session['user_id'] == user_id and session.get('logged_in'):
         cur = conn.cursor()
 
+        # Add to trash
+        cur.execute("""INSERT INTO trash SELECT * FROM resources WHERE user_id = %s""", (user_id,))
+
+        # Then Delete
         cur.execute("""DELETE FROM resources WHERE user_id = %s""", (user_id,))
 
         cur.close()
@@ -569,6 +573,14 @@ def fildel():
     tags_array = '{' + tags_to_del + '}'
 
     cur = conn.cursor()
+
+    # Add to trash
+    cur.execute(
+    ("""INSERT INTO trash SELECT * FROM resources WHERE user_id = %s AND tags @> %s"""),
+    (user_id, tags_array)
+    )
+
+    # Then Delete
     cur.execute(
     ("""DELETE FROM resources WHERE user_id = %s AND tags @> %s"""),
     (user_id, tags_array)
@@ -917,6 +929,7 @@ def export_to_html():
     # Send html file to client
     return send_file(strIO, attachment_filename='3RStore_export.html', as_attachment=True)
 
+# Reset password forms
 @app.route('/reset', methods=['GET', 'POST'])
 def reset():
     def send_pwd_reset_email(user_email):
@@ -950,6 +963,7 @@ def reset():
     
     return render_template('reset_password_start.html', form=form)
 
+# Actually reset password
 @app.route('/reset/<token>', methods=['GET', 'POST'])
 def reset_w_token(token):
 
