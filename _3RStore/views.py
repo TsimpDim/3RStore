@@ -643,7 +643,7 @@ def import_resources():
         # Transform tags to all lowercase
         tags = [tag.lower() for tag in res.tags]
 
-        link = parse.unquote(res.link)
+        link = urllib.parse.unquote(res.link)
 
         if res.title:
             title = res.title[0:99]
