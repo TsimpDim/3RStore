@@ -17,9 +17,26 @@ function initiateSearch(){
         inputTags = $('#search_input').val().toLowerCase().split('-')[0].trim().split(',');
     }
 
-
     if(inputTags.length == 1 && inputTags[0] == ""){ // If no tags have been entered
         $('.re_cards').show(); // Show all the resources
+    
+    }else if(inputTags.length == 1 && inputTags[0] == "*"){ // '*' wildcard 
+        resources.each(function(){
+            let resTagArray = [];
+            let tags = $(this).find('.re_tags'); 
+
+
+            // Get a cleaned up array of the given (by the user) tags
+            tags.each(function(i){
+                let curTag = $(this).text().trim();
+                if(curTag != null || curTag.length > 0)
+                    resTagArray.push(curTag);
+            });
+
+            if(!checkFilters(resTagArray, filters))
+                $(this).hide();
+        });
+
     }else{
         resources.each(function(){
             
