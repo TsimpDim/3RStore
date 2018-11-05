@@ -1,9 +1,13 @@
+// Use to initiate popovers
+$(function () {
+    $('[data-toggle="popover"]').popover()
+})
+
 $(document).ready(function(){
     $('#search_input').on('input', initiateSearch);
     $('input').on('input', checkDisabled);
     $('.copy_link').on('click', copyLink);
 });
-
 
 function initiateSearch(){
     let inputTags = $('#search_input').val().toLowerCase().split(','); // Array with requested tags
