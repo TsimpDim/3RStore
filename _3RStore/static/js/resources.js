@@ -9,6 +9,13 @@ $(document).ready(function(){
     $('.copy_link').on('click', copyLink);
 });
 
+$(document).keypress(function(e){
+    if(e.key == "Escape"){
+        $('#search_input').val("");
+        $('.re_cards').show();
+    }
+});
+
 function initiateSearch(){
     let inputTags = $('#search_input').val().toLowerCase().split(','); // Array with requested tags
     let resources = $('.re_cards'); // Array with resources
@@ -117,4 +124,29 @@ function copyLink(){
     document.execCommand('copy');
 
     document.body.removeChild(el);
+}
+
+function initTagSearch(event, el){
+    if(event.shiftKey){ // Shift + Click initiates search with all the tags up to the one the user selected
+        let tags = [el.innerHTML];
+        let prevSiblings = $(el).prevAll();
+
+        // Complete the array with the selected tags
+        prevSiblings.each(function(){
+            tags.push($(this).text());
+        });
+
+        // Reverse it so they get added to the search bar properly
+        tags = tags.reverse();
+
+        // Comma separate the elements
+        let searchString = tags.join(',');
+
+        // Add searchString to search bar to initiate search
+        $("#search_input").val(searchString);
+    }
+    else
+        $("#search_input").val(el.innerHTML);
+
+    initiateSearch();
 }

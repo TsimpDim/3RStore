@@ -85,7 +85,7 @@
             {% if re.tags %}
                 <div>
                     {% for tag in re.tags %}
-                        <div class="badge bg-secondary text-white re_tags">{{tag}}</div>
+                        <button class="btn badge bg-secondary text-white re_tags" onclick="initTagSearch(event,this)">{{tag}}</button>
                     {% endfor %}
                 </div>
             {% endif %}
