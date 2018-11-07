@@ -1,3 +1,8 @@
+// Use to initiate popovers
+$(function () {
+    $('[data-toggle="popover"]').popover()
+})
+
 $(document).ready(function(){
     $('#search_input').on('input', initiateSearch);
     $('input').on('input', checkDisabled);
@@ -20,6 +25,24 @@ function initiateSearch(){
     if(inputTags.length == 1 && inputTags[0] == ""){ // If no tags have been entered
         $("#cards_cont").show(); // Show all the resources
         $('.re_card').show();
+    
+    }else if(inputTags.length == 1 && inputTags[0] == "*"){ // '*' wildcard 
+        resources.each(function(){
+            let resTagArray = [];
+            let tags = $(this).find('.re_tags'); 
+
+
+            // Get a cleaned up array of the given (by the user) tags
+            tags.each(function(i){
+                let curTag = $(this).text().trim();
+                if(curTag != null || curTag.length > 0)
+                    resTagArray.push(curTag);
+            });
+
+            if(!checkFilters(resTagArray, filters))
+                $(this).hide();
+        });
+
     }else{
         resources.each(function(){
             
