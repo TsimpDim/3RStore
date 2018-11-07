@@ -9,6 +9,13 @@ $(document).ready(function(){
     $('.copy_link').on('click', copyLink);
 });
 
+$(document).keypress(function(e){
+    if(e.key == "Escape"){
+        $('#search_input').val("");
+        $('.re_cards').show();
+    }
+});
+
 function initiateSearch(){
     let inputTags = $('#search_input').val().toLowerCase().split(','); // Array with requested tags
     let resources = $('.re_cards'); // Array with resources
