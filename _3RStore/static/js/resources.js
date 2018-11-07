@@ -118,3 +118,29 @@ function copyLink(){
 
     document.body.removeChild(el);
 }
+
+function initTagSearch(event, el){
+    if(event.shiftKey){ // Shift + Click initiates search with all the tags up to the one the user selected
+        let tags = [el.innerHTML];
+        let prevSiblings = $(el).prevAll();
+
+        // Complete the array with the selected tags
+        prevSiblings.each(function(){
+            tags.push($(this).text());
+        });
+
+        // Reverse it so they get added to the search bar properly
+        tags = tags.reverse();
+
+        // Comma separate the elements
+        let searchString = tags.join(',');
+
+        // Add searchString to search bar to initiate search
+        $("#search_input").val(searchString);
+
+    }
+    else
+        $("#search_input").val(el.innerHTML);
+
+    initiateSearch();
+}
