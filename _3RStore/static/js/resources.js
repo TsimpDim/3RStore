@@ -144,7 +144,6 @@ function initTagSearch(event, el){
 
         // Add searchString to search bar to initiate search
         $("#search_input").val(searchString);
-
     }
     else
         $("#search_input").val(el.innerHTML);
