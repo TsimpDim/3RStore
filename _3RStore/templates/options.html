@@ -4,147 +4,162 @@
 <h2>Options</h2>
 <div class="card">
 
-    <!-- Delete resources section -->
-    <h3 class="card-header">Delete resources</h3>
+    <!-- Resources section -->
+    <h3 class="card-header">Resources</h3>
     <div class="card-body d-flex flex-row flex-wrap align-content-center justify-content-between align-items-start">
         <!-- Delete all -->
-        <div class="dropdown" id="delete_all_cont">
-            <button class="btn btn-danger" data-toggle="dropdown">
-                <span class="fa fa-remove"></span>  
-                Delete all resources
-            </button>
+        <div class="d-flex flex-column first_col_el">
+            <h5 class="text-muted">Delete all</h5>
+            <div class="dropdown">
+                <button class="btn btn-danger" data-toggle="dropdown">
+                    <span class="fa fa-remove"></span>  
+                    Delete all resources
+                </button>
 
-            <div class="dropdown-menu">
-                <form action="/delall" method="POST">
-                    <button id="delete_all" class="dropdown-item" type="submit" name="user_id" value="{{session.user_id}}">
-                        <span class="fa fa-check"></span> 
-                        Confirm</a></li>
-                </form>
+                <div class="dropdown-menu">
+                    <form action="/delall" method="POST">
+                        <button id="delete_all" class="dropdown-item" type="submit" name="user_id" value="{{session.user_id}}">
+                            <span class="fa fa-check"></span> 
+                            Confirm</a></li>
+                    </form>
+                </div>
             </div>
         </div>
 
         <!-- Filtered delete -->
-        <form method="POST" action="fildel">
-            <h5 class="text-muted">Filtered Delete</h5>
-            <div class="d-flex flex-row" id="filtered_del">
-                <div class="dropdown">
-                    <button class="btn btn-danger conf_inp_but" data-toggle="dropdown">
-                        <span class="fa fa-remove"></span>  
-                    </button>
-    
-                    <div class="dropdown-menu">
-                        <button class="dropdown-item" type="submit">
-                            <span class="fa fa-check"></span> 
-                            Confirm</button></li>
+        <div class="d-flex flex-column">
+            <form method="POST" action="fildel">
+                <h5 class="text-muted">Filtered Delete</h5>
+                <div class="d-flex flex-row" id="filtered_del">
+                    <div class="dropdown">
+                        <button class="btn btn-danger conf_inp_but" data-toggle="dropdown">
+                            <span class="fa fa-remove"></span>  
+                        </button>
+        
+                        <div class="dropdown-menu">
+                            <button class="dropdown-item" type="submit">
+                                <span class="fa fa-check"></span> 
+                                Confirm</button></li>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <input list="tags_deltag" type="text" name="tags" class="form-control" placeholder="Tags to delete...">
+                        <datalist id="tags_deltag">
+                            {% for tag in tags %}
+                                <option value="{{tag}}" class="datalist_option" ></option>
+                            {% endfor %}
+                        </datalist>
                     </div>
                 </div>
+            </form>
+        </div>
+    </div>
 
-                <div class="input-group">
-                    <input list="tags_deltag" type="text" name="tags" class="form-control" placeholder="Tags to delete...">
-                    <datalist id="tags_deltag">
+    <!-- Sort section -->
+    <h3 class="card-header">Sort</h3>
+    <div class="card-body d-flex flex-row flex-wrap align-content-center justify-content-between align-items-start">
+        <!-- Sorting by time of posting -->
+        <div class="d-flex flex-column first_col_el">
+            <h5 class="text-muted">By time of posting</h5>
+            <div class="btn-group">
+                {% if criteria =='time' and sort == 'asc' %}
+                    <a class="btn btn-outline-primary" href="options/set_sort/time/asc">Ascending</a>
+                    <a class="btn btn-outline-secondary" href="options/set_sort/time/desc">Descending</a>
+                {% elif criteria =='time' and sort == 'desc' %}
+                    <a class="btn btn-outline-secondary" href="options/set_sort/time/asc">Ascending</a>
+                    <a class="btn btn-outline-primary" href="options/set_sort/time/desc">Descending</a>
+                {% else %}
+                    <a class="btn btn-outline-secondary" href="options/set_sort/time/asc">Ascending</a>
+                    <a class="btn btn-outline-secondary" href="options/set_sort/time/desc">Descending</a>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Sorting by title -->
+        <div class="d-flex flex-column">
+            <h5 class="text-muted">By title</h5>
+            <div class="btn-group">
+                {% if criteria == 'title' and sort == 'asc' %}
+                    <a class="btn btn-outline-primary" href="options/set_sort/title/asc">Ascending</a>
+                    <a class="btn btn-outline-secondary" href="options/set_sort/title/desc">Descending</a>
+                {% elif criteria == 'title' and sort == 'desc' %}
+                    <a class="btn btn-outline-secondary" href="options/set_sort/title/asc">Ascending</a>
+                    <a class="btn btn-outline-primary" href="options/set_sort/title/desc">Descending</a>
+                {% else %}
+                    <a class="btn btn-outline-secondary" href="options/set_sort/title/asc">Ascending</a>
+                    <a class="btn btn-outline-secondary" href="options/set_sort/title/desc">Descending</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Tags section -->
+    <h3 class="card-header">Tags</h3>
+    <div class="card-body d-flex flex-wrap align-content-center justify-content-between align-items-start">
+        <!-- Remove tags -->
+        <div class="d-flex flex-column first_col_el">
+            <h5 class="text-muted">Remove tags</h5>
+            <form method="POST" action="remtag">
+                <div class="d-flex flex-row">
+                    <div class="dropdown">
+                        <button class="btn btn-danger conf_inp_but" data-toggle="dropdown">
+                            <span class="fa fa-minus-square"></span>  
+                        </button>
+        
+                        <div class="dropdown-menu">
+                            <button class="dropdown-item" type="submit">
+                                <span class="fa fa-check"></span> 
+                                Confirm</button></li>
+                        </div>
+                    </div>
+
+                    <input list="tags_remtag" type="text" name="tags" class="form-control" placeholder="Tags to remove...">
+                    <datalist id="tags_remtag">
                         {% for tag in tags %}
                             <option value="{{tag}}" class="datalist_option" ></option>
                         {% endfor %}
                     </datalist>
                 </div>
-            </div>
-        </form>
-    </div>
+            </form>
+        </div>
 
-    <!-- Sorting by time of posting -->
-    <h3 class="card-header">Sort by time of posting</h3>
-    <div class="card-body">
-        <div class="btn-group">
-            {% if criteria =='time' and sort == 'asc' %}
-                <a class="btn btn-outline-primary" href="options/set_sort/time/asc">Ascending</a>
-                <a class="btn btn-outline-secondary" href="options/set_sort/time/desc">Descending</a>
-            {% elif criteria =='time' and sort == 'desc' %}
-                <a class="btn btn-outline-secondary" href="options/set_sort/time/asc">Ascending</a>
-                <a class="btn btn-outline-primary" href="options/set_sort/time/desc">Descending</a>
-            {% else %}
-                <a class="btn btn-outline-secondary" href="options/set_sort/time/asc">Ascending</a>
-                <a class="btn btn-outline-secondary" href="options/set_sort/time/desc">Descending</a>
-            {% endif %}
+        <!-- Rename tags -->
+        <div class="d-flex flex-column">
+            <h5 class="text-muted">Rename tags</h5>
+            <form method="POST" action="renametag">
+                <div class="d-flex flex-row">
+                    <div class="dropdown">
+                        <button class="btn btn-info conf_inp_but" data-toggle="dropdown">
+                            <span class="fa fa-edit"></span>  
+                        </button>
+        
+                        <div class="dropdown-menu">
+                            <button class="dropdown-item" type="submit">
+                                <span class="fa fa-check"></span> 
+                                Confirm</button></li>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <input list="tags_renametag" type="text" name="tag" class="form-control" placeholder="Tag to rename...">
+                        <datalist id="tags_renametag">
+                            {% for tag in tags %}
+                                <option value="{{tag}}" class="datalist_option" ></option>
+                            {% endfor %}
+                        </datalist>
+                        <input type="text" name="replacement" class="form-control" placeholder="Rename to...">
+                    </div>
+                </div>
+            </form>
         </div>
     </div>
 
-    <!-- Sorting by title -->
-    <h3 class="card-header">Sort by title</h3>
+    <!-- View section -->
+    <h3 class="card-header">View</h3>
     <div class="card-body">
-        <div class="btn-group">
-            {% if criteria == 'title' and sort == 'asc' %}
-                <a class="btn btn-outline-primary" href="options/set_sort/title/asc">Ascending</a>
-                <a class="btn btn-outline-secondary" href="options/set_sort/title/desc">Descending</a>
-            {% elif criteria == 'title' and sort == 'desc' %}
-                <a class="btn btn-outline-secondary" href="options/set_sort/title/asc">Ascending</a>
-                <a class="btn btn-outline-primary" href="options/set_sort/title/desc">Descending</a>
-            {% else %}
-                <a class="btn btn-outline-secondary" href="options/set_sort/title/asc">Ascending</a>
-                <a class="btn btn-outline-secondary" href="options/set_sort/title/desc">Descending</a>
-            {% endif %}
-        </div>
-    </div>
-
-    <!-- Remove tags -->
-    <h3 class="card-header">Remove tags</h3>
-    <div class="card-body d-flex flex-wrap align-content-center justify-content-between align-items-start">
-        <form method="POST" action="remtag">
-            <div class="d-flex flex-row">
-                <div class="dropdown">
-                    <button class="btn btn-danger conf_inp_but" data-toggle="dropdown">
-                        <span class="fa fa-minus-square"></span>  
-                    </button>
-    
-                    <div class="dropdown-menu">
-                        <button class="dropdown-item" type="submit">
-                            <span class="fa fa-check"></span> 
-                            Confirm</button></li>
-                    </div>
-                </div>
-
-                <input list="tags_remtag" type="text" name="tags" class="form-control" placeholder="Tags to remove...">
-                <datalist id="tags_remtag">
-                    {% for tag in tags %}
-                        <option value="{{tag}}" class="datalist_option" ></option>
-                    {% endfor %}
-                </datalist>
-            </div>
-        </form>
-    </div>
-
-    <!-- Rename tags -->
-    <h3 class="card-header">Rename tag</h3>
-    <div class="card-body d-flex flex-wrap align-content-center justify-content-between align-items-start">
-        <form method="POST" action="renametag">
-            <div class="d-flex flex-row">
-                <div class="dropdown">
-                    <button class="btn btn-info conf_inp_but" data-toggle="dropdown">
-                        <span class="fa fa-edit"></span>  
-                    </button>
-    
-                    <div class="dropdown-menu">
-                        <button class="dropdown-item" type="submit">
-                            <span class="fa fa-check"></span> 
-                            Confirm</button></li>
-                    </div>
-                </div>
-
-                <div class="input-group">
-                    <input list="tags_renametag" type="text" name="tag" class="form-control" placeholder="Tag to rename...">
-                    <datalist id="tags_renametag">
-                        {% for tag in tags %}
-                            <option value="{{tag}}" class="datalist_option" ></option>
-                        {% endfor %}
-                    </datalist>
-                    <input type="text" name="replacement" class="form-control" placeholder="Rename to...">
-                </div>
-            </div>
-        </form>
-    </div>
-
-    <!-- Sorting by title -->
-    <h3 class="card-header">View size</h3>
-    <div class="card-body">
+        <!-- View size-->
+        <h5 class="text-muted">View Size</h5>
         <div class="btn-group">
             {% if view == 'full' %}
                 <a class="btn btn-outline-primary" href="options/set_view/full">Full</a>
@@ -157,8 +172,8 @@
     </div>
 
 
-    <!-- Export to file -->
-    <h3 class="card-header">Export to file</h3>
+    <!-- Export section -->
+    <h3 class="card-header">Export</h3>
     <div class="card-body">
         <a href="/export_to_html" class="btn btn-info" style="color:black;">
             <span class="fa fa-save"></span>  
@@ -166,6 +181,10 @@
         </a>
     </div>
 
+</div>
+
+<h2>Profile</h2>
+<div class="card">
     <!-- Delete account -->
     <h3 class="card-header">Delete account</h3>
     <div class="card-body d-flex flex-row flex-wrap align-content-center justify-content-between align-items-start" id="del_acc">

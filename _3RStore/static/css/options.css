@@ -7,7 +7,7 @@
 }
 
 @media (max-width:768px){
-    #delete_all_cont{
-        margin-bottom: 3em;
+    .first_col_el{
+        margin-bottom: 1em;
     }
 }
