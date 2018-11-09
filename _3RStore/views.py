@@ -1024,7 +1024,7 @@ def share():
         token = serializer.dumps([session['user_id'],tags], salt='share-salt'),
         _external=True)
 
-        message = Markup("Resources containing {" + tags + "} can be publicly accessed for 3 days via the following link: <br><a href=" + share_url + ">Link</a>")
+        message = Markup("Resources containing {" + tags + "} can be publicly accessed for 3 days via the following link: <a href=" + share_url + ">Link</a>")
         flash(message, 'info')
 
         return redirect(url_for('resources'))
