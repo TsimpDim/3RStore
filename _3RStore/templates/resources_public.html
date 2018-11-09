@@ -2,24 +2,11 @@
 
 
 {% block body %}
-    <h1 id="res_pg_header">{{session.username}} <span id="re_amount"> - {{resources|length}} resources saved.</span></h1>
+    Viewing {{resources|length}} resources.</span></h1>
     <hr>
-    <div class="d-sm-flex flex-row justify-content-sm-between" id="res_panel">
-        <div  class="btn-group mr-auto">
-            <a class="btn btn-success" href="/add_resource">
-                <span class="fa fa-plus-circle"></span>
-                <span class="text_hide">Add new resource</span>
-            </a>
-
-            <button class="btn btn-info" type="button" data-toggle="collapse" data-target="#upload_file">
-                <span class="fa fa-upload"></span>                
-                <span class="text_hide">Import from file</span>
-            </button>
-        </div>
 
         <!-- Search bar-->
-        <div class="input-group" id="searchbar_cont">
-            <form method="POST" action="share" class="form-inline" style="width:100%;">
+        <div class="input-group" id="searchbar_cont" style="margin-bottom:2em;width:100%;">
                 <div class="input-group" style="width:inherit;">
                     <div class="input-group-prepend">          
                         <button type="button" class="btn btn-secondary" data-container="body" data-toggle="popover" data-placement="top" 
@@ -36,32 +23,8 @@
                             <option value="{{tag}}" class="datalist_option" ></option>
                         {% endfor %}
                     </datalist>
-
-                    <div class="input-group-append">
-                        <button class="btn btn-info input-group-btn" type="submit"><span class="fa fa-link"></span></button>
-                    </div>
                 </div>
-            </form>
         </div>
-    </div>
-
-    <form method="POST" action="/import_resources" enctype="multipart/form-data" id="upload_file" class="collapse jumbotron form-group">
-        <label>Select file to import from</label>
-        <input class="form_item form-control-file" type="file" name="file" accept=".html">
-
-        <div class="ml-auto">
-            <input class="form_item form-control" type="text" name="incl" placeholder="Include only folder(s)...">
-            <input class="form_item form-control" type="text" name="excl" placeholder="Exclude folder(s)...">
-        </div>
-
-        <div class="col-2">
-            <button type="submit" class="btn btn-primary">Submit</button>
-        </div>
-    </form>
-    
-    
-
-
 
 
 
@@ -78,9 +41,7 @@
                     <button class="btn btn-sm res_dropdown_but btn-primary  dropdown-toggle" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></button>
                     
                     <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuLink">
-                        <a class="dropdown-item" href="/edit/{{re.user_id}}/{{re.re_id}}"><span class="fa fa-pencil"></span>  Edit</a>
                         <button class="dropdown-item copy_link" data-link={{re.link}} data-id="{{re.re_id}}"><span class="fa fa-clone"> Copy Link</span></button>
-                        <a class="dropdown-item" id="delete_but" href="/del/{{re.user_id}}/{{re.re_id}}" ><span class="fa fa-remove"></span>  Delete</a>
                         <div class="dropdown-divider"></div>
                         <a class="dropdown-item" id="date">Added {{re.date_of_posting.strftime('%Y-%m-%d')}}</a>
                     </div>

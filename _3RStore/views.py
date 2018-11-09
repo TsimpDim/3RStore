@@ -4,7 +4,7 @@ from _3RStore import app, conn, mail
 from psycopg2 import DatabaseError
 import psycopg2.extras
 from bs4 import BeautifulSoup
-from flask import request, session, redirect, url_for, render_template, flash, make_response, send_file
+from flask import request, session, redirect, url_for, render_template, flash, make_response, send_file, Markup
 from flask_mail import Message
 from passlib.hash import sha256_crypt
 from . import forms
@@ -293,9 +293,9 @@ def resources():
 
         view = request.cookies.get('view')
         if view == 'full':
-            return render_template('resources.html', resources=data, sort=sort, tags=all_tags, view=view) # Pass 'view' attribute to use the correct .css file
+            return render_template('resources.html', resources=data, tags=all_tags, view=view) # Pass 'view' attribute to use the correct .css file
         else:
-            return render_template('resources_cmpct.html', resources=data, sort=sort, tags=all_tags, view=view)
+            return render_template('resources_cmpct.html', resources=data, tags=all_tags, view=view)
 
     return render_template('resources.html')
 
@@ -1006,3 +1006,52 @@ def reset_w_token(token):
         return redirect(url_for('login'))
  
     return render_template('chng_password.html', form=form)
+
+@app.route('/share', methods=['GET','POST'])
+def share():
+
+    if(request.method == 'POST'):
+        tags = request.form.get('tags')
+
+        if not tags:
+            flash('No tags selected. Can\'t share.', 'danger')
+            return redirect(url_for('resources'))
+
+        serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'])
+
+        share_url = url_for(
+        'open_share',
+        token = serializer.dumps([session['user_id'],tags], salt='share-salt'),
+        _external=True)
+
+        message = Markup("Resources containing {" + tags + "} can be publicly accessed for 3 days via the following link: <br><a href=" + share_url + ">Link</a>")
+        flash(message, 'info')
+
+        return redirect(url_for('resources'))
+    return redirect(url_for('resources'))
+
+@app.route('/view_resources/<token>')
+def open_share(token):
+
+    try:
+        serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'])
+        data = serializer.loads(token, salt='share-salt', max_age=10800) # 3 days
+        user_id = data[0]
+        tags = '{' + data[1] + '}'
+    except:
+        flash('The share  link is invalid or has expired.', 'danger')
+        return redirect(url_for('home'))
+
+    cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+    cur.execute("""SELECT * FROM resources WHERE user_id= %s AND tags @> %s ORDER BY date_of_posting DESC""",
+               (user_id, tags)
+               )
+    
+    resources = cur.fetchall()
+
+    cur.close()
+    conn.commit()
+
+    return render_template('resources_public.html', resources=resources, tags=tags, view="full")
+
+
