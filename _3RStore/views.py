@@ -1052,6 +1052,6 @@ def open_share(token):
     cur.close()
     conn.commit()
 
-    return render_template('resources.html', resources=resources, tags=tags, view="full")
+    return render_template('resources_public.html', resources=resources, tags=tags, view="full")
 
 

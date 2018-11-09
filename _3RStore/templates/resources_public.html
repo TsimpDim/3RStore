@@ -1,0 +1,82 @@
+{% extends 'layout.html' %}
+
+
+{% block body %}
+    Viewing {{resources|length}} resources.</span></h1>
+    <hr>
+
+        <!-- Search bar-->
+        <div class="input-group" id="searchbar_cont" style="margin-bottom:2em;width:100%;">
+                <div class="input-group" style="width:inherit;">
+                    <div class="input-group-prepend">          
+                        <button type="button" class="btn btn-secondary" data-container="body" data-toggle="popover" data-placement="top" 
+                        data-content="Use the minus sign '-' to filter out tags.
+                        Use the wildcard '*' to select all tags for filtering.  
+                        e.g {music -pop} and {*-programming}.">
+                        <span class="fa fa-info"></span>
+                        </button>
+                    </div>
+
+                    <input name="tags" list="tags" type="text" id="search_input" class="form-control" placeholder="Search via tags or title...">
+                    <datalist id="tags">
+                        {% for tag in tags %}
+                            <option value="{{tag}}" class="datalist_option" ></option>
+                        {% endfor %}
+                    </datalist>
+                </div>
+        </div>
+
+
+
+    {% for re in resources %}
+    <div class="card bg-primary re_cards">
+        
+        <div class="card-header d-flex flex-column justify-content-between" style="flex:1;min-width:0;">    
+            <div class="d-flex flex-row justify-content-between" style="flex:1;min-width:0;">
+                
+                <h4><a href="{{re.link}}" class="re_info" target="_blank">{{re.title}}</a></h4>
+
+                <!--Dropdown-->
+                <div class="res_dropdown align-self-start"> 
+                    <button class="btn btn-sm res_dropdown_but btn-primary  dropdown-toggle" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></button>
+                    
+                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuLink">
+                        <button class="dropdown-item copy_link" data-link={{re.link}} data-id="{{re.re_id}}"><span class="fa fa-clone"> Copy Link</span></button>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" id="date">Added {{re.date_of_posting.strftime('%Y-%m-%d')}}</a>
+                    </div>
+                </div>
+                <!--/Dropdown-->
+
+            </div>
+               
+            <!-- Link -->
+            <a href="{{re.link}}" class="re_info" target="_blank">{{re.link}}</a>
+
+            <!-- Tags -->
+            {% if re.tags %}
+                <div>
+                    {% for tag in re.tags %}
+                        <button class="btn badge bg-secondary text-white re_tags" onclick="initTagSearch(event,this)">{{tag}}</button>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+            
+
+        <!-- Note section -->
+        {% if re.note %}
+            <div class="card-footer">
+                {% if re.note.split('</br>') | length > 5 %} <!-- If note has more than 5 lines -->
+                    <button class="btn btn-info" type="button" data-toggle="collapse" data-target="#{{re.re_id}}_note">Expand/Collapse Note</button>
+                    <p id="{{re.re_id}}_note" class="collapse re_note"><br>{{ re.note | safe }}</p>
+                {% else %}
+                    <p id="{{re.re_id}}_note" class="re_note">
+                        {{ re.note | safe }}
+                    </p>
+                {% endif %}
+            </div>
+        {% endif %}
+        </div>
+    {% endfor %}
+{% endblock %}
