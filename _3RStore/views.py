@@ -1016,7 +1016,27 @@ def share():
         if not tags:
             flash('No tags selected. Can\'t share.', 'danger')
             return redirect(url_for('resources'))
+        else:
+            cur = conn.cursor()
+            cur.execute(
+                ("""SELECT DISTINCT unnest(tags) FROM resources WHERE user_id = %s"""),
+                (session['user_id'],)
+            )
 
+            tags_used = cur.fetchall()
+            # 'Unpack' tags_raw into one array
+            tags_used_clean = []
+            for tag_arr in tags_used:
+                tags_used_clean.append(tag_arr[0])
+
+            cur.close()
+            conn.commit()
+
+            if tags not in tags_used_clean:
+                flash('No such tag exists. Can\'t share.', 'danger')
+                return redirect(url_for('resources'))
+
+            
         serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'])
 
         share_url = url_for(
