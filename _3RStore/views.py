@@ -1055,12 +1055,12 @@ def open_share(token):
 
     try:
         serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'])
-        data = serializer.loads(token, salt='share-salt', max_age=10800) # 3 days
+        data = serializer.loads(token, salt='share-salt', max_age=259200) # 3 days
         user_id = data[0]
         tags = '{' + data[1] + '}'
     except:
         flash('The share  link is invalid or has expired.', 'danger')
-        return redirect(url_for('home'))
+        return render_template('home.html')
 
     cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
     cur.execute("""SELECT * FROM resources WHERE user_id= %s AND tags @> %s ORDER BY date_of_posting DESC""",
