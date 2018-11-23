@@ -1012,6 +1012,7 @@ def share():
 
     if(request.method == 'POST'):
         tags = request.form.get('tags')
+        tags = [t.lower() for t in tags.split(',')]
 
         if not tags:
             flash('No tags selected. Can\'t share.', 'danger')
@@ -1032,7 +1033,8 @@ def share():
             cur.close()
             conn.commit()
 
-            if tags not in tags_used_clean:
+
+            if any(tag not in tags_used_clean for tag in tags):
                 flash('No such tag exists. Can\'t share.', 'danger')
                 return redirect(url_for('resources'))
 
@@ -1044,7 +1046,7 @@ def share():
         token = serializer.dumps([session['user_id'],tags], salt='share-salt'),
         _external=True)
 
-        message = Markup("Resources containing {" + tags + "} can be publicly accessed for 3 days via the following link: <a href=" + share_url + ">Link</a>")
+        message = Markup("Resources containing {" + ','.join(tags) + "} can be publicly accessed for 3 days via the following link: <a href=" + share_url + ">Link</a>")
         flash(message, 'info')
 
         return redirect(url_for('resources'))
