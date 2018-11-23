@@ -1011,8 +1011,8 @@ def reset_w_token(token):
 def share():
 
     if(request.method == 'POST'):
-        tags = request.form.get('tags')
-        tags = [t.lower() for t in tags.split(',')]
+        tags_str = request.form.get('tags')
+        tags = [t.lower() for t in tags_str.split(',')]
 
         if not tags:
             flash('No tags selected. Can\'t share.', 'danger')
@@ -1043,10 +1043,10 @@ def share():
 
         share_url = url_for(
         'open_share',
-        token = serializer.dumps([session['user_id'],tags], salt='share-salt'),
+        token = serializer.dumps([session['user_id'],tags_str], salt='share-salt'),
         _external=True)
 
-        message = Markup("Resources containing {" + ','.join(tags) + "} can be publicly accessed for 3 days via the following link: <a href=" + share_url + ">Link</a>")
+        message = Markup("Resources containing {" + tags_str + "} can be publicly accessed for 3 days via the following link: <a href=" + share_url + ">Link</a>")
         flash(message, 'info')
 
         return redirect(url_for('resources'))
