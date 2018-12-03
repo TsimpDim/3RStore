@@ -15,6 +15,16 @@ from . import classes as cc
 from anytree import Node, RenderTree, find, AsciiStyle, NodeMixin, AnyNode, PreOrderIter
 import re as r
 
+# Checks if the provided input consists of alphanumerical characters only (include a comma)
+def inputValidation(userInput):
+    # Returns False if the user input is invalid
+    # Returns True if the user input is valid
+    if r.match("^[A-Za-z0-9_, -]*$", userInput):
+        return True
+    else:
+        flash('Invalid characters were inserted.', 'danger')
+        return False
+
 @app.before_request
 def make_session_permanent():
     session.permanent = True
@@ -131,18 +141,30 @@ def logout():
 # Delete account
 @app.route('/delacc', methods=['POST'])
 def delacc():
+    # Checks need to be performed in order to prevent Arbitrary Account Deletion (IDOR)
+    # Don't trust user input, extract the user_id via the session, not from the form data.
     user_id = request.form.get('user_id')
 
     cur = conn.cursor()
     try:
         # First delete from `resources` so as not to violate foreign key constraints
         cur.execute('DELETE FROM resources WHERE user_id = %s',
-        (user_id,)
+        (user_id)
         )
 
-        cur.execute('DELETE FROM users WHERE id = %s',
-        (user_id,)
+        # Delete from `trash` as not to violate foreign key constraints
+        cur.execute('DELETE FROM trash WHERE user_id = %s',
+        (user_id)
         )
+
+        # Finally, remove the user from `users`
+        cur.execute('DELETE FROM users WHERE id = %s',
+        (user_id)
+        )
+
+        cur.close()
+        conn.commit()
+
     except DatabaseError:
         cur.rollback()
 
@@ -305,13 +327,14 @@ def add_resource():
 
     form = forms.ResourceForm(request.form)
     if request.method == 'POST' and form.validate():
-        title = form.title.data
-        link = urllib.parse.unquote(form.link.data)
-        note = form.note.data.replace('\n','</br>') # So we can show the newlines in the note section
+        # Escape user input using Markup
+        title = Markup.escape(form.title.data)
+        link = urllib.parse.unquote(Markup.escape(form.link.data))
+        note = Markup.escape(form.note.data.replace('\n','</br>')) # So we can show the newlines in the note section
         timestamp = datetime.datetime.fromtimestamp(
             time()).strftime('%Y-%m-%d %H:%M:%S')
 
-        tags = form.tags.data
+        tags = Markup.escape(form.tags.data)
         # If not empty format for proper insertion into postgresql
         if tags:
             tags = '{' + str(tags).lower() + '}'
@@ -328,7 +351,7 @@ def add_resource():
         cur.close()
         conn.commit()
 
-        flash('Resource created successfully', 'success')
+        flash('Resource created successfully', 'success')    
         return redirect(url_for('resources'))
     else:
         user_id = session['user_id']
@@ -487,22 +510,23 @@ def edit_res(user_id, re_id):
             # 'Unpack' tags_raw into one array
             all_tags = []
             for tag_arr in tags_raw:
-                all_tags.append(tag_arr[0])
+                all_tags.append(Markup.escape(tag_arr[0]))
 
             cur.close()
             conn.commit()
 
+            # Paranoid Mode: On. Escape user input even after we retrieve it from the database.
             # Fill the form with the data
             form = forms.ResourceForm()
-            form.title.data = data[0]['title']
-            form.link.data = data[0]['link']
-            form.note.data = data[0]['note']
+            form.title.data = Markup.escape(data[0]['title'])
+            form.link.data = Markup.escape(data[0]['link'])
+            form.note.data = Markup.escape(data[0]['note'])
             if form.note.data:
                 form.note.data = form.note.data.replace('</br>','\n') # Else the </br> tags will display as text
 
             if data[0]['tags']:
                 form.tags.data = ','.join(data[0]['tags'])  # Array to string
-                form.tags.data = form.tags.data.lower()
+                form.tags.data = Markup.escape(form.tags.data.lower())
             else:
                 form.tags.data = ""
 
@@ -515,13 +539,18 @@ def edit_res(user_id, re_id):
 
             # Grab the new form and its data
             title = form.title.data
-            link = form.link.data
-            note = form.note.data.replace('\n','</br>') # Save newlines as </br> to display them properly later
-            tags = form.tags.data
+            link = Markup.escape(form.link.data)
+            note = Markup.escape(form.note.data.replace('\n','</br>')) # Save newlines as </br> to display them properly later
+            tags = Markup.escape(form.tags.data)
 
             # If not empty format for proper insertion into postgresql
             if tags:
-                tags = '{' + str(tags).lower() + '}'
+                if inputValidation(tags):
+                    tags = '{' + str(tags).lower() + '}'
+                else:
+                    # Since invalid data was inserted, return to the same editing page with no changes made.
+                    tags = None
+                    return redirect(url_for('edit_res', user_id = user_id, re_id = re_id))
             else:
                 tags = None
 

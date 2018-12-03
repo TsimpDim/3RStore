@@ -78,7 +78,7 @@ except (Exception, pg.DatabaseError) as error:
     print("Unable to connect to the database")
     raise error
 
-print("Connected to databse successfully.")
+print("Connected to database successfully.")
 
 import _3RStore.views
 import _3RStore.errors
