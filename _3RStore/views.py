@@ -141,36 +141,40 @@ def logout():
 # Delete account
 @app.route('/delacc', methods=['POST'])
 def delacc():
-    # Checks need to be performed in order to prevent Arbitrary Account Deletion (IDOR)
-    # Don't trust user input, extract the user_id via the session, not from the form data.
-    user_id = request.form.get('user_id')
+    # Check if user is logged in
+    if session['logged_in'] == True:
+        # Extract user_id from the current session
+        user_id = session['user_id']
+    
+        cur = conn.cursor()
+        try:
+            # First delete from `resources` so as not to violate foreign key constraints
+            cur.execute('DELETE FROM resources WHERE user_id = %s',
+            ([user_id])
+            )
 
-    cur = conn.cursor()
-    try:
-        # First delete from `resources` so as not to violate foreign key constraints
-        cur.execute('DELETE FROM resources WHERE user_id = %s',
-        (user_id)
-        )
+            # Delete from `trash` as not to violate foreign key constraints
+            cur.execute('DELETE FROM trash WHERE user_id = %s',
+            ([user_id])
+            )
 
-        # Delete from `trash` as not to violate foreign key constraints
-        cur.execute('DELETE FROM trash WHERE user_id = %s',
-        (user_id)
-        )
+            # Finally, remove the user from `users`
+            cur.execute('DELETE FROM users WHERE id = %s',
+            ([user_id])
+            )
 
-        # Finally, remove the user from `users`
-        cur.execute('DELETE FROM users WHERE id = %s',
-        (user_id)
-        )
+            cur.close()
+            conn.commit()
 
-        cur.close()
-        conn.commit()
+        except DatabaseError:
+            cur.rollback()
 
-    except DatabaseError:
-        cur.rollback()
-
-    session.clear()
-    flash('Account deleted. Sad to see you go :(', 'danger')
-    return redirect('/')
+        session.clear()
+        flash('Account deleted. Sad to see you go :(', 'danger')
+        return redirect('/')
+    else:
+        flash('You are not logged in', 'danger')
+        return redirect('/login')
 
 # Change Password
 @app.route('/chpass', methods=['GET', 'POST'])
