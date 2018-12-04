@@ -593,7 +593,7 @@ def edit_res(user_id, re_id):
     return redirect(url_for('resources'))
 
 # Delete all user resources
-@app.route("/delall", methods=['GET','POST'])
+@app.route("/delall", methods=['POST'])
 def delall():
     # Check if user is logged in
     if isUserLoggedIn() == True:
@@ -605,7 +605,7 @@ def delall():
 
         # Then Delete
         cur.execute("""DELETE FROM resources WHERE user_id = %s""", ([user_id]))
-        
+
         cur.close()
         conn.commit()
 
