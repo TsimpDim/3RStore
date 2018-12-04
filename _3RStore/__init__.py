@@ -21,7 +21,7 @@ def addCommonHeaders(response):
     response.headers['Server'] = '3R Store WS'
 
     # Adds a touch of humor
-    response.headers['X-Hello-Human'] = 'Hi there my good old friend, human'
+    response.headers['X-Hello-Human'] = 'Hi there human, my good old friend.'
 
     # Prevents external sites from embedding your site in an iframe
     response.headers["X-Frame-Options"] = 'SAMEORIGIN'

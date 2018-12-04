@@ -619,12 +619,11 @@ def delall():
 def fildel():
     # Check if user is logged in
     if isUserLoggedIn() == True:
-        print(isUserLoggedIn())
+        
         tags_to_del = request.form.get('tags')
         user_id = session['user_id']
 
         tags_array = '{' + tags_to_del + '}'
-        print(tags_array)
         cur = conn.cursor()
 
         # Add to trash
