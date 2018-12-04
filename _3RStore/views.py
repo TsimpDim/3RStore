@@ -25,6 +25,18 @@ def inputValidation(userInput):
         flash('Invalid characters were inserted.', 'danger')
         return False
 
+# Checks if a user is logged in
+def isUserLoggedIn():
+    if 'logged_in' in session and session.get('logged_in') == True:
+        return True
+    else:
+        return False
+
+# Redirects user to the login page
+def redirectToLoginPage():
+    flash('You are not logged in.', 'danger')
+    return redirect(url_for('login'))
+
 @app.before_request
 def make_session_permanent():
     session.permanent = True
@@ -48,7 +60,7 @@ def register():
             time()).strftime('%Y-%m-%d %H:%M:%S')
 
         if not conn:
-            flash('Could not connect to database', 'error')
+            flash('Could not connect to database.', 'error')
         else:
             cur = conn.cursor()
             cur.execute(
@@ -58,85 +70,93 @@ def register():
 
             cur.close()
             conn.commit()
-
-        flash('You are now registered', 'success')
-        return redirect(url_for('login'))
+            flash('You are now registered.', 'success')
+            return redirect(url_for('login'))
 
     return render_template('register.html', form=form)
 
 # User Login
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    # Check if user is not logged in
+    if isUserLoggedIn() == False:
 
-    if request.method == 'POST':
+        if request.method == 'POST':
+            # Grab the fields from the form
+            username = request.form['username']
+            password_candidate = request.form['password']
 
-        # Grab the fields from the form
-        username = request.form['username']
-        password_candidate = request.form['password']
+            # And get the user from the db
+            # Treat result as a dictionary
+            cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+            try:
+                cur.execute(("""
+                SELECT * FROM users WHERE username = %s
+                """), (username,))  # Comma for single element tuple
+            except DatabaseError:
+                cur.rollback()
+                
+            # If we find a user with that username
+            data = cur.fetchone()
+            if data:
+                password = data['password']
 
-        # And get the user from the db
-        # Treat result as a dictionary
-        cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-        try:
-            cur.execute(("""
-            SELECT * FROM users WHERE username = %s
-            """), (username,))  # Comma for single element tuple
-        except DatabaseError:
-            cur.rollback()
-            
-        # If we find a user with that username
-        data = cur.fetchone()
-        if data:
-            password = data['password']
+                # Validate pass
+                if sha256_crypt.verify(password_candidate, password):
+                    session['logged_in'] = True
+                    session['username'] = username
+                    session['user_id'] = data['id']
 
-            # Validate pass
-            if sha256_crypt.verify(password_candidate, password):
-                session['logged_in'] = True
-                session['username'] = username
-                session['user_id'] = data['id']
+                    # Set default cookies if they don't exist
+                    # Build default response
+                    resp = make_response(redirect(url_for('resources')))
 
-                # Set default cookies if they don't exist
-                # Build default response
-                resp = make_response(redirect(url_for('resources')))
+                    # Sorting cookies
+                    sort = request.cookies.get('sort')
+                    criteria = request.cookies.get('criteria')
+                    if not sort or not criteria:  # If any of them have not been set
+                        resp.set_cookie(
+                            'sort', "desc", expires=datetime.datetime.now()
+                            + datetime.timedelta(days=30))
 
-                # Sorting cookies
-                sort = request.cookies.get('sort')
-                criteria = request.cookies.get('criteria')
-                if not sort or not criteria:  # If any of them have not been set
-                    resp.set_cookie(
-                        'sort', "desc", expires=datetime.datetime.now()
-                        + datetime.timedelta(days=30))
+                        resp.set_cookie(
+                            'criteria', "time", expires=datetime.datetime.now()
+                            + datetime.timedelta(days=30))
 
-                    resp.set_cookie(
-                        'criteria', "time", expires=datetime.datetime.now()
-                        + datetime.timedelta(days=30))
-
-                # View cookies
-                view = request.cookies.get('view')
-                if not view:
-                    resp.set_cookie('view', 'full', expires=datetime.datetime.now()
-                        + datetime.timedelta(days=30))
+                    # View cookies
+                    view = request.cookies.get('view')
+                    if not view:
+                        resp.set_cookie('view', 'full', expires=datetime.datetime.now()
+                            + datetime.timedelta(days=30))
 
 
-                flash('You are now logged in', 'success')
-                return resp
+                    flash('You are now logged in.', 'success')
+                    return resp
+                else:
+                    error = "Username or password are incorrect"
+                    return render_template('login.html', error=error)
             else:
                 error = "Username or password are incorrect"
                 return render_template('login.html', error=error)
+
+            cur.close()
         else:
-            error = "Username or password are incorrect"
-            return render_template('login.html', error=error)
-
-        cur.close()
-
-    return render_template('login.html')
-
+            return render_template('login.html')
+    else:
+        # Otherwise redirect to the `resources` page
+        flash('You are already logged in.', 'success')
+        return redirect(url_for('resources'))    
 # Logout
 @app.route('/logout')
 def logout():
-    session.clear()
-    flash('You are now logged out', 'success')
-    return redirect('/')
+    # Check if user is not logged out
+    if isUserLoggedIn() == True:
+        session.clear()
+        flash('You are now logged out.', 'success')
+        return redirect('/')
+    else:
+        flash('You are already logged out.', 'success')
+        return redirect('/')
 
 # Delete account
 @app.route('/delacc', methods=['POST'])
@@ -173,8 +193,7 @@ def delacc():
         flash('Account deleted. Sad to see you go :(', 'danger')
         return redirect('/')
     else:
-        flash('You are not logged in', 'danger')
-        return redirect('/login')
+        redirectLoggedOut()
 
 # Change Password
 @app.route('/chpass', methods=['GET', 'POST'])
@@ -194,7 +213,7 @@ def chpass():
         cur.close()
         conn.commit()
 
-        flash('Password changed successfully', 'success')
+        flash('Password changed successfully.', 'success')
         return redirect(url_for('options'))
     return render_template('chng_password.html', form=form)
 
@@ -202,7 +221,7 @@ def chpass():
 @app.route('/options')
 def options():
 
-    if session.get('logged_in'):
+    if isUserLoggedIn() == True:
         sort = request.cookies.get('sort')
         criteria = request.cookies.get('criteria')
         view = request.cookies.get('view')
@@ -226,7 +245,7 @@ def options():
         
         return render_template('options.html', sort=sort, criteria=criteria, tags=all_tags, view=view)
     else:
-        flash('You must be logged in to access the options page', 'warning')
+        flash('You must be logged in to access the options page.', 'warning')
         return redirect(url_for('login'))
 
 # Sorting order
@@ -244,7 +263,7 @@ def set_asc(criteria, stype):
 
         return resp
     else:
-        flash('You must be logged in to access the options page', 'warning')
+        flash('You must be logged in to access the options page.', 'warning')
         return redirect(url_for('login'))
 
 # View type
@@ -257,7 +276,7 @@ def set_view(view):
 
         return resp
     else:
-        flash('You must be logged in to access the options page', 'warning')
+        flash('You must be logged in to access the options page.', 'warning')
         return redirect(url_for('login'))
 
 # Resources
@@ -265,7 +284,7 @@ def set_view(view):
 def resources():
 
     if not session.get('logged_in'):
-        flash('You must be logged in to access your resources page', 'warning')
+        flash('You must be logged in to access your resources page.', 'warning')
         return redirect(url_for('login'))
     else:
         user_id = session['user_id']
@@ -355,7 +374,7 @@ def add_resource():
         cur.close()
         conn.commit()
 
-        flash('Resource created successfully', 'success')    
+        flash('Resource created successfully.', 'success')    
         return redirect(url_for('resources'))
     else:
         user_id = session['user_id']
@@ -402,7 +421,7 @@ def delete_res(user_id, re_id):
 @app.route('/trash')
 def deleted_res():
     if not session.get('logged_in'):
-        flash('You must be logged in to access your deleted resources page', 'warning')
+        flash('You must be logged in to access your deleted resources page.', 'warning')
         return redirect(url_for('login'))
     else:
 
@@ -567,63 +586,65 @@ def edit_res(user_id, re_id):
             cur.close()
             conn.commit()
 
-            flash('Resource edited successfully', 'success')
+            flash('Resource edited successfully.', 'success')
             return redirect(url_for('resources'))
         else:
             return render_template('edit_resource.html', form=form)
     return redirect(url_for('resources'))
 
-# Delete all resources
+# Delete all user resources
 @app.route("/delall", methods=['GET','POST'])
 def delall():
-
-    user_id = int(request.form.get('user_id'))
-    if not user_id:
-        flash('Something went wrong when handling your request', 'danger')
-        return redirect(url_for('login'))
-
-    if session['user_id'] == user_id and session.get('logged_in'):
+    # Check if user is logged in
+    if isUserLoggedIn() == True:
+        user_id = session.get('user_id')
         cur = conn.cursor()
 
         # Add to trash
-        cur.execute("""INSERT INTO trash SELECT * FROM resources WHERE user_id = %s""", (user_id,))
+        cur.execute("""INSERT INTO trash SELECT * FROM resources WHERE user_id = %s""", ([user_id]))
 
         # Then Delete
-        cur.execute("""DELETE FROM resources WHERE user_id = %s""", (user_id,))
-
+        cur.execute("""DELETE FROM resources WHERE user_id = %s""", ([user_id]))
+        
         cur.close()
         conn.commit()
-        flash('All resources deleted.', 'danger')
-    return redirect(url_for('resources'))
+
+        flash('All resources were deleted successfully.', 'danger')
+        return redirect(url_for('resources'))
+    else:
+        return redirectToLoginPage()
 
 # Filtered delete
 @app.route("/fildel", methods=['POST'])
 def fildel():
+    # Check if user is logged in
+    if isUserLoggedIn() == True:
+        print(isUserLoggedIn())
+        tags_to_del = request.form.get('tags')
+        user_id = session['user_id']
 
-    tags_to_del = request.form.get('tags')
-    user_id = session['user_id']
+        tags_array = '{' + tags_to_del + '}'
+        print(tags_array)
+        cur = conn.cursor()
 
-    tags_array = '{' + tags_to_del + '}'
+        # Add to trash
+        cur.execute(
+            ("""INSERT INTO trash SELECT * FROM resources WHERE user_id = %s AND tags @> %s"""),
+            (user_id, tags_array))
 
-    cur = conn.cursor()
+        # Then Delete
+        cur.execute(
+        ("""DELETE FROM resources WHERE user_id = %s AND tags @> %s"""),
+        (user_id, tags_array)
+        )
 
-    # Add to trash
-    cur.execute(
-    ("""INSERT INTO trash SELECT * FROM resources WHERE user_id = %s AND tags @> %s"""),
-    (user_id, tags_array)
-    )
+        cur.close()
+        conn.commit()
 
-    # Then Delete
-    cur.execute(
-    ("""DELETE FROM resources WHERE user_id = %s AND tags @> %s"""),
-    (user_id, tags_array)
-    )
-
-    cur.close()
-    conn.commit()
-
-    flash('Resources deleted successfully', 'danger')
-    return redirect(url_for('options'))
+        flash('Resources deleted successfully.', 'danger')
+        return redirect(url_for('options'))
+    else:
+        return redirectToLoginPage()
 
 # Remove tag
 @app.route("/remtag", methods=['POST'])
@@ -643,7 +664,7 @@ def remtag():
         cur.close()
         conn.commit()
 
-    flash('Tag(s) removed successfully', 'danger')
+    flash('Tag(s) removed successfully.', 'danger')
     return redirect(url_for('options'))
 
 # Rename tag
@@ -662,7 +683,7 @@ def renametag():
         cur.close()
         conn.commit()
     
-    flash('Tag renamed successfully', 'success')
+    flash('Tag renamed successfully.', 'success')
     return redirect(url_for('options'))
 
 # Import resources
@@ -731,13 +752,13 @@ def import_resources():
     if request.method == 'POST':
 
         if 'file' not in request.files:
-            flash('No file selected', 'warning')
+            flash('No file selected.', 'warning')
             return redirect(request.url)
         else:
 
             file = request.files['file']
             if file.filename == '':
-                flash('No file selected', 'warning')
+                flash('No file selected.', 'warning')
                 return redirect(request.url)
 
             if file:
@@ -761,7 +782,7 @@ def import_resources():
 
                 cur.close()
                 conn.commit()
-                flash('Resources imported successfully', 'success')
+                flash('Resources imported successfully.', 'success')
 
     return redirect(url_for('resources'))
 
@@ -1035,7 +1056,7 @@ def reset_w_token(token):
         cur.close()
         conn.commit()
 
-        flash('Password changed successfully', 'success')
+        flash('Password changed successfully.', 'success')
         return redirect(url_for('login'))
  
     return render_template('chng_password.html', form=form)
