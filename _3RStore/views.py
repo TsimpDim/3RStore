@@ -162,7 +162,7 @@ def logout():
 @app.route('/delacc', methods=['POST'])
 def delacc():
     # Check if user is logged in
-    if session['logged_in'] == True:
+    if isUserLoggedIn() == True:
         # Extract user_id from the current session
         user_id = session['user_id']
     
@@ -193,7 +193,7 @@ def delacc():
         flash('Account deleted. Sad to see you go :(', 'danger')
         return redirect('/')
     else:
-        redirectLoggedOut()
+        return redirectToLoginPage()
 
 # Change Password
 @app.route('/chpass', methods=['GET', 'POST'])
