@@ -24,13 +24,9 @@ function initiateSearch(){
     let useFilters = false;
 
     if($('#search_input').val().indexOf('-') > -1){
-        console.log("---");
-        console.log(searchInput);
         useFilters = true;
         filters  = searchInput.split('-')[1].trim().split(',');
-        console.log(filters);
         inputTags = searchInput.split('-')[0].trim().split(',');
-        console.log(inputTags);
     }
 
     if(inputTags.length == 1 && inputTags[0] == ""){ // If no tags have been entered
