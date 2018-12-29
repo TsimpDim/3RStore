@@ -15,6 +15,8 @@ Then, go ahead and install PIP. Instructions for its installation are available 
 To make sure all the depedencies are installed run:
 
     pip install -r requirements.txt
+
+Next, you must have a PostgreSQL database created. For that you can use [PG Admin](https://www.pgadmin.org/).
     
 You will then have to create a `config.json` file which has the following structure:
 
@@ -148,6 +150,7 @@ Ta-da!
 │   │   ├── register.html
 │   │   ├── reset_password_start.html
 │   │   ├── resources_cmpct.html
+│   │   ├── resources_public.html
 │   │   └── resources.html
 │   ├── classes.py
 │   ├── config.json
