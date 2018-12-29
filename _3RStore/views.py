@@ -1014,11 +1014,11 @@ def share():
         search_str = request.form.get('tags')
         
         # Assuming standard form <tag1,tag2 -tag4,tag6> we separate filters from tags
-        filters_str = search_str[search_str.find('-') +1 : ] 
+        filters_str = search_str[search_str.find('-') +1 : ].replace(" ", "")
         filters = [f.lower() for f in filters_str.split(',')]
 
         tags = [t.lower() for t in search_str[ : search_str.find('-') -1].split(',')]
-        tags_str = ''.join(tags)
+        tags_str = ''.join(tags).replace(" ", "")
 
         if not tags:
             flash('No tags selected. Can\'t share.', 'danger')

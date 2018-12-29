@@ -17,15 +17,16 @@ $(document).keypress(function(e){
 });
 
 function initiateSearch(){
-    let inputTags = $('#search_input').val().toLowerCase().split(','); // Array with requested tags
+    let searchInput = $('#search_input').val().toLowerCase().replace(/ /g,'');
+    let inputTags = searchInput.split(','); // Array with requested tags
     let resources = $('.re_cards'); // Array with resources
     let filters;
     let useFilters = false;
 
     if($('#search_input').val().indexOf('-') > -1){
         useFilters = true;
-        filters  = $('#search_input').val().toLowerCase().split('-')[1].split(',');
-        inputTags = $('#search_input').val().toLowerCase().split('-')[0].trim().split(',');
+        filters  = searchInput.split('-')[1].split(',');
+        inputTags = searchInput.split('-')[0].split(',');
     }
 
     if(inputTags.length == 1 && inputTags[0] == ""){ // If no tags have been entered
