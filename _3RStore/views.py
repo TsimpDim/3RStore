@@ -1012,47 +1012,62 @@ def share():
 
     if(request.method == 'POST'):
         search_str = request.form.get('tags')
-        
+        search_str = search_str.lower()
+
+        filters = []
+        filters_str = ""
+
+        use_filters = False
+
         # Assuming standard form <tag1,tag2 -tag4,tag6> we separate filters from tags
-        filters_str = search_str[search_str.find('-') +1 : ].replace(" ", "")
-        filters = [f.lower() for f in filters_str.split(',')]
+        if '-' in search_str:
+            use_filters = True
+            filters_str = search_str[search_str.find('-') +1 : ].strip()
+            filters = [f.lower() for f in filters_str.split(',')]
 
-        tags = [t.lower() for t in search_str[ : search_str.find('-') -1].split(',')]
-        tags_str = ''.join(tags).replace(" ", "")
+            tags = [t.lower() for t in search_str[ : search_str.find('-') -1].split(',')]
+            
+        else:
+            tags = [t.lower() for t in search_str.split(',')]
 
+        tags_str = ','.join(tags).strip()
+
+        print(use_filters)
+        print(filters)
+        print(tags)
         if not tags:
             flash('No tags selected. Can\'t share.', 'danger')
             return redirect(url_for('resources'))
-        elif filters == tags:
+        
+        if use_filters and (filters == tags or all(fil in tags for fil in filters)):
             flash('Tags and filters are the same. Can\'t share.', 'danger')
-            return redirect(url_for('resources'))      
-        else:
-            search_str = search_str.lower()
-            cur = conn.cursor()
-            cur.execute(
-                ("""SELECT DISTINCT unnest(tags) FROM resources WHERE user_id = %s"""),
-                (session['user_id'],)
-            )
+            return redirect(url_for('resources')) 
 
-            tags_used = cur.fetchall()
-            # 'Unpack' tags_raw into one array
-            tags_used_clean = []
-            for tag_arr in tags_used:
-                tags_used_clean.append(tag_arr[0])
+        cur = conn.cursor()
+        cur.execute(
+            ("""SELECT DISTINCT unnest(tags) FROM resources WHERE user_id = %s"""),
+            (session['user_id'],)
+        )
 
-            cur.close()
-            conn.commit()
+        tags_used = cur.fetchall()
+        # 'Unpack' tags_raw into one array
+        tags_used_clean = []
+        for tag_arr in tags_used:
+            tags_used_clean.append(tag_arr[0])
 
-            # If filters or search tags don't contain any actually used (aka existing) tags
-            if any(tag not in tags_used_clean 
-                or fil not in tags_used_clean
-                for tag in tags 
-                for fil in filters):
+        cur.close()
+        conn.commit()
 
-                flash('No such tag exists. Can\'t share.', 'danger')
-                return redirect(url_for('resources'))
+        # If filters or search tags don't contain any actually used (aka existing) tags
+        if any(tag not in tags_used_clean 
+            or fil not in tags_used_clean
+            for tag in tags 
+            for fil in filters):
 
-            
+            flash('No such tag exists. Can\'t share.', 'danger')
+            return redirect(url_for('resources'))
+
+        
         serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'])
 
         share_url = url_for(
@@ -1060,7 +1075,16 @@ def share():
         token = serializer.dumps([session['user_id'], tags_str, filters_str], salt='share-salt'),
         _external=True)
 
-        message = Markup("Resources containing {" + tags_str + " -[" + filters_str + "]} can be publicly accessed for 3 days via the following link: <a href=" + share_url + ">Link</a>")
+
+        if use_filters:
+            message = Markup(" \
+            Resources containing {" + tags_str + " -" + filters_str + "} can be publicly accessed for 3 days via the \
+            following link: <a href=" + share_url + ">Link</a>")
+        else:
+            message = Markup("Resources containing {" + tags_str + "} can be publicly accessed for 3 days via the \
+            following link: <a href=" + share_url + ">Link</a>")
+
+
         flash(message, 'info')
 
         return redirect(url_for('resources'))
@@ -1069,25 +1093,38 @@ def share():
 @app.route('/view_resources/<token>')
 def open_share(token):
 
+    use_filters = False
     try:
         serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'])
         data = serializer.loads(token, salt='share-salt', max_age=259200) # 3 days
         user_id = data[0]
         tags = '{' + data[1] + '}'
-        filters = '{' + data[2] + '}'
+
+        if data[2]:
+            use_filters = True
+            filters = '{' + data[2] + '}'
 
     except:
         flash('The share  link is invalid or has expired.', 'danger')
         return render_template('home.html')
 
     cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-    cur.execute("""SELECT * FROM resources
-                WHERE user_id= %s 
-                        AND %s IN (tags)
-                        AND %s NOT IN (tags)
-                ORDER BY date_of_posting DESC""",
-            (user_id, tags, filters)
-            )
+
+    if use_filters:
+        cur.execute("""SELECT * FROM resources
+                    WHERE user_id= %s 
+                        AND tags @> %s
+                        AND NOT tags @> %s
+                        AND tags IS NOT NULL
+                    ORDER BY date_of_posting DESC""",
+                    (user_id, tags, filters))
+
+    else:
+        cur.execute("""SELECT * FROM resources
+                    WHERE user_id= %s 
+                        AND tags @> %s
+                    ORDER BY date_of_posting DESC""",
+                    (user_id, tags))
 
     resources = cur.fetchall()
 
