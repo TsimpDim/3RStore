@@ -18,7 +18,7 @@ $(document).keypress(function(e){
 });
 
 function initiateSearch(){
-    let searchInput = $('#search_input').val().toLowerCase().replace(/ /g,'');
+    let searchInput = $('#search_input').val().trim().toLowerCase();
     let inputTags = searchInput.split(','); // Array with requested tags
     let resources = $('.re_card'); // Array with resources
     let filters;
@@ -26,7 +26,7 @@ function initiateSearch(){
 
     if($('#search_input').val().indexOf('-') > -1){
         useFilters = true;
-        filters  = searchInput.split('-')[1].split(',');
+        filters  = searchInput.split('-')[1].trim().split(',');
         inputTags = searchInput.split('-')[0].trim().split(',');
     }
 

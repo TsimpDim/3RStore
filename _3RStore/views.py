@@ -1032,9 +1032,6 @@ def share():
 
         tags_str = ','.join(tags).strip()
 
-        print(use_filters)
-        print(filters)
-        print(tags)
         if not tags:
             flash('No tags selected. Can\'t share.', 'danger')
             return redirect(url_for('resources'))
