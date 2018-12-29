@@ -72,7 +72,7 @@ def login():
             SELECT * FROM users WHERE username = %s
             """), (username,))  # Comma for single element tuple
         except DatabaseError:
-            cur.rollback()
+            conn.rollback()
             
         # If we find a user with that username
         data = cur.fetchone()
@@ -144,7 +144,7 @@ def delacc():
         (user_id,)
         )
     except DatabaseError:
-        cur.rollback()
+        conn.rollback()
 
     session.clear()
     flash('Account deleted. Sad to see you go :(', 'danger')
@@ -1011,13 +1011,23 @@ def reset_w_token(token):
 def share():
 
     if(request.method == 'POST'):
-        tags_str = request.form.get('tags')
-        tags = [t.lower() for t in tags_str.split(',')]
+        search_str = request.form.get('tags')
+        
+        # Assuming standard form <tag1,tag2 -tag4,tag6> we separate filters from tags
+        filters_str = search_str[search_str.find('-') +1 : ].replace(" ", "")
+        filters = [f.lower() for f in filters_str.split(',')]
+
+        tags = [t.lower() for t in search_str[ : search_str.find('-') -1].split(',')]
+        tags_str = ''.join(tags).replace(" ", "")
 
         if not tags:
             flash('No tags selected. Can\'t share.', 'danger')
             return redirect(url_for('resources'))
+        elif filters == tags:
+            flash('Tags and filters are the same. Can\'t share.', 'danger')
+            return redirect(url_for('resources'))      
         else:
+            search_str = search_str.lower()
             cur = conn.cursor()
             cur.execute(
                 ("""SELECT DISTINCT unnest(tags) FROM resources WHERE user_id = %s"""),
@@ -1033,8 +1043,12 @@ def share():
             cur.close()
             conn.commit()
 
+            # If filters or search tags don't contain any actually used (aka existing) tags
+            if any(tag not in tags_used_clean 
+                or fil not in tags_used_clean
+                for tag in tags 
+                for fil in filters):
 
-            if any(tag not in tags_used_clean for tag in tags):
                 flash('No such tag exists. Can\'t share.', 'danger')
                 return redirect(url_for('resources'))
 
@@ -1043,10 +1057,10 @@ def share():
 
         share_url = url_for(
         'open_share',
-        token = serializer.dumps([session['user_id'],tags_str], salt='share-salt'),
+        token = serializer.dumps([session['user_id'], tags_str, filters_str], salt='share-salt'),
         _external=True)
 
-        message = Markup("Resources containing {" + tags_str + "} can be publicly accessed for 3 days via the following link: <a href=" + share_url + ">Link</a>")
+        message = Markup("Resources containing {" + tags_str + " -[" + filters_str + "]} can be publicly accessed for 3 days via the following link: <a href=" + share_url + ">Link</a>")
         flash(message, 'info')
 
         return redirect(url_for('resources'))
@@ -1060,20 +1074,25 @@ def open_share(token):
         data = serializer.loads(token, salt='share-salt', max_age=259200) # 3 days
         user_id = data[0]
         tags = '{' + data[1] + '}'
+        filters = '{' + data[2] + '}'
+
     except:
         flash('The share  link is invalid or has expired.', 'danger')
         return render_template('home.html')
 
     cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-    cur.execute("""SELECT * FROM resources WHERE user_id= %s AND tags @> %s ORDER BY date_of_posting DESC""",
-               (user_id, tags)
-               )
-    
+    cur.execute("""SELECT * FROM resources
+                WHERE user_id= %s 
+                        AND %s IN (tags)
+                        AND %s NOT IN (tags)
+                ORDER BY date_of_posting DESC""",
+            (user_id, tags, filters)
+            )
+
     resources = cur.fetchall()
 
     cur.close()
     conn.commit()
 
     return render_template('resources_public.html', resources=resources, tags=tags, view="full")
-
 
