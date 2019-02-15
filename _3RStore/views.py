@@ -86,54 +86,6 @@ def login():
             username = request.form['username']
             password_candidate = request.form['password']
 
-<<<<<<< HEAD
-        # And get the user from the db
-        # Treat result as a dictionary
-        cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-        try:
-            cur.execute(("""
-            SELECT * FROM users WHERE username = %s
-            """), (username,))  # Comma for single element tuple
-        except DatabaseError:
-            conn.rollback()
-            
-        # If we find a user with that username
-        data = cur.fetchone()
-        if data:
-            password = data['password']
-
-            # Validate pass
-            if sha256_crypt.verify(password_candidate, password):
-                session['logged_in'] = True
-                session['username'] = username
-                session['user_id'] = data['id']
-
-                # Set default cookies if they don't exist
-                # Build default response
-                resp = make_response(redirect(url_for('resources')))
-
-                # Sorting cookies
-                sort = request.cookies.get('sort')
-                criteria = request.cookies.get('criteria')
-                if not sort or not criteria:  # If any of them have not been set
-                    resp.set_cookie(
-                        'sort', "desc", expires=datetime.datetime.now()
-                        + datetime.timedelta(days=30))
-
-                    resp.set_cookie(
-                        'criteria', "time", expires=datetime.datetime.now()
-                        + datetime.timedelta(days=30))
-
-                # View cookies
-                view = request.cookies.get('view')
-                if not view:
-                    resp.set_cookie('view', 'full', expires=datetime.datetime.now()
-                        + datetime.timedelta(days=30))
-
-
-                flash('You are now logged in', 'success')
-                return resp
-=======
             # And get the user from the db
             # Treat result as a dictionary
             cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
@@ -183,7 +135,6 @@ def login():
                 else:
                     error = "Username or password are incorrect"
                     return render_template('login.html', error=error)
->>>>>>> 09c77d26aa815cafced38c9765af1a8b6ba1a188
             else:
                 error = "Username or password are incorrect"
                 return render_template('login.html', error=error)
@@ -219,24 +170,17 @@ def delacc():
         try:
             # First delete from `resources` so as not to violate foreign key constraints
             cur.execute('DELETE FROM resources WHERE user_id = %s',
-            ([user_id])
+            (user_id,)
             )
 
             # Delete from `trash` as not to violate foreign key constraints
             cur.execute('DELETE FROM trash WHERE user_id = %s',
-            ([user_id])
+            (user_id,)
             )
 
-<<<<<<< HEAD
-        cur.execute('DELETE FROM users WHERE id = %s',
-        (user_id,)
-        )
-    except DatabaseError:
-        conn.rollback()
-=======
             # Finally, remove the user from `users`
             cur.execute('DELETE FROM users WHERE id = %s',
-            ([user_id])
+            (user_id,)
             )
 
             cur.close()
@@ -244,7 +188,6 @@ def delacc():
 
         except DatabaseError:
             cur.rollback()
->>>>>>> 09c77d26aa815cafced38c9765af1a8b6ba1a188
 
         session.clear()
         flash('Account deleted. Sad to see you go :(', 'danger')
