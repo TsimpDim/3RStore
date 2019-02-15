@@ -4,13 +4,16 @@
 # _3RStore/__init__.py: 3
 # _3RStore/errors.py: 2
 # _3RStore/views.py: 7
-Flask == 1.0.2
+Flask == 0.12.2
+
+# _3RStore/__init__.py: 5
+Flask_Cors == 3.0.7
 
 # _3RStore/__init__.py: 4
 # _3RStore/views.py: 8
 Flask_Mail == 0.9.1
 
-# _3RStore/__init__.py: 6
+# _3RStore/__init__.py: 7
 Flask_SSLify == 0.1.5
 
 # _3RStore/forms.py: 1
@@ -29,7 +32,7 @@ itsdangerous == 0.24
 # _3RStore/views.py: 9
 passlib == 1.7.1
 
-# _3RStore/__init__.py: 5
+# _3RStore/__init__.py: 6
 # _3RStore/views.py: 4,5
 psycopg2 == 2.7.5
 
