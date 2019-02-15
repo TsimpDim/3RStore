@@ -14,28 +14,8 @@ import urllib.parse
 from . import classes as cc
 from anytree import Node, RenderTree, find, AsciiStyle, NodeMixin, AnyNode, PreOrderIter
 import re as r
+from . import helpers
 
-# Checks if the provided input consists of alphanumerical characters only (include a comma)
-def inputValidation(userInput):
-    # Returns False if the user input is invalid
-    # Returns True if the user input is valid
-    if r.match("^[A-Za-z0-9_, -]*$", userInput):
-        return True
-    else:
-        flash('Invalid characters were inserted.', 'danger')
-        return False
-
-# Checks if a user is logged in
-def isUserLoggedIn():
-    if 'logged_in' in session and session.get('logged_in') == True:
-        return True
-    else:
-        return False
-
-# Redirects user to the login page
-def redirectToLoginPage():
-    flash('You are not logged in.', 'danger')
-    return redirect(url_for('login'))
 
 @app.before_request
 def make_session_permanent():
@@ -79,7 +59,7 @@ def register():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     # Check if user is not logged in
-    if isUserLoggedIn() == False:
+    if not helpers.logged_in():
 
         if request.method == 'POST':
             # Grab the fields from the form
@@ -150,7 +130,7 @@ def login():
 @app.route('/logout')
 def logout():
     # Check if user is not logged out
-    if isUserLoggedIn() == True:
+    if helpers.logged_in():
         session.clear()
         flash('You are now logged out.', 'success')
         return redirect('/')
@@ -162,7 +142,7 @@ def logout():
 @app.route('/delacc', methods=['POST'])
 def delacc():
     # Check if user is logged in
-    if isUserLoggedIn() == True:
+    if helpers.logged_in():
         # Extract user_id from the current session
         user_id = session['user_id']
     
@@ -193,7 +173,8 @@ def delacc():
         flash('Account deleted. Sad to see you go :(', 'danger')
         return redirect('/')
     else:
-        return redirectToLoginPage()
+        flash('You are not logged in.', 'danger')
+        return redirect(url_for('login'))
 
 # Change Password
 @app.route('/chpass', methods=['GET', 'POST'])
@@ -221,7 +202,7 @@ def chpass():
 @app.route('/options')
 def options():
 
-    if isUserLoggedIn() == True:
+    if helpers.logged_in():
         sort = request.cookies.get('sort')
         criteria = request.cookies.get('criteria')
         view = request.cookies.get('view')
@@ -251,7 +232,7 @@ def options():
 # Sorting order
 @app.route('/options/set_sort/<string:criteria>/<string:stype>')
 def set_asc(criteria, stype):
-    if session.get('logged_in'):
+    if helpers.logged_in():
         resp = make_response(redirect(url_for('options')))
         resp.set_cookie(
             'sort', stype, expires=datetime.datetime.now()
@@ -269,7 +250,7 @@ def set_asc(criteria, stype):
 # View type
 @app.route('/options/set_view/<string:view>')
 def set_view(view):
-    if session.get('logged_in'):
+    if helpers.logged_in():
         resp = make_response(redirect(url_for('options')))
         resp.set_cookie('view', view, expires=datetime.datetime.now()
             + datetime.timedelta(days=30))
@@ -283,7 +264,7 @@ def set_view(view):
 @app.route('/resources')
 def resources():
 
-    if not session.get('logged_in'):
+    if not helpers.logged_in():
         flash('You must be logged in to access your resources page.', 'warning')
         return redirect(url_for('login'))
     else:
@@ -398,7 +379,7 @@ def add_resource():
 @app.route('/del/<int:user_id>/<int:re_id>')
 def delete_res(user_id, re_id):
 
-    if session.get('logged_in') and session['user_id'] == user_id:
+    if helpers.logged_in(user_id):
         cur = conn.cursor()
 
         # First add resource to trash bin
@@ -420,7 +401,7 @@ def delete_res(user_id, re_id):
 # Trash bin
 @app.route('/trash')
 def deleted_res():
-    if not session.get('logged_in'):
+    if not helpers.logged_in():
         flash('You must be logged in to access your deleted resources page.', 'warning')
         return redirect(url_for('login'))
     else:
@@ -511,7 +492,7 @@ def del_trash_res():
 def edit_res(user_id, re_id):
 
     if request.method == 'GET':
-        if session.get('logged_in') and session['user_id'] == user_id:
+        if helpers.logged_in(user_id):
 
             # Fetch the data we want to edit
             cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
@@ -568,12 +549,7 @@ def edit_res(user_id, re_id):
 
             # If not empty format for proper insertion into postgresql
             if tags:
-                if inputValidation(tags):
-                    tags = '{' + str(tags).lower() + '}'
-                else:
-                    # Since invalid data was inserted, return to the same editing page with no changes made.
-                    tags = None
-                    return redirect(url_for('edit_res', user_id = user_id, re_id = re_id))
+                tags = '{' + str(tags).lower() + '}'
             else:
                 tags = None
 
@@ -596,7 +572,7 @@ def edit_res(user_id, re_id):
 @app.route("/delall", methods=['POST'])
 def delall():
     # Check if user is logged in
-    if isUserLoggedIn() == True:
+    if helpers.logged_in():
         user_id = session.get('user_id')
         cur = conn.cursor()
 
@@ -612,13 +588,14 @@ def delall():
         flash('All resources were deleted successfully.', 'danger')
         return redirect(url_for('resources'))
     else:
-        return redirectToLoginPage()
+        flash('You are not logged in.', 'danger')
+        return redirect(url_for('login'))
 
 # Filtered delete
 @app.route("/fildel", methods=['POST'])
 def fildel():
     # Check if user is logged in
-    if isUserLoggedIn() == True:
+    if helpers.logged_in():
         
         tags_to_del = request.form.get('tags')
         user_id = session['user_id']
@@ -643,7 +620,8 @@ def fildel():
         flash('Resources deleted successfully.', 'danger')
         return redirect(url_for('options'))
     else:
-        return redirectToLoginPage()
+        flash('You are not logged in.', 'danger')
+        return redirect(url_for('login'))
 
 # Remove tag
 @app.route("/remtag", methods=['POST'])

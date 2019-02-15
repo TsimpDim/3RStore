@@ -1,5 +1,6 @@
 from wtforms import Form, StringField, TextAreaField, PasswordField, validators
 from _3RStore import conn
+import re as r
 
 class ResourceForm(Form):
     '''Resource form class. Gets input for title,link,note and tags and validates it.'''
@@ -33,6 +34,14 @@ class ResourceForm(Form):
             self.tags.errors.append('Duplicate tags are not allowed.')
             return False
 
+        # Invalid characters
+        if r.match("^[A-Za-z0-9_, -]*$", self.tags.data):
+            return True
+        else:
+            self.tags.errors.append('Invalid characters were given.')
+            return False
+
+        # Misc
         for tag in tags_list:
             if len(tag) > 20:
                 self.tags.errors.append(
