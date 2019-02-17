@@ -334,7 +334,7 @@ def add_resource():
         # Escape user input using Markup
         title = Markup.escape(form.title.data)
         link = urllib.parse.unquote(Markup.escape(form.link.data))
-        note = Markup.escape(form.note.data.replace('\n','</br>')) # So we can show the newlines in the note section
+        note = Markup.escape(form.note.data)
         timestamp = datetime.datetime.fromtimestamp(
             time()).strftime('%Y-%m-%d %H:%M:%S')
 
@@ -544,7 +544,7 @@ def edit_res(user_id, re_id):
             # Grab the new form and its data
             title = form.title.data
             link = Markup.escape(form.link.data)
-            note = Markup.escape(form.note.data.replace('\n','</br>')) # Save newlines as </br> to display them properly later
+            note = Markup.escape(form.note.data)
             tags = Markup.escape(form.tags.data)
 
             # If not empty format for proper insertion into postgresql
