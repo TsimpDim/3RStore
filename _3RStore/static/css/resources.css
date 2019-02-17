@@ -94,6 +94,7 @@ p{
 .re_note{
     color:black;
     margin-bottom:0;
+    white-space: pre-line;
 }
 
 .form_item{

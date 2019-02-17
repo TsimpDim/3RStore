@@ -106,12 +106,11 @@
         <!-- Note section -->
         {% if re.note %}
             <div class="card-footer">
-                {% if re.note.split('</br>') | length > 5 %} <!-- If note has more than 5 lines -->
+                {% if re.note.split('\n') | length > 5  or re.note | length > 300 %} <!-- If note has more than 5 lines -->
                     <button class="btn btn-info" type="button" data-toggle="collapse" data-target="#{{re.re_id}}_note">Expand/Collapse Note</button>
-                    <p id="{{re.re_id}}_note" class="collapse re_note"><br>{{ re.note | safe }}</p>
+                    <p id="{{re.re_id}}_note" class="collapse re_note"><br>{{ re.note }}</p>
                 {% else %}
-                    <p id="{{re.re_id}}_note" class="re_note">
-                        {{ re.note | safe }}
+                    <p id="{{re.re_id}}_note" class="re_note">{{ re.note }}
                     </p>
                 {% endif %}
             </div>
