@@ -1,5 +1,6 @@
 from wtforms import Form, StringField, TextAreaField, PasswordField, validators
 from _3RStore import conn
+from . import helpers
 import re as r
 
 class ResourceForm(Form):
@@ -30,12 +31,12 @@ class ResourceForm(Form):
             return True
 
         # If list contains duplicate values (the same tag many times)
-        if len(tags_list) != len(set(tags_list)):
+        if helpers.list_contains_duplicates(tags_list):
             self.tags.errors.append('Duplicate tags are not allowed.')
             return False
 
         # Invalid characters
-        if r.match(r"^[A-Za-z0-9_, \- \u0370-\u03ff\u1f00-\u1fff]*$", self.tags.data):
+        if helpers.characters_valid(self.tags.data):
             return True
         else:
             self.tags.errors.append('Invalid characters were given.')

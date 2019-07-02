@@ -650,17 +650,21 @@ def renametag():
 
     tag = request.form.get('tag')
     replacement = request.form.get('replacement')
-
+    print(replacement)
     if tag:
-        cur = conn.cursor()
-        cur.execute("UPDATE resources SET tags = array_replace(tags,%s,%s)",
-        (tag, replacement)
-        )
+        if helpers.characters_valid(replacement) and not helpers.list_contains_duplicates(replacement):
+            cur = conn.cursor()
+            cur.execute("UPDATE resources SET tags = array_replace(tags,%s,%s)",
+            (tag, replacement)
+            )
 
-        cur.close()
-        conn.commit()
-    
-    flash('Tag renamed successfully.', 'success')
+            cur.close()
+            conn.commit()
+            
+            flash('Tag renamed successfully.', 'success')
+        else:
+            flash('Invalid tags were given. Check for invalid characters or duplicate tags.', 'danger')    
+
     return redirect(url_for('options'))
 
 # Import resources
