@@ -35,7 +35,7 @@ class ResourceForm(Form):
             return False
 
         # Invalid characters
-        if r.match("^[A-Za-z0-9_, -]*$", self.tags.data):
+        if r.match(r"^[A-Za-z0-9_, \- \u0370-\u03ff\u1f00-\u1fff]*$", self.tags.data):
             return True
         else:
             self.tags.errors.append('Invalid characters were given.')
