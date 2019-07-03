@@ -15,7 +15,7 @@ from . import classes as cc
 from anytree import Node, RenderTree, find, AsciiStyle, NodeMixin, AnyNode, PreOrderIter
 import re as r
 from . import helpers
-
+from html import unescape
 
 @app.before_request
 def make_session_permanent():
@@ -316,6 +316,9 @@ def resources():
 
         cur.close()
         conn.commit()
+
+        for res in data:
+            res['title'] = unescape(res['title'])
 
         view = request.cookies.get('view')
         if view == 'full':
