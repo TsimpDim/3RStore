@@ -40,4 +40,4 @@ psycopg2 == 2.7.5
 setuptools == 39.0.1
 
 # server.py: 1
-waitress == 1.1.0
+waitress == 1.4.1
