@@ -5,15 +5,24 @@
     <span class="logo">Login</span>
     <form method="POST" action="" class="form">
         <div class="form-group">
-            <label><span class="fa fa-user"></span> Username</label>
-            <input type="text" name="username" class="form-control" value="{{request.form.username}}">
+            <label>Username</label>
+            <div class="input-group">
+                <div class="input-group-prepend">
+                    <span class="input-group-text"><span class="fa fa-user"></span></span>
+                </div>
+                <input type="text" name="username" class="form-control" value="{{request.form.username}}">
+            </div>
         </div>
         <div class="form-group">
-            <label><span class="fa fa-lock"></span> Password</label>
-            <input type="password" name="password" class="form-control" value="{{request.form.password}}">
+            <label>Password</label>
+            <div class="input-group">
+                <div class="input-group-prepend">
+                    <span class="input-group-text"><span class="fa fa-lock"></span></span>
+                </div>
+                <input type="password" name="password" class="form-control" value="{{request.form.password}}">
         </div>
 
-        <div class="d-flex justify-content-between align-items-center">
+        <div class="d-flex justify-content-between align-items-center" style="margin-top: 1em;">
             <button type="submit" class="btn btn-primary">Submit</button>
             <div class="d-flex" style="flex-direction: column;">
                 <a href="/reset"><em>Forgot your password?</em></a>
