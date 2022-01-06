@@ -16,8 +16,20 @@ nav {
     font-family: 'Quicksand', sans-serif;
     font-weight: 500;
     width: 100%;
+    box-shadow: 0 5px 0px rgb(24, 144, 255);
+
+    color: #343a40;
+}
+
+li[class=nav-item]{
+    transition: all 200ms ease-in-out;
+    border-bottom: 3px solid #f8f9fa;
+}
+
+li[class=nav-item]:hover {
+    border-bottom: 3px solid #343a40;
 }
 
 .active {
-    border-bottom: 3px solid white;
+    border-bottom: 3px solid #343a40;
 }
