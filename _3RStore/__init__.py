@@ -8,7 +8,12 @@ from flask_sslify import SSLify
 
 app = Flask(__name__)
 dir_path = os.path.dirname(os.path.realpath(__file__))
-CONFIG = json.load(open(os.path.join(dir_path, 'config.json'), 'r'))
+
+config_name = "config.json"
+if os.environ.get("LOCAL_EXEC"):
+    config_name = "config_local.json"
+
+CONFIG = json.load(open(os.path.join(dir_path, config_name), 'r'))
 
 
 # Add Access-Control-Allow-Origin Header
@@ -61,13 +66,14 @@ USER = CONFIG['DB']['USER']
 PASSWORD = CONFIG['DB']['PWD']
 HOST = CONFIG['DB']['HOST']
 NAME = CONFIG['DB']['DATABASE']
+PORT = CONFIG['DB']['PORT']
 
 conn = None  # Declared here so we can use it later
 try:
     print("Connecting to database...")
 
-    conn = pg.connect(("dbname={} user={} host={} password={}").format(
-        NAME, USER, HOST, PASSWORD))
+    conn = pg.connect(("dbname={} user={} host={} password={} port={}").format(
+        NAME, USER, HOST, PASSWORD, PORT))
     cur = conn.cursor()
     cur.execute(
         """CREATE TABLE IF NOT EXISTS users (

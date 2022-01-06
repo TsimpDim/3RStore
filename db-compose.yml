@@ -1,0 +1,37 @@
+version: '3.1'
+
+services:
+
+  db:
+    image: postgres
+    restart: always
+    container_name: db
+    environment:
+      POSTGRES_PASSWORD: root_pass
+      POSTGRES_USER: postgres
+    volumes:
+      - ./scripts/db:/docker-entrypoint-initdb.d
+      - /var/lib/3rstore/db-data/db:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+
+  adminer:
+    image: adminer
+    restart: always
+    container_name: adminer
+    ports:
+      - 8080:8080
+
+  service:
+    container_name: service
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      FLASK_APP: /3RStore/_3RStore/__init__.py
+      LOCAL_EXEC: "true"
+      FLASK_DEBUG: "true"
+    volumes: 
+      - .:/3RStore/
+    ports:
+      - 5000:5000

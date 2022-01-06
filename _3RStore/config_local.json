@@ -1,0 +1,10 @@
+{
+    "DB":{
+        "USER": "local_user",
+        "PWD": "local-3rstore",
+        "HOST": "db",
+        "DATABASE": "main",
+        "PORT": 5432
+    },
+    "SECRET_KEY": "abcdefg"
+}
