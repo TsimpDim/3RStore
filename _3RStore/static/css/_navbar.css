@@ -21,12 +21,3 @@ nav {
 .active {
     border-bottom: 3px solid white;
 }
-
-.logo {
-    font-family: 'Caveat', cursive;
-    font-size: 2em;
-}
-
-.logo-first {
-    color: gold;
-}
