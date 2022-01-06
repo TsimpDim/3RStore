@@ -1,15 +1,32 @@
-a:focus { 
+a:focus {
     outline: none; 
+}
+
+.c-brand {
+    padding: 0;
 }
 
 .navbar-toggler:focus {
     outline: none;
 }
 
-nav{
+nav {
     margin-bottom: 2em;
+    padding: 0 !important;
+    font-family: 'Quicksand', sans-serif;
+    font-weight: 500;
+    width: 100%;
 }
 
-.active{
+.active {
     border-bottom: 3px solid white;
+}
+
+.logo {
+    font-family: 'Caveat', cursive;
+    font-size: 2em;
+}
+
+.logo-first {
+    color: gold;
 }

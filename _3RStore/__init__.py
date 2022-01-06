@@ -41,7 +41,7 @@ def addCommonHeaders(response):
     response.headers['X-Content-Type-Options'] = 'nosniff'
 
     # Tell the browser where it can load various types of resource from
-    response.headers['Content-Security-Policy'] = 'default-src \'self\' \'unsafe-inline\' https://stackpath.bootstrapcdn.com/bootstrap/ https://maxcdn.bootstrapcdn.com/font-awesome/ https://code.jquery.com https://npmcdn.com https://cdnjs.cloudflare.com/ajax/libs/popper.js/' 
+    response.headers['Content-Security-Policy'] = 'default-src \'self\' \'unsafe-inline\' https://stackpath.bootstrapcdn.com/bootstrap/ https://maxcdn.bootstrapcdn.com/font-awesome/ https://code.jquery.com https://npmcdn.com https://cdnjs.cloudflare.com/ajax/libs/popper.js/ https://fonts.googleapis.com/ https://fonts.gstatic.com/'
     return response
 
 app.config.from_object(__name__)
