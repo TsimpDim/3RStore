@@ -15,6 +15,10 @@
     margin-right: auto;
 }
 
+.form-container-extended {
+    max-width: 50%;
+}
+
 .form-container > span {
     text-align: center;
     font-size: 3em;

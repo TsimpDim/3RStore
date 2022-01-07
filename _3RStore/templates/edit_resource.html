@@ -1,20 +1,47 @@
 {% extends 'layout.html' %}
 
 {% block body %}
-<h1>Edit resource '{{title}}'</h1>
-{% from "includes/_formhelpers.html" import render_field %}
-<form method="POST" action="">
-    <div class="form-group">
-        {{ render_field(form.title, class_= "form-control") }}
-    </div>
-    <div class="form-group">
-        {{ render_field(form.link, class_= "form-control") }}
-    </div>
-    <div class="form-group">
-        {{ render_field(form.note, class_= "form-control") }}
-    </div>
-    <div class="form-group">
-            {{ render_field(form.tags, class_= "form-control", list="tag_list") }}
+<div class="form-container form-container-extended">
+    <span class="logo">Edit resource '{{title}}'</span>
+    {% from "includes/_formhelpers.html" import render_field_no_label %}
+    <form method="POST" action="">
+        <div class="form-group">
+            <div class="form-group">
+                <label>Title</label>
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text"><span class="fa fa-quote-left"></span></span>
+                    </div>
+                {{render_field_no_label(form.title, class_= "form-control")}}
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label>URL</label>
+            <div class="input-group">
+                <div class="input-group-prepend">
+                    <span class="input-group-text"><span class="fa fa-link"></span></span>
+                </div>
+            {{render_field_no_label(form.link, class_= "form-control")}}
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Note</label>
+            <div class="input-group">
+                <div class="input-group-prepend">
+                    <span class="input-group-text"><span class="fa fa-sticky-note"></span></span>
+                </div>
+            {{render_field_no_label(form.note, class_= "form-control")}}
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Tags</label>
+            <div class="input-group">
+                <div class="input-group-prepend">
+                    <span class="input-group-text"><span class="fa fa-tags"></span></span>
+                </div>
+            {{render_field_no_label(form.tags, class_= "form-control")}}
+            </div>
             <datalist id="tag_list">
                 {% for tag in tags %}
                 <option value="{{tag}}"></option>
@@ -22,6 +49,7 @@
             </datalist>
         </div>
 
-    <p><input type="submit" class="btn btn-primary" value="Submit"></p>
-</form>
+        <p><input type="submit" class="btn btn-primary" value="Submit"></p>
+    </form>
+</div>
 {% endblock %}
