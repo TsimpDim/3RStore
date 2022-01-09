@@ -58,63 +58,60 @@
             <button type="submit" class="btn btn-primary">Submit</button>
         </div>
     </form>
-    
-    
+{% endblock %}
 
-
-
-
-
-    {% for re in resources %}
-    <div class="card bg-primary re_cards">
-        
-        <div class="card-header d-flex flex-column justify-content-between" style="flex:1;min-width:0;">    
-            <div class="d-flex flex-row justify-content-between" style="flex:1;min-width:0;">
-                
-                <h4><a href="{{re.link}}" class="re_info" target="_blank">{{re.title}}</a></h4>
-
-                <!--Dropdown-->
-                <div class="res_dropdown align-self-start"> 
-                    <button class="btn btn-sm res_dropdown_but btn-primary  dropdown-toggle" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></button>
+{% block no_container %}
+    <div id="grid-container">
+        {% for re in resources %}
+        <div class="card bg-primary re_cards grid-item">
+            <div class="card-header d-flex flex-column justify-content-between" style="flex:1;min-width:0;">    
+                <div class="d-flex flex-row justify-content-between" style="flex:1;min-width:0;">
                     
-                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuLink">
-                        <a class="dropdown-item" href="/edit/{{re.user_id}}/{{re.re_id}}"><span class="fa fa-pencil"></span>  Edit</a>
-                        <button class="dropdown-item copy_link" data-link={{re.link}} data-id="{{re.re_id}}"><span class="fa fa-clone"> Copy Link</span></button>
-                        <a class="dropdown-item" id="delete_but" href="/del/{{re.user_id}}/{{re.re_id}}" ><span class="fa fa-remove"></span>  Delete</a>
-                        <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" id="date">Added {{re.date_of_posting.strftime('%Y-%m-%d')}}</a>
+                    <h4><a href="{{re.link}}" class="re_info" target="_blank">{{re.title}}</a></h4>
+
+                    <!--Dropdown-->
+                    <div class="res_dropdown align-self-start"> 
+                        <button class="btn btn-sm res_dropdown_but btn-primary  dropdown-toggle" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></button>
+                        
+                        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuLink">
+                            <a class="dropdown-item" href="/edit/{{re.user_id}}/{{re.re_id}}"><span class="fa fa-pencil"></span>  Edit</a>
+                            <button class="dropdown-item copy_link" data-link={{re.link}} data-id="{{re.re_id}}"><span class="fa fa-clone"></span> Copy Link</button>
+                            <a class="dropdown-item" id="delete_but" href="/del/{{re.user_id}}/{{re.re_id}}" ><span class="fa fa-remove"></span>  Delete</a>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item" id="date">Added {{re.date_of_posting.strftime('%Y-%m-%d')}}</a>
+                        </div>
                     </div>
+                    <!--/Dropdown-->
+
                 </div>
-                <!--/Dropdown-->
 
-            </div>
-               
-            <!-- Link -->
-            <a href="{{re.link}}" class="re_info" target="_blank">{{re.link}}</a>
+                <!-- Link -->
+                <a href="{{re.link}}" class="re_info" target="_blank">{{re.link}}</a>
 
-            <!-- Tags -->
-            {% if re.tags %}
-                <div>
-                    {% for tag in re.tags %}
-                        <button class="btn badge bg-secondary text-white re_tags" onclick="initTagSearch(event,this)">{{tag}}</button>
-                    {% endfor %}
-                </div>
-            {% endif %}
-        </div>
-            
-
-        <!-- Note section -->
-        {% if re.note %}
-            <div class="card-footer">
-                {% if re.note.split('\n') | length > 5  or re.note | length > 300 %} <!-- If note has more than 5 lines -->
-                    <button class="btn btn-info" type="button" data-toggle="collapse" data-target="#{{re.re_id}}_note">Expand/Collapse Note</button>
-                    <p id="{{re.re_id}}_note" class="collapse re_note"><br>{{ re.note }}</p>
-                {% else %}
-                    <p id="{{re.re_id}}_note" class="re_note">{{ re.note }}
-                    </p>
+                <!-- Tags -->
+                {% if re.tags %}
+                    <div>
+                        {% for tag in re.tags %}
+                            <button class="btn badge bg-secondary text-white re_tags" onclick="initTagSearch(event,this)">{{tag}}</button>
+                        {% endfor %}
+                    </div>
                 {% endif %}
             </div>
-        {% endif %}
-        </div>
-    {% endfor %}
+                
+
+            <!-- Note section -->
+            {% if re.note %}
+                <div class="card-footer">
+                    {% if re.note.split('\n') | length > 5  or re.note | length > 300 %} <!-- If note has more than 5 lines -->
+                        <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#{{re.re_id}}_note">note <span class="fa fa-chevron-down"></span></button>
+                        <p id="{{re.re_id}}_note" class="collapse re_note"><br>{{ re.note }}</p>
+                    {% else %}
+                        <p id="{{re.re_id}}_note" class="re_note">{{ re.note }}
+                        </p>
+                    {% endif %}
+                </div>
+            {% endif %}
+            </div>
+        {% endfor %}
+    </div>
 {% endblock %}

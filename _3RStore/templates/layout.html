@@ -15,7 +15,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Caveat&family=Quicksand&display=swap" rel="stylesheet"> 
     <link rel="stylesheet" href="/static/css/_shared.css">
-
+    
     {% if (request.endpoint == 'resources' or request.endpoint == 'open_share') and view == 'full' %} <!-- Keep after bootstrap css cdn -->
         <script src="/static/js/resources.js"></script>
         <link rel="stylesheet" href="/static/css/resources.css">
@@ -53,6 +53,8 @@
         {% include 'includes/_messages.html' %}
         {% block body %}{% endblock %}
     </div>
+
+    {% block no_container %}{% endblock %}
 
 </body>
 </html>    
