@@ -58,21 +58,19 @@
             <button type="submit" class="btn btn-primary">Submit</button>
         </div>
     </form>
-    
-    
+{% endblock %}
 
-
-
-
-
-    <div class="card bg-primary" id="cards_cont">
+{% block no_container %}
+    <div id="grid-container">
         {% for re in resources %}
+        <div class="card bg-primary grid-item">
+
             <div class="re_card" id="{{re.re_id}}">
                 <div class="card-header d-flex flex-row justify-content-between" >    
 
                     <div class="d-flex flex-column justify-content-center">
                         
-                        <h4><a href="{{re.link}}" class="re_info" target="_blank">{{re.title}}</a></h4>
+                        <h4><a href="{{re.link}}" class="re_info" target="_blank">{{re.title[0:30]}}...</a></h4>
 
                         <!-- Tags -->
                         {% if re.tags %}
@@ -87,27 +85,23 @@
 
 
                     <div class="d-flex flex-column">
-                        <!--Dropdown-->
-                        <div class="res_dropdown align-self-start ml-auto"> 
-                            <button class="btn btn-sm  btn-primary res_dropdown_but dropdown-toggle" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></button>
-                            
-                            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuLink">
-                                <a class="dropdown-item" href="/edit/{{re.user_id}}/{{re.re_id}}"><span class="fa fa-pencil"></span>  Edit</a>
-                                <button class="dropdown-item copy_link" data-link={{re.link}} data-id="{{re.re_id}}"><span class="fa fa-clone"> Copy Link</span></button>
-                                <a class="dropdown-item" id="delete_but" href="/del/{{re.user_id}}/{{re.re_id}}" ><span class="fa fa-remove"></span>  Delete</a>
-                                {% if re.note %}
-                                    <button class="dropdown-item show-note" data-id="{{re.re_id}}"><span class="fa fa-sticky-note"></span> Show note</button>
-                                {% endif %}
-                                <div class="dropdown-divider"></div>
-                                <a class="dropdown-item" id="date">Added {{re.date_of_posting.strftime('%Y-%m-%d')}}</a>
-                            </div>
+                    <!--Dropdown-->
+                    <div class="res_dropdown align-self-start"> 
+                        <button class="btn btn-sm res_dropdown_but btn-primary  dropdown-toggle" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></button>
+                        
+                        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuLink">
+                            <a class="dropdown-item" href="/edit/{{re.user_id}}/{{re.re_id}}"><span class="fa fa-pencil"></span>  Edit</a>
+                            <button class="dropdown-item copy_link" data-link={{re.link}} data-id="{{re.re_id}}"><span class="fa fa-clone"></span> Copy Link</button>
+                            <a class="dropdown-item" id="delete_but" href="/del/{{re.user_id}}/{{re.re_id}}" ><span class="fa fa-remove"></span>  Delete</a>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item" id="date">Added {{re.date_of_posting.strftime('%Y-%m-%d')}}</a>
                         </div>
-                        <!--/Dropdown-->
+                    </div>
+                    <!--/Dropdown-->
 
-
-                        {% if re.note %}
-                            <button class="btn btn-primary show-note show-note-prim" data-id="{{re.re_id}}"><span class="fa fa-sticky-note"></span></button>
-                        {% endif %}
+                    {% if re.note %}
+                        <button class="btn btn-primary show-note show-note-prim" data-id="{{re.re_id}}"><span class="fa fa-sticky-note"></span></button>
+                    {% endif %}
                     </div>
                 </div>
 
@@ -116,6 +110,7 @@
                     <div class="card-footer">{{re.note}}</div>
                 {% endif %}
             </div>
+        </div>
         {% endfor %}
     </div>
 {% endblock %}
