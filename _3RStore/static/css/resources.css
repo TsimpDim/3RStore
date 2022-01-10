@@ -1,67 +1,3 @@
-#res_panel{
-    margin-bottom: 3em;
-    margin-top: 1em;
-}
-
-#searchbar_cont{
-    width:50%;
-}
-
-.label{
-    letter-spacing: .1em;
-    font-weight: 100;
-}
-
-.up_but{
-    margin-bottom: 5em;
-}
-
-p{
-    word-wrap: break-word;        
-}
-
-
-
-#delete_but{
-    color: rgb(206, 48, 48);
-    font-weight: bold;
-}
-
-#date{
-    font-size:1em;
-    color: grey;
-    text-align: center;
-}
-
-#re_amount{
-    font-size:.4em;
-    color: grey;
-    font-style: italic;
-}
-
-.re_info{
-    color:white;
-
-    text-overflow: ellipsis;
-    overflow-wrap: break-word;
-    word-wrap: break-word;
-    word-break: break-word;
-    -ms-hyphens: auto;
-    -moz-hyphens: auto;
-    -webkit-hyphens: auto;
-    hyphens: auto;
-    
-    min-width:0;
-    
-    flex-shrink: 1;
-    flex-basis:5%;
-}
-
-.re_info, .re_info:hover, .re_info:active, .re_info:focus{
-    text-decoration: none;
-    color:white;
-}
-
 .re_cards{
     margin-bottom:1em;
 }
@@ -71,85 +7,19 @@ p{
     border: none !important;
 }
 
-.re_tags{
-    font-weight:400;
-    letter-spacing: .1em;
-}
-
-.res_dropdown_but{
-    border-color: #0054A0;
-    flex-grow:1;
-    background-color: rgb(24, 144, 255);
-}
-
-.dropdown-item {
-    font-family: 'Quicksand', sans-serif;
-}
-
-.res_dropdown{
-    margin-right: -1em;
-    margin-top: -.5em;
-}
-
 .card-footer{
     background: rgb(236, 236, 236) !important;
     border: none !important;
 }
 
-.re_note{
-    color:black;
-    margin-bottom:0;
-    white-space: pre-line;
-}
-
-#grid-container {
-    display: flex;
-    flex-direction: row;
-    flex-grow: 1;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    align-items: flex-start;
-    width: 80vw;
-    margin: 0 auto;
-}
-
-#grid-container > div {
-    background-color: rgb(24, 144, 255) !important;
-}
-
 .grid-item {
     width: 48%;
     margin: .5em;
-    transition: all .2s ease-in-out;
-    border: none;
-}
-
-.grid-item:hover {
-    box-shadow: 5px 5px 0px gold;
-}
-
-.form_item{
-    margin-bottom: 1em;
 }
 
 @media (max-width: 1000px){
     .grid-item {
         width: 100%;
-    }
-}
-
-@media (max-width: 800px){
-    .text_hide{
-        display:none;
-    }
-
-    #searchbar_cont{
-        width:100%;
-        margin-top: .5em;
-    }
-
-    #res_panel{
-        flex-wrap: wrap;
     }
 }
 

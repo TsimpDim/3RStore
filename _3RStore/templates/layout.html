@@ -19,9 +19,11 @@
     {% if (request.endpoint == 'resources' or request.endpoint == 'open_share') and view == 'full' %} <!-- Keep after bootstrap css cdn -->
         <script src="/static/js/resources.js"></script>
         <link rel="stylesheet" href="/static/css/resources.css">
+        <link rel="stylesheet" href="/static/css/_shared_resources.css">
     {% else %}
         <script src="/static/js/resources_cmpct.js"></script>
         <link rel="stylesheet" href="/static/css/resources_cmpct.css">
+        <link rel="stylesheet" href="/static/css/_shared_resources.css">
     {% endif %}
 
     {% if request.endpoint == 'options' %}

@@ -1,96 +1,15 @@
-#res_panel{
-    margin-bottom: 3em;
-    margin-top: 1em;
-}
-
-#searchbar_cont{
-    width:50%;
-}
-
-.label{
-    letter-spacing: .1em;
-    font-weight: 100;
-}
-
-.up_but{
-    margin-bottom: 5em;
-}
-
-p{
-    word-wrap: break-word;        
-}
-
-#delete_but{
-    color: rgb(206, 48, 48);
-    font-weight: bold;
-}
-
-#date{
-    font-size:1em;
-    color: grey;
-    text-align: center;
-}
-
-#re_amount{
-    font-size:.4em;
-    color: grey;
-    font-style: italic;
-}
-
 .re_info{
-    color:white;
-
-    text-overflow: ellipsis;
-    overflow-wrap: break-word;
-    word-wrap: break-word;
-    word-break: break-word;
-    -ms-hyphens: auto;
-    -moz-hyphens: auto;
-    -webkit-hyphens: auto;
-    hyphens: auto;
-    
-    min-width:0;
-    
-    flex-shrink: 1;
-    flex-basis:5%;
-
     margin-right: 1em;
     line-height: 1;
     display: block;
 }
 
-.re_info, .re_info:hover, .re_info:active, .re_info:focus{
-    text-decoration: none;
-    color:white;
-}
-
 .re_tags{
-    font-weight:400;
-    letter-spacing: .1em;
     display: inline;
-}
-
-.res_dropdown_but{
-    border-color: #0054A0;
-    flex-grow:1;
-}
-
-.res_dropdown{
-    margin-right: -1em;
-    margin-top: -.5em;
 }
 
 .card-footer{
     display:none;
-}
-
-.re_note{
-    color:black;
-    margin-bottom:0;
-}
-
-.form_item{
-    margin-bottom: 1em;
 }
 
 .show-note{
@@ -103,24 +22,11 @@ p{
     padding:0;
 }
 
-#cards_cont{
-    margin-bottom: 2em;
+.grid-item {
+    width: 30%;
+    margin: .2em;
 }
 
-@media (max-width: 800px){
-    .text_hide{
-        display:none;
-    }
-
-    #searchbar_cont{
-        width:100%;
-        margin-top: .5em;
-    }
-
-    #res_panel{
-        flex-wrap: wrap;
-    }
-}
 
 @media (max-width: 700px){
     .re_info{
