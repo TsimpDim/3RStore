@@ -1,35 +1,33 @@
 {% extends 'layout.html' %}
 {% block body %}
 
-<div class="card">
-    <div class="card-header bg-dark d-flex flex-row justify-content-start">
+    <div class="d-flex flex-row justify-content-start align-items-center">
         <form method="POST" action="undo_trash_res">
-            <button class="btn undo_btn" id="master_undo" type="submit" name="res_id" value="*"><span class="fa fa-undo"></span> Recover all</button>
+            <button class="btn btn-primary" id="master_undo" type="submit" name="res_id" value="*"><span class="fa fa-undo"></span> Recover all</button>
         </form>   
         <form method="POST" action="del_trash_res">
-            <button class="btn btn-danger undo_btn" type="submit" name="res_id" value="*"><span class="fa fa-times"></span> Delete all</button>
-        </form>  
+            <button class="btn btn-warning" id="master_del" type="submit" name="res_id" value="*"><span class="fa fa-times"></span> Delete all</button>
+        </form>
+        <h1 id="res_pg_header"><span id="re_amount" style="margin-left:1em">{{del_resources|length}} resources deleted.</span></h1>
     </div>
 
-
-    <ul class="list-group">
+    <div class="list-group">
         {% if is_empty %}
-            <li class="list-group-item">Trash is empty.</li>
+            <div class="list-group-item">Trash is empty.</div>
         {% else %}
             {% for res in del_resources %}
-                <li class="list-group-item d-flex flex-row justify-content-between align-items-center">
+                <div class="list-group-item d-flex flex-row justify-content-between align-items-center">
                     <h5 class="res_title">{{ res.title }}</h5>
                     <div class="d-flex flex-row justify-content-end">
                         <form method="POST" action="undo_trash_res">
-                            <button class="btn undo_btn" type="submit" name="res_id" value="{{ res.re_id }}"><span class="fa fa-undo"></span></button>
+                            <button class="btn entry-btn" type="submit" name="res_id" value="{{ res.re_id }}"><span class="fa fa-undo"></span></button>
                         </form>
                         <form method="POST" action="del_trash_res">
-                            <button class="btn btn-danger" type="submit" name="res_id" value="{{ res.re_id }}"><span class="fa fa-times"></span></button>
+                            <button class="btn btn-warning entry-btn" type="submit" name="res_id" value="{{ res.re_id }}"><span class="fa fa-times"></span></button>
                         </form>
                     </div>
-                </li>
+                </div>
             {% endfor %}
         {% endif %}
-    </ul>
 </div>
 {% endblock %}

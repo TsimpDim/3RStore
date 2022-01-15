@@ -1,6 +1,18 @@
-.undo_btn{margin-right: 0.5em;}
-
 button:focus {outline:0;}
+
+#master_undo {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+#master_del {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+.entry-btn {
+    margin-left: 0.5em;
+}
 
 .res_title{
     vertical-align: middle;
@@ -9,4 +21,9 @@ button:focus {outline:0;}
 
 #master_undo:hover{
     color:white;
+}
+
+.list-group {
+    font-family: 'Quicksand', sans-serif;
+    margin-top: 2em;
 }

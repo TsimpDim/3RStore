@@ -16,7 +16,6 @@
 
 .header_button:hover {
     box-shadow: 0px 5px 0px gold;
-
 }
 
 #searchbar_cont{
@@ -55,7 +54,7 @@ p{
 
 .re_info{
     color:white;
-
+    font-family: 'Quicksand', sans-serif;
     text-overflow: ellipsis;
     overflow-wrap: break-word;
     word-wrap: break-word;
