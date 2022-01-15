@@ -5,26 +5,26 @@
     Viewing {{resources|length}} resources.</span></h1>
     <hr>
 
-        <!-- Search bar-->
-        <div class="input-group" id="searchbar_cont" style="margin-bottom:2em;width:100%;">
-                <div class="input-group" style="width:inherit;">
-                    <div class="input-group-prepend">          
-                        <button type="button" class="btn btn-secondary" data-container="body" data-toggle="popover" data-placement="top" 
-                        data-content="Use the minus sign '-' to filter out tags.
-                        Use the wildcard '*' to select all tags for filtering.  
-                        e.g {music -pop} and {*-programming}.">
-                        <span class="fa fa-info"></span>
-                        </button>
-                    </div>
+    <!-- Search bar-->
+    <div class="input-group" id="searchbar_cont" style="margin-bottom:2em;width:100%;">
+        <div class="input-group" style="width:inherit;">
+            <div class="input-group-prepend">          
+                <button type="button" class="btn btn-secondary" data-container="body" data-toggle="popover" data-placement="top" 
+                data-content="Use the minus sign '-' to filter out tags.
+                Use the wildcard '*' to select all tags for filtering.  
+                e.g {music -pop} and {*-programming}.">
+                <span class="fa fa-info"></span>
+                </button>
+            </div>
 
-                    <input name="tags" list="tags" type="text" id="search_input" class="form-control" placeholder="Search via tags or title...">
-                    <datalist id="tags">
-                        {% for tag in tags %}
-                            <option value="{{tag}}" class="datalist_option" ></option>
-                        {% endfor %}
-                    </datalist>
-                </div>
+            <input name="tags" list="tags" type="text" id="search_input" class="form-control" placeholder="Search via tags or title...">
+            <datalist id="tags">
+                {% for tag in tags %}
+                    <option value="{{tag}}" class="datalist_option" ></option>
+                {% endfor %}
+            </datalist>
         </div>
+    </div>
     {% endblock %}
 
 

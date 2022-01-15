@@ -22,9 +22,3 @@
         width: 100%;
     }
 }
-
-@media (max-width: 360px){
-    #res_pg_header{
-        font-size: 2em;
-    }
-}

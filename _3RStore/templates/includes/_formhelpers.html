@@ -16,6 +16,7 @@
 {% macro render_field_no_label(field) %}
     {{ field(**kwargs)|safe }}
     {% if field.errors %}
+    <div style="width: 100%;">
         {% for error in field.errors %}
             <div class="form-text">
                 <span class="badge badge-warning" id="exclamation_cont">
@@ -24,5 +25,6 @@
                 {{ error }}
             </div>
         {% endfor %}
+    </div>
     {% endif %}
 {% endmacro %}

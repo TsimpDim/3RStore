@@ -2,62 +2,7 @@
 
 
 {% block body %}
-    <h1 id="res_pg_header">{{session.username}} <span id="re_amount"> - {{resources|length}} resources saved.</span></h1>
-    <hr>
-    <div class="d-sm-flex flex-row justify-content-sm-between" id="res_panel">
-        <div  class="btn-group mr-auto">
-            <a class="btn btn-success" href="/add_resource">
-                <span class="fa fa-plus-circle"></span>
-                <span class="text_hide">Add new resource</span>
-            </a>
-
-            <button class="btn btn-info" type="button" data-toggle="collapse" data-target="#upload_file">
-                <span class="fa fa-upload"></span>                
-                <span class="text_hide">Import from file</span>
-            </button>
-        </div>
-
-        <!-- Search bar-->
-        <div class="input-group" id="searchbar_cont">
-            <form method="POST" action="share" class="form-inline" style="width:100%;">
-                <div class="input-group" style="width:inherit;">
-                    <div class="input-group-prepend">
-                        <button type="button" class="btn btn-secondary" data-container="body" data-toggle="popover" data-placement="top" 
-                        data-content="Use the minus sign '-' to filter out tags.
-                        Use the wildcard '*' to select all tags for filtering.  
-                        e.g {music -pop} and {*-programming}.">
-                        <span class="fa fa-info"></span>
-                        </button>
-                    </div>
-
-                    <input name="tags" list="tags" type="text" id="search_input" class="form-control" placeholder="Search via tags or title...">
-                    <datalist id="tags">
-                        {% for tag in tags %}
-                            <option value="{{tag}}" class="datalist_option" ></option>
-                        {% endfor %}
-                    </datalist>
-
-                    <div class="input-group-append">
-                        <button class="btn btn-info input-group-btn" type="submit"><span class="fa fa-link"></span></button>
-                    </div>
-                </div>
-            </form>
-        </div>
-    </div>
-    
-    <form method="POST" action="/import_resources" enctype="multipart/form-data" id="upload_file"  class="collapse jumbotron form-group">
-        <label>Select file to import from</label>
-        <input class="form_item form-control-file" type="file" name="file" accept=".html">
-
-        <div class="ml-auto">
-            <input class="form_item form-control" type="text" name="incl" placeholder="Include only folder(s)...">
-            <input class="form_item form-control" type="text" name="excl" placeholder="Exclude folder(s)...">
-        </div>
-
-        <div class="col-2">
-            <button type="submit" class="btn btn-primary">Submit</button>
-        </div>
-    </form>
+    {% include 'includes/_resources_header.html' %}
 {% endblock %}
 
 {% block no_container %}

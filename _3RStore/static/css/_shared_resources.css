@@ -3,6 +3,22 @@
     margin-top: 1em;
 }
 
+#res_pg_header {
+    font-family: 'Quicksand', sans-serif;
+}
+
+.header_button {
+    font-family: 'Quicksand', sans-serif;
+    font-weight: bolder;
+    transition: all .2s ease-in-out;
+    border: none;
+}
+
+.header_button:hover {
+    box-shadow: 0px 5px 0px gold;
+
+}
+
 #searchbar_cont{
     width:50%;
 }
@@ -126,5 +142,11 @@ p{
 
     #res_panel{
         flex-wrap: wrap;
+    }
+}
+
+@media (max-width: 360px){
+    #res_pg_header{
+        font-size: 2em;
     }
 }
