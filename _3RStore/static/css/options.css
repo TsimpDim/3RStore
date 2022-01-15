@@ -1,4 +1,4 @@
-.card{
+.list-group {
     margin-bottom: 2em;
 }
 
@@ -6,8 +6,36 @@
     margin-right: .2em;
 }
 
-@media (max-width:768px){
-    .first_col_el{
-        margin-bottom: 1em;
+.options_section {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    align-content: flex-start;
+    justify-content: space-between;
+    align-items: start;
+    font-family: 'Quicksand', sans-serif;
+}
+
+.options_sub_section {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+
+    width: 100%;
+}
+
+.options_sub_section > div {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+}
+
+@media (max-width:1000px){
+    .options_sub_section {
+        flex-direction: column;
+    }
+
+    .options_sub_section > div {
+        margin: 1em;
     }
 }
