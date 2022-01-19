@@ -1,19 +1,20 @@
 {% extends 'layout.html' %}
 {% block body %}
-    <h1>Welcome to 3RStore</h1>
-    <p class="lead"><br>With this tool you can quickly store any links you want, to make them accessible from any device and any browser. </p>
+    <p class="logo" style="font-size: 3em;">Welcome to <span style="color: gold;">3</span>RStore!</p>
+    <p class="lead quicksand"><br>With this tool you can quickly store any links you want, to make them accessible from any device and any browser. </p>
     {% if session.logged_in == NULL %}
       <div class="form-group"> &nbsp;</div> <!-- Empty space -->
-      <div class="text-center"><h3>Start here</h3>
+      <div class="text-center quicksand"><h3>Start here</h3>
         <a href="/register" class="btn btn-primary btn-lg">Register</a>
         <a href="/login" class="btn btn-success btn-lg">Login</a>
       </div>
     {% else %}
       <div class="form-group"> &nbsp;</div> <!-- Empty space -->
-      <div class="text-center"><h3>View your</h3>
+      <div class="text-center quicksand"><h3>View your</h3>
         <a href="/resources" class="btn btn-primary btn-lg">Resources</a>
       </div>
   {% endif %}
     
-    <p><hr>This web app is written in <a href="https://www.python.org/">Python</a> using the <a href="http://flask.pocoo.org/">Flask</a> framework. For more information on the development and the status of this project you can visit the <a href="https://github.com/TsimpDim/3RStore">3RStore GitHub page.</a></p>
+    <hr />
+    <p  class="quicksand">This web app is written in <a href="https://www.python.org/">Python</a> using the <a href="http://flask.pocoo.org/">Flask</a> framework. For more information on the development and the status of this project you can visit the <a href="https://github.com/TsimpDim/3RStore">3RStore GitHub page.</a></p>
 {% endblock %}

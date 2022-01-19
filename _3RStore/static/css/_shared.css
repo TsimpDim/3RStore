@@ -19,6 +19,10 @@
     max-width: 50%;
 }
 
+.quicksand {
+    font-family: 'Quicksand', sans-serif;
+}
+
 .form-container > span {
     text-align: center;
     font-size: 3em;
