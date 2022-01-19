@@ -8,10 +8,10 @@
     <!-- Search bar-->
     <div class="input-group" id="searchbar_cont" style="margin-bottom:2em;width:100%;">
         <div class="input-group" style="width:inherit;">
-            <div class="input-group-prepend">          
-                <button type="button" class="btn btn-secondary" data-container="body" data-toggle="popover" data-placement="top" 
+            <div class="input-group-prepend">
+                <button type="button" class="btn btn-secondary" data-container="body" data-toggle="popover" data-placement="top"
                 data-content="Use the minus sign '-' to filter out tags.
-                Use the wildcard '*' to select all tags for filtering.  
+                Use the wildcard '*' to select all tags for filtering.
                 e.g {music -pop} and {*-programming}.">
                 <span class="fa fa-info"></span>
                 </button>
@@ -33,16 +33,16 @@
 
     {% for re in resources %}
     <div class="card bg-primary re_cards grid-item">
-        
-        <div class="card-header d-flex flex-column justify-content-between" style="flex:1;min-width:0;">    
+
+        <div class="card-header d-flex flex-column justify-content-between" style="flex:1;min-width:0;">
             <div class="d-flex flex-row justify-content-between" style="flex:1;min-width:0;">
-                
+
                 <h4><a href="{{re.link}}" class="re_info" target="_blank">{{re.title}}</a></h4>
 
                 <!--Dropdown-->
-                <div class="res_dropdown align-self-start"> 
+                <div class="res_dropdown align-self-start">
                     <button class="btn btn-sm res_dropdown_but btn-primary  dropdown-toggle" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></button>
-                    
+
                     <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuLink">
                         <button class="dropdown-item copy_link" data-link={{re.link}} data-id="{{re.re_id}}"><span class="fa fa-clone"></span> Copy Link</button>
                         <div class="dropdown-divider"></div>
@@ -52,7 +52,7 @@
                 <!--/Dropdown-->
 
             </div>
-               
+
             <!-- Link -->
             <a href="{{re.link}}" class="re_info" target="_blank">{{re.link}}</a>
 
@@ -65,7 +65,7 @@
                 </div>
             {% endif %}
         </div>
-            
+
 
         <!-- Note section -->
         {% if re.note %}

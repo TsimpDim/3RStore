@@ -1,29 +1,31 @@
-button:focus {outline:0;}
+button:focus {
+  outline: 0;
+}
 
 #master_undo {
-    border-top-right-radius: 0;
-    border-bottom-right-radius: 0;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
 }
 
 #master_del {
-    border-top-left-radius: 0;
-    border-bottom-left-radius: 0;
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
 }
 
 .entry-btn {
-    margin-left: 0.5em;
+  margin-left: 0.5em;
 }
 
-.res_title{
-    vertical-align: middle;
-    margin-top: .5em;
+.res_title {
+  vertical-align: middle;
+  margin-top: 0.5em;
 }
 
-#master_undo:hover{
-    color:white;
+#master_undo:hover {
+  color: white;
 }
 
 .list-group {
-    font-family: 'Quicksand', sans-serif;
-    margin-top: 2em;
+  font-family: "Quicksand", sans-serif;
+  margin-top: 2em;
 }

@@ -1,22 +1,22 @@
-#exclamation_cont{
-    font-size: 20px;
+#exclamation_cont {
+  font-size: 20px;
 }
 
-@media(max-width: 767px) {
-    #exclamation_cont{
-        font-size: 16px;
-    }
+@media (max-width: 767px) {
+  #exclamation_cont {
+    font-size: 16px;
+  }
 
-    .form-text{
-        font-size: 12px;
-    }
+  .form-text {
+    font-size: 12px;
+  }
 }
-@media(max-width: 480px) {
-    #exclamation_cont{
-        font-size: 12px;
-    }
+@media (max-width: 480px) {
+  #exclamation_cont {
+    font-size: 12px;
+  }
 
-    .form-text{
-        font-size: 10px;
-    }
+  .form-text {
+    font-size: 10px;
+  }
 }

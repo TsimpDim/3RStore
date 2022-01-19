@@ -6,15 +6,15 @@
 
   <div class="collapse navbar-collapse" id="navbarTogglerDemo02">
     <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
-        {% if request.endpoint == 'resources'%} 
+        {% if request.endpoint == 'resources'%}
         <li class="nav-item active">
         {% else %}
         <li class="nav-item">
         {% endif %}
-          <a class="nav-link" href="/resources">Resources <span class="sr-only">resources</span></a>  
+          <a class="nav-link" href="/resources">Resources <span class="sr-only">resources</span></a>
         </li>
 
-        {% if request.endpoint == 'options' %} 
+        {% if request.endpoint == 'options' %}
         <li class="nav-item active">
         {% else %}
         <li class="nav-item">
@@ -22,11 +22,11 @@
           <a class="nav-link " href="/options">Options <span class="sr-only">options</span></a>
         </li>
     </ul>
-    
+
     <ul class="navbar-nav navbar-right ml-auto">
       {% if session.logged_in %}
-      
-        {% if request.endpoint == 'deleted_res' %} 
+
+        {% if request.endpoint == 'deleted_res' %}
           <li class="nav-item active">
         {% else %}
           <li class="nav-item">

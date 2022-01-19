@@ -1,35 +1,35 @@
 a:focus {
-    outline: none; 
+  outline: none;
 }
 
 .c-brand {
-    padding: 0;
+  padding: 0;
 }
 
 .navbar-toggler:focus {
-    outline: none;
+  outline: none;
 }
 
 nav {
-    margin-bottom: 2em;
-    padding: 0 !important;
-    font-family: 'Quicksand', sans-serif;
-    font-weight: 500;
-    width: 100%;
-    box-shadow: 0 5px 0px rgb(24, 144, 255);
+  margin-bottom: 2em;
+  padding: 0 !important;
+  font-family: "Quicksand", sans-serif;
+  font-weight: 500;
+  width: 100%;
+  box-shadow: 0 5px 0px rgb(24, 144, 255);
 
-    color: #343a40;
+  color: #343a40;
 }
 
-li[class=nav-item]{
-    transition: all 200ms ease-in-out;
-    border-bottom: 3px solid #f8f9fa;
+li[class="nav-item"] {
+  transition: all 200ms ease-in-out;
+  border-bottom: 3px solid #f8f9fa;
 }
 
-li[class=nav-item]:hover {
-    border-bottom: 3px solid #343a40;
+li[class="nav-item"]:hover {
+  border-bottom: 3px solid #343a40;
 }
 
 .active {
-    border-bottom: 3px solid #343a40;
+  border-bottom: 3px solid #343a40;
 }

@@ -1,24 +1,24 @@
-.re_cards{
-    margin-bottom:1em;
+.re_cards {
+  margin-bottom: 1em;
 }
 
 .card-header {
-    border-radius: 0 !important;
-    border: none !important;
+  border-radius: 0 !important;
+  border: none !important;
 }
 
-.card-footer{
-    background: rgb(236, 236, 236) !important;
-    border: none !important;
+.card-footer {
+  background: rgb(236, 236, 236) !important;
+  border: none !important;
 }
 
 .grid-item {
-    width: 48%;
-    margin: .5em;
+  width: 48%;
+  margin: 0.5em;
 }
 
-@media (max-width: 1000px){
-    .grid-item {
-        width: 100%;
-    }
+@media (max-width: 1000px) {
+  .grid-item {
+    width: 100%;
+  }
 }

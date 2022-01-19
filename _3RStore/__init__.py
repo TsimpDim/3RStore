@@ -13,7 +13,7 @@ config_name = "config.json"
 if os.environ.get("LOCAL_EXEC"):
     config_name = "config_local.json"
 
-CONFIG = json.load(open(os.path.join(dir_path, config_name), 'r'))
+CONFIG = json.load(open(os.path.join(dir_path, config_name), "r"))
 
 
 # Add Access-Control-Allow-Origin Header
@@ -23,57 +23,65 @@ CORS(app, resources={r"/*": {"origins": "https://threerstore.herokuapp.com"}})
 @app.after_request
 def addCommonHeaders(response):
     # Changes the server name to something else other than the default one
-    response.headers['Server'] = '3R Store WS'
+    response.headers["Server"] = "3R Store WS"
 
     # Adds a touch of humor
-    response.headers['X-Hello-Human'] = 'Hi there human, my good old friend.'
+    response.headers["X-Hello-Human"] = "Hi there human, my good old friend."
 
     # Prevents external sites from embedding your site in an iframe
-    response.headers["X-Frame-Options"] = 'SAMEORIGIN'
+    response.headers["X-Frame-Options"] = "SAMEORIGIN"
 
     # The browser will try to prevent reflected XSS attacks
-    response.headers['X-XSS-Protection'] = '1; mode=block'
+    response.headers["X-XSS-Protection"] = "1; mode=block"
 
     # Tells the browser to convert all HTTP requests to HTTPS, preventing man-in-the-middle (MITM) attacks.
-    response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
+    response.headers[
+        "Strict-Transport-Security"
+    ] = "max-age=31536000; includeSubDomains"
 
     # Forces the browser to honor the response content type instead of trying to detect it
-    response.headers['X-Content-Type-Options'] = 'nosniff'
+    response.headers["X-Content-Type-Options"] = "nosniff"
 
     # Tell the browser where it can load various types of resource from
-    response.headers['Content-Security-Policy'] = 'default-src \'self\' \'unsafe-inline\' https://stackpath.bootstrapcdn.com/bootstrap/ https://maxcdn.bootstrapcdn.com/font-awesome/ https://code.jquery.com https://npmcdn.com https://cdnjs.cloudflare.com/ajax/libs/popper.js/ https://fonts.googleapis.com/ https://fonts.gstatic.com/'
+    response.headers[
+        "Content-Security-Policy"
+    ] = "default-src 'self' 'unsafe-inline' https://stackpath.bootstrapcdn.com/bootstrap/ https://maxcdn.bootstrapcdn.com/font-awesome/ https://code.jquery.com https://npmcdn.com https://cdnjs.cloudflare.com/ajax/libs/popper.js/ https://fonts.googleapis.com/ https://fonts.gstatic.com/"
     return response
+
 
 app.config.from_object(__name__)
 app.config.update(CONFIG)
 
 mail = Mail(app)
 
-if os.environ.get('DYNO'): # Only serve over HTTPS on Heroku
+if os.environ.get("DYNO"):  # Only serve over HTTPS on Heroku
     app.config.update(
-        SESSION_COOKIE_SECURE = True,
-        REMEMBER_COOKIE_SECURE = True,
-        SESSION_COOKIE_HTTPONLY = True,
-        REMEMBER_COOKIE_HTTPONLY = True,
-        SESSION_COOKIE_SAMESITE='Lax',
+        SESSION_COOKIE_SECURE=True,
+        REMEMBER_COOKIE_SECURE=True,
+        SESSION_COOKIE_HTTPONLY=True,
+        REMEMBER_COOKIE_HTTPONLY=True,
+        SESSION_COOKIE_SAMESITE="Lax",
     )
     sslify = SSLify(app, subdomains=True, permanent=True)
 
 
 # Connect to PostgreSQL
 # Read database properties for URI
-USER = CONFIG['DB']['USER']
-PASSWORD = CONFIG['DB']['PWD']
-HOST = CONFIG['DB']['HOST']
-NAME = CONFIG['DB']['DATABASE']
-PORT = CONFIG['DB']['PORT']
+USER = CONFIG["DB"]["USER"]
+PASSWORD = CONFIG["DB"]["PWD"]
+HOST = CONFIG["DB"]["HOST"]
+NAME = CONFIG["DB"]["DATABASE"]
+PORT = CONFIG["DB"]["PORT"]
 
 conn = None  # Declared here so we can use it later
 try:
     print("Connecting to database...")
 
-    conn = pg.connect(("dbname={} user={} host={} password={} port={}").format(
-        NAME, USER, HOST, PASSWORD, PORT))
+    conn = pg.connect(
+        ("dbname={} user={} host={} password={} port={}").format(
+            NAME, USER, HOST, PASSWORD, PORT
+        )
+    )
     cur = conn.cursor()
     cur.execute(
         """CREATE TABLE IF NOT EXISTS users (
@@ -83,7 +91,8 @@ try:
         password VARCHAR(100) NOT NULL,
         date_of_reg TIMESTAMP NOT NULL,
         PRIMARY KEY (id)
-        )""")
+        )"""
+    )
 
     cur.execute(
         """CREATE TABLE IF NOT EXISTS resources (
@@ -95,7 +104,8 @@ try:
         tags VARCHAR(40)[1],
         date_of_posting TIMESTAMP NOT NULL,
         PRIMARY KEY (re_id)
-        )""")
+        )"""
+    )
 
     cur.execute(
         """CREATE TABLE IF NOT EXISTS trash (
@@ -107,7 +117,8 @@ try:
         tags VARCHAR(40)[1],
         date_of_posting TIMESTAMP NOT NULL,
         PRIMARY KEY (re_id)
-        )""")
+        )"""
+    )
 
     cur.close()
     conn.commit()
