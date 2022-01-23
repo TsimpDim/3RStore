@@ -55,7 +55,13 @@ Since the project's file structure has changed, a simple
 
 will not suffice.
 
-### First way - Running the app with flask
+### Running the app with docker-compose
+
+It's heavily encouraged to run the project locally using docker-compose.
+Simply running `docker-compose up` should suffice. Afterwards, you should be
+able to access the site on `localhost:5000`.
+
+### Running the app with flask
 
 First you need to set the environment variable for the application.
 
@@ -95,7 +101,7 @@ _If you get an error regarding the build environment, set/export the `FLAK_ENV` 
 
 ---
 
-### Second way - Running the app with waitress
+### Running the app with waitress
 
 First run
 
@@ -106,64 +112,3 @@ Then go to
     http://127.0.0.1:8080/
 
 Ta-da!
-
-## File Structure
-
-<pre>
-├── _3RStore
-│   ├── static
-│   │   ├── css
-│   │   │   ├── deleted_resources.css
-│   │   │   ├── _navbar.css
-│   │   │   ├── options.css
-│   │   │   ├── register.css
-│   │   │   ├── resources_cmpct.css
-│   │   │   └── resources.css
-│   │   ├── icons
-│   │   │   ├── 3rstore_logo.png
-│   │   │   ├── android-chrome-192x192.png
-│   │   │   ├── android-chrome-512x512.png
-│   │   │   ├── apple-touch-icon.png
-│   │   │   ├── browserconfig.xml
-│   │   │   ├── favicon-16x16.png
-│   │   │   ├── favicon-32x32.png
-│   │   │   ├── favicon.ico
-│   │   │   ├── mstile-150x150.png
-│   │   │   ├── safari-pinned-tab.svg
-│   │   │   └── site.webmanifest
-│   │   └── js
-│   │       ├── resources_cmpct.js
-│   │       └── resources.js
-│   ├── templates
-│   │   ├── includes
-│   │   │   ├── _formhelpers.html
-│   │   │   ├── _messages.html
-│   │   │   └── _navbar.html
-│   │   ├── add_resource.html
-│   │   ├── chng_password.html
-│   │   ├── deleted_resources.html
-│   │   ├── edit_resource.html
-│   │   ├── email_pwd_reset.html
-│   │   ├── error.html
-│   │   ├── home.html
-│   │   ├── layout.html
-│   │   ├── login.html
-│   │   ├── options.html
-│   │   ├── register.html
-│   │   ├── reset_password_start.html
-│   │   ├── resources_cmpct.html
-│   │   ├── resources_public.html
-│   │   └── resources.html
-│   ├── classes.py
-│   ├── config.json
-│   ├── errors.py
-│   ├── forms.py
-│   ├── __init__.py
-│   └── views.py
-├── .gitignore
-├── Procfile
-├── readme.md
-├── requirements.txt
-├── server.py
-└── setup.py
-<pre>
