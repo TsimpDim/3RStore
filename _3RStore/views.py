@@ -1,3 +1,4 @@
+import json
 from time import time
 import datetime
 from _3RStore import app, conn, mail
@@ -849,7 +850,34 @@ def import_resources():
     return redirect(url_for("resources"))
 
 
-# Export resources
+# Export resources JSON
+@app.route("/export_to_json")
+def export_to_json():
+    # Get all of the user's resources
+    cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+    user_id = session["user_id"]
+
+    cur.execute(
+        (
+            """SELECT title, link, tags FROM resources WHERE user_id = %s ORDER BY tags"""
+        ),
+        (user_id,),
+    )
+
+    user_resources_json = json.dumps(cur.fetchall(), indent=2)
+
+    # Save text to byte object
+    strIO = BytesIO()
+    strIO.write(str.encode(user_resources_json))
+    strIO.seek(0)
+
+    # Send html file to client
+    return send_file(
+        strIO, attachment_filename="3RStore_export.json", as_attachment=True
+    )
+
+
+# Export resources HTML
 @app.route("/export_to_html")
 def export_to_html():
     def base_html():
@@ -1167,8 +1195,8 @@ def share():
 
         tags_str = ",".join(tags).strip()
 
-        if not tags:
-            flash("No tags selected. Can't share.", "danger")
+        if not tags or not tags_str or tags_str == "":
+            flash(f"No tags selected. Can't share.", "danger")
             return redirect(url_for("resources"))
 
         if use_filters and (filters == tags or all(fil in tags for fil in filters)):
@@ -1183,7 +1211,7 @@ def share():
 
         tags_used = cur.fetchall()
         # 'Unpack' tags_raw into one array
-        tags_used_clean = []
+        tags_used_clean = ["*"]
         for tag_arr in tags_used:
             tags_used_clean.append(tag_arr[0])
 
@@ -1242,11 +1270,17 @@ def share():
 def open_share(token):
 
     use_filters = False
+    all_tags = False
     try:
         serializer = URLSafeTimedSerializer(app.config["SECRET_KEY"])
         data = serializer.loads(token, salt="share-salt", max_age=259200)  # 3 days
         user_id = data[0]
-        tags = "{" + data[1] + "}"
+
+        if data[1] == "*":
+            all_tags = True
+            tags = "*"
+        else:
+            tags = "{" + data[1] + "}"
 
         if data[2]:
             use_filters = True
@@ -1259,24 +1293,42 @@ def open_share(token):
     cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
 
     if use_filters:
-        cur.execute(
-            """SELECT * FROM resources
-                    WHERE user_id= %s
-                        AND tags @> %s
-                        AND NOT tags @> %s
-                        AND tags IS NOT NULL
-                    ORDER BY date_of_posting DESC""",
-            (user_id, tags, filters),
-        )
+        if all_tags:
+            cur.execute(
+                """SELECT * FROM resources
+                        WHERE user_id= %s
+                            AND NOT tags @> %s
+                            AND tags IS NOT NULL
+                        ORDER BY date_of_posting DESC""",
+                (user_id, filters),
+            )
+        else:
+            cur.execute(
+                """SELECT * FROM resources
+                        WHERE user_id= %s
+                            AND tags @> %s
+                            AND NOT tags @> %s
+                            AND tags IS NOT NULL
+                        ORDER BY date_of_posting DESC""",
+                (user_id, tags, filters),
+            )
 
     else:
-        cur.execute(
-            """SELECT * FROM resources
-                    WHERE user_id= %s
-                        AND tags @> %s
-                    ORDER BY date_of_posting DESC""",
-            (user_id, tags),
-        )
+        if all_tags:
+            cur.execute(
+                """SELECT * FROM resources
+                        WHERE user_id= %s
+                        ORDER BY date_of_posting DESC""",
+                (user_id,),
+            )
+        else:
+            cur.execute(
+                """SELECT * FROM resources
+                        WHERE user_id= %s
+                            AND tags @> %s
+                        ORDER BY date_of_posting DESC""",
+                (user_id, tags),
+            )
 
     resources = cur.fetchall()
 

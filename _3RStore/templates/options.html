@@ -19,7 +19,8 @@
                         <form action="/delall" method="POST">
                             <button id="delete_all" class="dropdown-item" type="submit">
                                 <span class="fa fa-check"></span>
-                                Confirm</a></li>
+                                Confirm
+                            </button>
                         </form>
                     </div>
                 </div>
@@ -38,7 +39,8 @@
                             <div class="dropdown-menu">
                                 <button class="dropdown-item" type="submit">
                                     <span class="fa fa-check"></span>
-                                    Confirm</button></li>
+                                    Confirm
+                                </button>
                             </div>
                         </div>
 
@@ -113,7 +115,8 @@
                             <div class="dropdown-menu">
                                 <button class="dropdown-item" type="submit">
                                     <span class="fa fa-check"></span>
-                                    Confirm</button></li>
+                                    Confirm
+                                </button>
                             </div>
                         </div>
 
@@ -140,7 +143,8 @@
                             <div class="dropdown-menu">
                                 <button class="dropdown-item" type="submit">
                                     <span class="fa fa-check"></span>
-                                    Confirm</button></li>
+                                    Confirm
+                                </button>
                             </div>
                         </div>
 
@@ -183,10 +187,23 @@
     <div class="list-group-item options_section">
         <h3>Export</h3>
         <div class="options_sub_section">
-            <a href="/export_to_html" class="btn btn-secondary">
-                <span class="fa fa-save"></span>
-                Export to HTML
-            </a>
+            <div class="dropdown">
+                <button class="btn btn-secondary" data-toggle="dropdown"> Export
+                    <span class="fa fa-download"></span>
+                </button>
+
+                <div class="dropdown-menu">
+                    <a href="/export_to_html" class="dropdown-item">
+                        <span class="fa fa-save"></span>
+                        to HTML
+                    </a>
+
+                    <a href="/export_to_json" class="dropdown-item">
+                        <span class="fa fa-save"></span>
+                        to JSON
+                    </a>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -214,9 +231,10 @@
 
                     <div class="dropdown-menu">
                         <form action="/delacc" method="POST">
-                        <button id="delete_acc" class="dropdown-item" type="submit">
-                            <span class="fa fa-check"></span>
-                            Confirm</a></li>
+                            <button id="delete_acc" class="dropdown-item" type="submit">
+                                <span class="fa fa-check"></span>
+                                Confirm
+                            </button>
                         </form>
                     </div>
                 </div>
