@@ -9,6 +9,7 @@ Flask == 1.0.2
 # _3RStore/__init__.py: 5
 Flask-Cors>=3.0.9
 
+Jinja2==3.0
 
 # _3RStore/__init__.py: 4
 # _3RStore/views.py: 8
